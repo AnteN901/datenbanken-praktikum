@@ -1,12 +1,18 @@
 <template>
   <div>
     <h1>Create a User Account</h1>
-    <form @submit.prevent>
+    <form @submit.prevent="createAccount">
       <!-- Username Input -->
       <div>
-        <label for="username">Username:</label>
-        <input type="text" id="username" v-model="username" required />
+        <label for="firstName">First name:</label>
+        <input type="text" id="firstName" v-model="firstName" required />
       </div>
+
+      <div>
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" v-model="LastName" required />
+      </div>
+
 
       <!-- Password Input -->
       <div>
@@ -38,20 +44,44 @@
   </div>
 </template>
 
-  
-  <script setup>
-  import { ref, reactive } from 'vue';
-  const username = ref('');
-  const password = ref('');
-  const address = reactive({
-    postcode: '',
-    street: '',
-    city: '',
-    houseNumber: ''
-  });
-  </script>
-  
-  <style scoped>
-  /* Add component-specific styles here if needed */
-  </style>
-  
+<script setup>
+import { ref, reactive } from 'vue';
+import axios from 'axios';
+
+const firstName = ref('');
+const lastName = ref('');
+const password = ref('');
+const address = reactive({
+  postcode: '',
+  street: '',
+  city: '',
+  houseNumber: ''
+});
+
+const createAccount = async () => {
+  try {
+    console.log('Address:', address);
+    const response = await axios.post('http://localhost:3000/create-customer', {
+      firstName: firstName.value,
+      lastName: lastName.value,
+      password: password.value,
+      address: {
+        postcode: address.postcode,
+        street: address.street,
+        city: address.city,
+        houseNumber: address.houseNumber
+      }
+    });
+
+    // Handle the response if needed
+    console.log('Response:', response.data);
+  } catch (error) {
+    // Handle errors
+    console.error('Error:', error);
+  }
+};
+</script>
+
+<style scoped>
+/* Add component-specific styles here if needed */
+</style>

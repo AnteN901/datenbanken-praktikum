@@ -1,9 +1,14 @@
 const sqlite3 = require('sqlite3').verbose();
 const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+
 const app = express();
 
-// Connect to the existing SQLite database
-const db = new sqlite3.Database('./backend/LSDatabase.db', (err) => {
+app.use(cors());
+app.use(bodyParser.json());
+
+const db = new sqlite3.Database('./LSDatabase.db', (err) => {
   if (err) {
     console.error(err.message);
   } else {
@@ -11,9 +16,32 @@ const db = new sqlite3.Database('./backend/LSDatabase.db', (err) => {
   }
 });
 
-// Your express server setup goes here
+app.post('/create-customer', (req, res) => {
+  console.log('Request received');
 
-// Close the database connection when the server is closed
+  const { firstName, lastName, address, password } = req.body;
+  const { postcode, street, city, houseNumber } = address;
+
+  const insertQuery = `
+    INSERT INTO customers (first_name, last_name, address, postal_code, password)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+
+  db.run(
+    insertQuery,
+    [firstName, lastName, JSON.stringify(address), postcode, password],
+    (err) => {
+      if (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Failed to create customer account' });
+      } else {
+        console.log('Customer account created successfully');
+        res.json({ success: true });
+      }
+    }
+  );
+});
+
 process.on('SIGINT', () => {
   db.close((err) => {
     if (err) {
@@ -25,7 +53,6 @@ process.on('SIGINT', () => {
   });
 });
 
-// Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
