@@ -8,28 +8,72 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const db = new sqlite3.Database('./LSDatabase.db', (err) => {
+const db = new sqlite3.Database('./backend/LSDatabase.db', (err) => {
   if (err) {
     console.error(err.message);
   } else {
     console.log('Connected to the existing SQLite database');
+    
   }
 });
 
-app.post('/create-customer', (req, res) => {
-  console.log('Request received');
+const createCustomerTable = `
+  CREATE TABLE IF NOT EXISTS customers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    userName TEXT,
+    first_name TEXT,
+    last_name TEXT,
+    address TEXT,
+    postal_code TEXT,
+    password TEXT
+  )
+`;
 
-  const { firstName, lastName, address, password } = req.body;
+db.run(createCustomerTable, (err) => {
+  if (err) {
+    console.error(err.message);
+  } else {
+    console.log('Table "customers" created or already exists');
+  }
+});
+
+const createShopTable = `
+  CREATE TABLE IF NOT EXISTS shop (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    shop_name TEXT,
+    address TEXT,
+    postal_code TEXT,
+    city TEXT
+    password TEXT
+  )
+`;
+
+db.run(createShopTable, (err) => {
+  if (err) {
+    console.error(err.message);
+  } else {
+    console.log('Table "shop" created or already exists');
+  }
+});
+
+
+
+app.post('/create-customer', (req, res) => {
+  console.log('create customer Request received');
+
+  const {userName, firstName, lastName, address, password } = req.body;
   const { postcode, street, city, houseNumber } = address;
 
   const insertQuery = `
-    INSERT INTO customers (first_name, last_name, address, postal_code, password)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO customers (userName, first_name, last_name, address, postal_code, password)
+    VALUES (?, ?, ?, ?, ?, ?)
   `;
+
+  
 
   db.run(
     insertQuery,
-    [firstName, lastName, JSON.stringify(address), postcode, password],
+    [userName, firstName, lastName, JSON.stringify(address), postcode, password],
     (err) => {
       if (err) {
         console.error(err.message);
@@ -40,6 +84,29 @@ app.post('/create-customer', (req, res) => {
       }
     }
   );
+});
+
+app.post('/logIn', (req,res) =>{
+  console.log('request For LogIn recieved');
+  const {userName,password} = req.body;
+
+  const query = 'SELECT * FROM customers WHERE userName = ? AND password = ?';
+  db.get(query, [userName,password] ,(err,row) => {
+    if (err) {
+      console.error(err.message);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      if (row) {
+      console.log('Success LogIn');
+      res.json({ success: true, message: 'Login successful' });
+      }
+      else{
+        console.log('userName und Password invalid')
+        res.status(401).json({ error: 'Invalid username or password' });
+      }
+    }
+  });
+
 });
 
 process.on('SIGINT', () => {

@@ -2,7 +2,12 @@
   <div>
     <h1>Create a User Account</h1>
     <form @submit.prevent="createAccount">
-      <!-- Username Input -->
+      <!-- userName Input -->
+      <div>
+        <label for="userName">User name:</label>
+        <input type="text" id="userName" v-model="userName" required />
+      </div>
+
       <div>
         <label for="firstName">First name:</label>
         <input type="text" id="firstName" v-model="firstName" required />
@@ -10,7 +15,7 @@
 
       <div>
         <label for="lastName">Last Name:</label>
-        <input type="text" id="lastName" v-model="LastName" required />
+        <input type="text" id="lastName" v-model="lastName" required />
       </div>
 
 
@@ -47,7 +52,7 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import axios from 'axios';
-
+const userName = ref('');
 const firstName = ref('');
 const lastName = ref('');
 const password = ref('');
@@ -58,10 +63,11 @@ const address = reactive({
   houseNumber: ''
 });
 
-const createAccount = async () => {
+const createAccount = async() => {
   try {
     console.log('Address:', address);
     const response = await axios.post('http://localhost:3000/create-customer', {
+      userName: userName.value,
       firstName: firstName.value,
       lastName: lastName.value,
       password: password.value,
