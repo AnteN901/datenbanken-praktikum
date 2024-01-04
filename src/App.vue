@@ -1,10 +1,25 @@
+<script setup>
+import { useCustomerStore } from '@/stores/CustomerStore';
+const customerStore = useCustomerStore();
+
+const logOut = () => {
+  customerStore.userName = '';
+  customerStore.isLoggedIn = false;
+};
+
+</script>
+
+
 <template>
   <div>
     <nav>
       <router-link to="/">Home</router-link> |
-      <router-link to="/login">User Login</router-link> |
-      <router-link to="/register">User Register</router-link>
+      <router-link to="/register">User Register</router-link> |
+      <router-link v-model="customerStore" v-if="!customerStore.getIsLoggedIn" to="/login" >User Login</router-link>
+      <button v-else class="logOut" @click="logOut">Log Out</button> 
+      
     </nav>
+    
     <router-view />
   </div>
 </template>

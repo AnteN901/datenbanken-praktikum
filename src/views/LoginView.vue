@@ -3,18 +3,22 @@
     <h1>User Login</h1>
     <form @submit.prevent="login">
       <label for="userName">userName:</label>
-      <input type="text" id="userName" v-model="userName" required />
+      <input type="text" placeholder="Benutzername" id="userName" v-model="userName" required />
       <label for="password">Password:</label>
-      <input type="password" id="password" v-model="password" required />
+      <input type="password" placeholder="Passwort" id="password" v-model="password" required />
       <button type="submit">Login</button>
-    </form>
+       </form>
+       
   </div>
+  
 </template>
 
  <script setup>
-import { ref, reactive } from 'vue';
+import { ref } from 'vue';
 import axios from 'axios';
+import { useCustomerStore } from '@/stores/CustomerStore';
 
+const customerStore = useCustomerStore();
 const userName = ref('');
 const password = ref('');
 
@@ -25,10 +29,13 @@ const login = async() => {
   {userName: userName.value, 
    password: password.value
   });
-   console.log('response nach await',response.data);
    if (response.data.success) {
+      customerStore.$state.userName = userName;
+      customerStore.$state.isLoggedIn = true;
       console.log('Login successful');
-      // Redirect to another page, update state, or perform other actions on success
+      // Clear the input fields
+      userName.value = '';
+      password.value = '';
     } else {
       console.log('Login failed:', response.data.error);
       // Handle login failure, e.g., show an error message to the user
@@ -38,6 +45,7 @@ const login = async() => {
     console.error('Error:', error.message);
     // Show an appropriate error message to the user
   }
+  
   
 };
 </script>

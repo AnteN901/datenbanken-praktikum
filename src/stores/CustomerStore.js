@@ -1,19 +1,28 @@
 import { defineStore } from 'pinia';
+import { reactive } from 'vue';
 
 export const useCustomerStore = defineStore('CustomerStore', {
-    state: () => ({
-      userName: null
+    state: () => reactive ({
+      userName: '',
+      isLoggedIn: false
+
     }),
   
     getters: {
       // Getter für die Anzahl der Produkte
-      getuserName: (state) => state.userName
+      getUserName: (state) => state.userName,
+      getIsLoggedIn: (state) => state.isLoggedIn
       },
   
     actions: {
       // Aktion, um ein neues Produkt hinzuzufügen
-      setuserName(userName) {
+      setUserName(userName) {
         state.userName.push(userName);
-      },
+        },
+     setIsLoggedIn(isLoggedIn)
+     {
+        state.isLoggedIn = isLoggedIn;
+     }
     },
+
   });
