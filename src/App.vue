@@ -19,7 +19,6 @@ const logOut = () => {
       <button v-else class="logOut" @click="logOut">Log Out</button> 
       
     </nav>
-    
     <router-view />
   </div>
 </template>
