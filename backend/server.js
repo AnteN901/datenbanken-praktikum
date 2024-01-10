@@ -16,7 +16,7 @@ const db = new sqlite3.Database('./backend/LSDatabase.db', (err) => {
     
   }
 });
-
+/*
 const createCustomerTable = `
   CREATE TABLE IF NOT EXISTS customers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,7 +55,7 @@ db.run(createShopTable, (err) => {
     console.log('Table "shop" created or already exists');
   }
 });
-
+*/
 
 
 app.post('/create-customer', (req, res) => {

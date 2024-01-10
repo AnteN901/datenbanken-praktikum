@@ -7,6 +7,7 @@
       <label for="password">Password:</label>
       <input type="password" placeholder="Passwort" id="password" v-model="password" required />
       <button type="submit">Login</button>
+      
        </form>
        
   </div>
@@ -17,8 +18,10 @@
 import { ref } from 'vue';
 import axios from 'axios';
 import { useCustomerStore } from '@/stores/CustomerStore';
+import { loadRouteLocation, useRouter } from 'vue-router';
 
 const customerStore = useCustomerStore();
+const router = useRouter();
 const userName = ref('');
 const password = ref('');
 
@@ -30,12 +33,15 @@ const login = async() => {
    password: password.value
   });
    if (response.data.success) {
-      customerStore.$state.userName = userName;
-      customerStore.$state.isLoggedIn = true;
+      customerStore.userName = userName;
+      customerStore.isLoggedIn = true;
       console.log('Login successful');
-      // Clear the input fields
-      userName.value = '';
-      password.value = '';
+
+      // Jump to Main-Site
+      router.push('/');
+      
+      
+      
     } else {
       console.log('Login failed:', response.data.error);
       // Handle login failure, e.g., show an error message to the user
