@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const db = new sqlite3.Database('./backend/LSDatabase.db', (err) => {
+const db = new sqlite3.Database('./LSDatabase.db', (err) => {
   if (err) {
     console.error(err.message);
   } else {
