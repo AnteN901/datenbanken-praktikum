@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const db = new sqlite3.Database('./LSDatabase.db', (err) => {
+const db = new sqlite3.Database('./backend/LSDatabase.db', (err) => {
   if (err) {
     console.error(err.message);
   } else {
@@ -65,7 +65,7 @@ app.post('/create-customer', (req, res) => {
   const { postcode, street, city, houseNumber } = address;
 
   const insertQuery = `
-    INSERT INTO customers (userName, first_name, last_name, address, postal_code, password)
+    INSERT INTO customers (username, first_name, last_name, address, postal_code, password)
     VALUES (?, ?, ?, ?, ?, ?)
   `;
 
