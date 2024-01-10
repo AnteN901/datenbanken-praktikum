@@ -2,10 +2,10 @@
     <div>
       <h1>Create a Restaurant Account</h1>
       <form @submit.prevent>
-        <!-- Username Input -->
+        <!-- userName Input -->
         <div>
-          <label for="username">Username:</label>
-          <input type="text" id="username" v-model="username" required />
+          <label for="userName">userName:</label>
+          <input type="text" id="userName" v-model="userName" required />
         </div>
   
         <!-- Password Input -->
@@ -46,7 +46,7 @@
   
   <script setup>
   import { ref, reactive } from 'vue';
-  const username = ref('');
+  const userName = ref('');
   const password = ref('');
   const address = reactive({
     postcode: '',
