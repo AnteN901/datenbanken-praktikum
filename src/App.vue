@@ -15,11 +15,12 @@ const logOut = () => {
     <nav>
       <router-link to="/">Home</router-link> |
       <router-link v-if="!customerStore.isLoggedIn" to="/register">User Register</router-link> |
-      <router-link v-model="customerStore" v-if="!customerStore.getIsLoggedIn" to="/login" >User Login</router-link>
+      <router-link v-if="!customerStore.getIsLoggedIn" to="/login" >User Login</router-link>
       <button v-else class="logOut" @click="logOut">Log Out</button> 
       </nav>
     <router-view />
   </div>
+
 </template>
 
 
@@ -44,4 +45,5 @@ nav a {
 nav a.router-link-exact-active {
   color: #42b983;
 }
+
 </style>

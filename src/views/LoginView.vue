@@ -7,7 +7,7 @@
       <label for="password">Password:</label>
       <input type="password" placeholder="Passwort" id="password" v-model="password" required />
       <button type="submit">Login</button>
-      
+      <text>{{ meldung }}</text>
        </form>
        
   </div>
@@ -24,6 +24,7 @@ const customerStore = useCustomerStore();
 const router = useRouter();
 const userName = ref('');
 const password = ref('');
+const meldung = ref('');
 
 const login = async() => {
   try{
@@ -49,6 +50,7 @@ const login = async() => {
   } catch (error) {
     // Handle network errors or other issues
     console.error('Error:', error.message);
+    meldung.value = 'Benutzername oder Passwort falsch!';
     // Show an appropriate error message to the user
   }
   
