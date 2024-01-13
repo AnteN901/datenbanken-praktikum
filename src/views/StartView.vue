@@ -1,13 +1,28 @@
-<script setup></script>
+<script setup>
+import axios from 'axios';
+import { onMounted, ref } from 'vue';
+import restaurantCard from '@/components/restaurantCard.vue'
+const restaurants = ref([]);
+
+const getRestaurants = async () => {
+  try {
+    const response = await axios.get('http://localhost:3000/getRestaurants'); 
+    restaurants.value = response.data;
+  } catch (error) {
+    console.error('Error fetching restaurant data:', error);
+  }
+};
+
+onMounted(() => {
+  getRestaurants();
+});
+</script>
 
 <template>
   <div class="start">
       <img alt="Vue logo" src="../assets/logo.png" />
-
-      <div class="restaurant_card">
-      <img src="/img/Firefox.png" alt="Bild" />
-      <h2>Titel der Karte</h2>
-      <p>Ein kurzer Text oder eine Beschreibung, die in der Karte steht.</p>
+      <div v-for="restaurant in restaurants" :key="restaurant.id">
+      <restaurant-card :restaurant="restaurant" />
     </div>
   </div>
   

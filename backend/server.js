@@ -109,6 +109,19 @@ app.post('/logIn', (req,res) =>{
 
 });
 
+app.get('/getRestaurants', (req, res) => { 
+  console.log('Request for Restaurants revieced');
+  const query = 'SELECT * FROM restaurants';
+  db.all(query, (err, rows) => {
+    if (err) {
+      console.error(err.message);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      res.json(rows);
+    }
+  });
+});
+
 process.on('SIGINT', () => {
   db.close((err) => {
     if (err) {
