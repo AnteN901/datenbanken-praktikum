@@ -23,42 +23,50 @@
   </template>
   
   
-   <script setup>
-  import { ref } from 'vue';
+  <script setup>
+  import { ref, watch } from 'vue';
   import axios from 'axios';
   import { useCustomerStore } from '@/stores/CustomerStore';
+  import { useRouter } from 'vue-router';
   
   const customerStore = useCustomerStore();
+  const router = useRouter();
   const userName = ref('');
   const password = ref('');
+  const isLoggedIn = ref(false);
+  // Watch for changes in isLoggedIn state
+  watch(() => isLoggedIn, (isLoggedIn) => {
+    if (isLoggedIn) {
+      console.log('Redirecting to home...');
+      router.push('/'); // Redirect to the home page or another route as needed
+    }
+  });
   
   const login = async() => {
-    try{
-    console.log("Logging in..."); // Use the console object to log the message
-    const response = await axios.post('http://localhost:3000/logIn', 
-    {userName: userName.value, 
-     password: password.value
-    });
-     if (response.data.success) {
-        customerStore.$state.userName = userName;
-        customerStore.$state.isLoggedIn = true;
-        console.log('Login successful');
-        // Clear the input fields
-        userName.value = '';
-        password.value = '';
+    try {
+      console.log("Logging in...");
+      const response = await axios.post('http://localhost:3000/logIn', {
+        userName: userName.value, 
+        password: password.value
+      });
+  
+      if (response.data.success) {
+        customerStore.$state.userName = userName.value; // Ensure you're setting the value, not the ref
+        isLoggedIn.value = true;
+        customerStore.$state.isLoggedIn = isLoggedIn;
+        // userName.value = ''; // You might not want to clear this immediately if you are redirecting
+        // password.value = '';
       } else {
         console.log('Login failed:', response.data.error);
-        // Handle login failure, e.g., show an error message to the user
+        // Handle login failure
       }
     } catch (error) {
-      // Handle network errors or other issues
       console.error('Error:', error.message);
-      // Show an appropriate error message to the user
+      // Handle network errors or other issues
     }
-    
-    
   };
   </script>
+  
 <style scoped>
 .form-container {
   display: flex;
