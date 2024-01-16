@@ -1,8 +1,11 @@
 <script setup>
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
-import restaurantCard from '@/components/restaurantCard.vue'
+import RestaurantCard from '@/components/restaurantCard.vue';
+import RestaurantOverlay from '@/components/restaurantOverlay.vue';
+
 const restaurants = ref([]);
+let selectedRestaurant = ref(null);
 
 const getRestaurants = async () => {
   try {
@@ -16,48 +19,41 @@ const getRestaurants = async () => {
 onMounted(() => {
   getRestaurants();
 });
+
+const onShowOverlay = (restaurant) => {
+  selectedRestaurant.value = restaurant;
+};
 </script>
 
 <template>
   <div class="start">
-      <img alt="Vue logo" src="../assets/logo.png" />
-      <div v-for="restaurant in restaurants" :key="restaurant.id">
-      <restaurant-card :restaurant="restaurant" />
+    <div class="restaurantGrid">
+      <RestaurantCard v-for="restaurant in restaurants" :key="restaurant.id" :restaurant="restaurant" @showOverlay="onShowOverlay" />
     </div>
+    <RestaurantOverlay v-if="selectedRestaurant" :restaurant="selectedRestaurant" />
   </div>
-  
 </template>
-
-
-
-
-
 <style>
-/* Stile für die Karte */
-.restaurant_card {
+.start {
+  display: flex;
+  justify-content: center;
+}
+
+.restaurantGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+  max-width: 960px;
+}
+
+.RestaurantCard {
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 16px;
   margin: 16px;
-  width: 300px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-/* Stile für das Bild in der Karte */
-.restaurant_card img {
-  width: 100%;
-  border-radius: 4px;
-  margin-bottom: 8px;
+  transition: transform 0.3s ease-in-out;
 }
 
-/* Stile für den Titel in der Karte */
-.restaurant_card h2 {
-  font-size: 1.5rem;
-  margin-bottom: 8px;
-}
-
-/* Stile für den Text in der Karte */
-.restaurant_card p {
-  font-size: 1rem;
-  color: #555;
-}
 </style>

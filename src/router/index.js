@@ -26,6 +26,14 @@ const routes = [
     path: "/register",
     name: "Register",
     component: RegisterView, // Use the imported LoginView component
+    beforeEnter: (to, from, next) => {
+      const customerStore = useCustomerStore();
+      if (customerStore.isLoggedIn) {
+        next({ name: 'start' }); // Replace 'Home' with the name of your home route
+      } else {
+        next();
+      }
+    }
   },
 ];
 
