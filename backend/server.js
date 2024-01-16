@@ -27,7 +27,7 @@ app.post('/create-customer', (req, res) => {
   const { postcode, street, city, houseNumber } = address;
 
   const insertQuery = `
-    INSERT INTO customers (userName, first_name, last_name, address, postal_code, password)
+    INSERT INTO customers (username, first_name, last_name, address, postal_code, password)
     VALUES (?, ?, ?, ?, ?, ?)
   `;
 
@@ -69,6 +69,19 @@ app.post('/logIn', (req,res) =>{
     }
   });
 
+});
+
+app.get('/getRestaurants', (req, res) => { 
+  console.log('Request for Restaurants revieced');
+  const query = 'SELECT * FROM restaurants';
+  db.all(query, (err, rows) => {
+    if (err) {
+      console.error(err.message);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      res.json(rows);
+    }
+  });
 });
 
 process.on('SIGINT', () => {

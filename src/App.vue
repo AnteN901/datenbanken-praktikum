@@ -27,6 +27,7 @@ const logOut = () => {
     
     <router-view />
   </div>
+
 </template>
 
 
