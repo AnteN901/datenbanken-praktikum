@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const db = new sqlite3.Database('./backend/LSDatabase.db', (err) => {
+const db = new sqlite3.Database('./LSDatabase.db', (err) => {
   if (err) {
     console.error(err.message);
   } else {
@@ -89,7 +89,6 @@ app.post('/create-customer', (req, res) => {
 app.post('/logIn', (req,res) =>{
   console.log('request For LogIn recieved');
   const {userName,password} = req.body;
-
   const query = 'SELECT * FROM customers WHERE userName = ? AND password = ?';
   db.get(query, [userName,password] ,(err,row) => {
     if (err) {
@@ -98,7 +97,7 @@ app.post('/logIn', (req,res) =>{
     } else {
       if (row) {
       console.log('Success LogIn');
-      res.json({ success: true, message: 'Login successful' });
+      res.json({ success: true, message: 'Login successful', postal_code: row.postal_code});
       }
       else{
         console.log('userName und Password invalid')
@@ -112,6 +111,21 @@ app.post('/logIn', (req,res) =>{
 app.get('/getRestaurants', (req, res) => { 
   console.log('Request for Restaurants revieced');
   const query = 'SELECT * FROM restaurants';
+  db.all(query, (err, rows) => {
+    if (err) {
+      console.error(err.message);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      res.json(rows);
+    }
+  });
+});
+
+app.get('/getRestaurantsFiltered', (req, res) => { 
+  console.log('Request for Restaurants Filtered revieced');
+  const {postal_code} = req.query; //Für axios.get wird req.query gebraucht(?) = erhält parameter aus dem anfrage-String
+  const query = "SELECT * FROM  restaurants RIGHT JOIN (SELECT * FROM delivery_radius WHERE postal_code = '"+postal_code+"') AS f_rest ON restaurants.id = f_rest.restaurant_id";
+  console.log(query);
   db.all(query, (err, rows) => {
     if (err) {
       console.error(err.message);

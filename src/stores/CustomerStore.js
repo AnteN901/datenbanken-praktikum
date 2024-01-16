@@ -4,7 +4,8 @@ import { reactive } from 'vue';
 export const useCustomerStore = defineStore('CustomerStore', {
     state: () => reactive ({
       userName: '',
-      isLoggedIn: false
+      isLoggedIn: false,
+      postal_code: '' //Vorerst mal erstellt. Denke zum LogIn PostalCode abspeichen könnte praktisch sein
 
     }),
   

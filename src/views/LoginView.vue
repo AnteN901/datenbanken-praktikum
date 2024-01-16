@@ -24,6 +24,7 @@ const customerStore = useCustomerStore();
 const router = useRouter();
 const userName = ref('');
 const password = ref('');
+const postal_code = ref('');
 const meldung = ref('');
 
 const login = async() => {
@@ -35,10 +36,10 @@ const login = async() => {
   });
    if (response.data.success) {
       customerStore.userName = userName;
-      customerStore.isLoggedIn = true;
+      customerStore.isLoggedIn = response.data.success;
+      customerStore.postal_code = response.data.postal_code;
       console.log('Login successful');
-
-      // Jump to Main-Site
+      //Jump to Main-Site
       router.push('/');
       
       

@@ -5,7 +5,7 @@ const customerStore = useCustomerStore();
 const logOut = () => {
   customerStore.userName = '';
   customerStore.isLoggedIn = false;
-};
+  };
 
 </script>
 
