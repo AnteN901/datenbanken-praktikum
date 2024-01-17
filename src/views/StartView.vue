@@ -4,10 +4,11 @@ import { onMounted, ref, watch } from 'vue';
 import RestaurantCard from '@/components/restaurantCard.vue';
 import RestaurantOverlay from '@/components/restaurantOverlay.vue';
 import { useCustomerStore } from '@/stores/CustomerStore';
+import { useOrderStore } from '@/stores/OrderStore';
 
 const customerStore = useCustomerStore();
+const orderStore = useOrderStore();
 const restaurants = ref([]);
-const selectedRestaurant = ref(null);
 const showOverlay = ref(false);
 const postal_code = ref(customerStore.postal_code);
 
@@ -40,11 +41,12 @@ onMounted(() => {
 
 const onShowOverlay = (restaurant) => {
   showOverlay.value = true;
-  selectedRestaurant.value = restaurant;
+  orderStore.selectedRestaurant = restaurant;
 };
 
 const handleOverlayClose = (value) => {
   showOverlay.value = value;
+  orderStore.selectedRestaurant = null;
 };
 </script>
 

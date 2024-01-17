@@ -15,7 +15,7 @@ const onClick = () => {
 <template>
   <div class="restaurantCard" @click="onClick">
     <div class="cardContent">
-      <img class="cardImage" src="../assets/Firefox.png" alt="Bild" />
+      <img class="cardImage" src="" alt="Bild" />
       <div class="cardText">
         <h2>{{ restaurant.name }}</h2>
         <p>{{restaurant.description}}</p>
