@@ -2,7 +2,6 @@ const sqlite3 = require('sqlite3').verbose();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-
 const app = express();
 
 app.use(cors());
@@ -60,7 +59,7 @@ app.post('/customerLogIn', (req,res) =>{
     } else {
       if (row) {
       console.log('Success LogIn');
-      res.json({ success: true, message: 'Login successful' });
+      res.json({ success: true, message: 'Login successful', postal_code: row.postal_code });
       }
       else{
         console.log('userName und Password invalid')
@@ -82,7 +81,6 @@ app.post('/restaurantLogIn', (req,res) =>{
       res.status(500).json({ error: 'Internal Server Error' });
     } else {
       if (row) {
-      console.log('Success LogIn');
       res.json({ success: true, message: 'Login successful' });
       }
       else{
@@ -106,6 +104,23 @@ app.get('/getRestaurants', (req, res) => {
     }
   });
 });
+
+app.get('/getRestaurantsFiltered', (req, res) => { 
+  console.log('Request for Restaurants Filtered revieced');
+  const {postal_code} = req.query; //Für axios.get wird req.query gebraucht(?) = erhält parameter aus dem anfrage-String
+  const query = "SELECT * FROM  restaurants RIGHT JOIN (SELECT * FROM delivery_radius WHERE postal_code = '"+postal_code+"') AS f_rest ON restaurants.id = f_rest.restaurant_id";
+  console.log(query);
+  db.all(query,(err, rows) => {
+    if (err) {
+      console.error(err.message);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      res.json(rows);
+    }
+  });
+});
+
+
 
 process.on('SIGINT', () => {
   db.close((err) => {

@@ -3,18 +3,31 @@ import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import RestaurantCard from '@/components/restaurantCard.vue';
 import RestaurantOverlay from '@/components/restaurantOverlay.vue';
+import { useCustomerStore } from '@/stores/CustomerStore';
 
+const customerStore = useCustomerStore();
 const restaurants = ref([]);
 let selectedRestaurant = ref(null);
+const postal_code = ref(customerStore.postal_code);
 
 const getRestaurants = async () => {
   try {
-    const response = await axios.get('http://localhost:3000/getRestaurants'); 
+    if(customerStore.isLoggedIn)
+    {
+    const postal_code = customerStore.postal_code;
+    const response = await axios.get(`http://localhost:3000/getRestaurantsFiltered?postal_code=${postal_code}`); //Extrem unangehm und ungewohn, es werde `` gebraucht und nicht ''
     restaurants.value = response.data;
+    }
+    else
+    {
+      const response = await axios.get('http://localhost:3000/getRestaurants');
+      restaurants.value = response.data;
+    }
   } catch (error) {
     console.error('Error fetching restaurant data:', error);
   }
 };
+
 
 onMounted(() => {
   getRestaurants();

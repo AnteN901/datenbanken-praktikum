@@ -51,12 +51,12 @@ const login = async() => {
     });
 
     if (response.data.success) {
-      customerStore.$state.userName = userName.value; // Ensure you're setting the value, not the ref
+      customerStore.userName = userName.value; // Ensure you're setting the value, not the ref
       localIsLoggedIn.value = true;
-      customerStore.$state.isLoggedIn = localIsLoggedIn;
+      customerStore.isLoggedIn = localIsLoggedIn; //Verstehe ich (Fabio) noch nicht den nutzen?
       customerStore.customerAccount = true;
-      // userName.value = ''; // You might not want to clear this immediately if you are redirecting
-      // password.value = '';
+      customerStore.postal_code = response.data.postal_code; //Einfach für SQL anfragen
+     
     } else {
       console.log('Login failed:', response.data.error);
       // Handle login failure

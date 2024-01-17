@@ -5,6 +5,7 @@ const customerStore = useCustomerStore();
 const logOut = () => {
   customerStore.userName = '';
   customerStore.isLoggedIn = false;
+  customerStore.postal_code = '';
 };
 
 </script>

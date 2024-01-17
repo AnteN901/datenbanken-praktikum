@@ -33,8 +33,8 @@
      password: password.value
     });
      if (response.data.success) {
-        customerStore.$state.userName = userName;
-        customerStore.$state.isLoggedIn = true;
+        customerStore.userName = userName;
+        customerStore.isLoggedIn = true;
         customerStore.customerAccount = false;
         console.log('Login successful');
         router.push('/profile');
