@@ -2,7 +2,9 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import StartView from "../views/StartView.vue";
 import LoginView from "../views/LoginView.vue"; 
 import RegisterView from "../views/RegisterView.vue";
+import ProfileView from "../views/ProfileView"
 import { useCustomerStore } from '@/stores/CustomerStore';
+
 const routes = [
   {
     path: "/",
@@ -34,6 +36,11 @@ const routes = [
         next();
       }
     }
+  },
+  {
+    path: "/profile",
+    name: "Profile",
+    component: ProfileView,
   },
 ];
 

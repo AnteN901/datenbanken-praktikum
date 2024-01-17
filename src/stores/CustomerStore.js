@@ -4,25 +4,29 @@ import { reactive } from 'vue';
 export const useCustomerStore = defineStore('CustomerStore', {
     state: () => reactive ({
       userName: '',
-      isLoggedIn: false
+      isLoggedIn: false,
+      customerAccount: true
 
     }),
   
     getters: {
       // Getter für die Anzahl der Produkte
       getUserName: (state) => state.userName,
-      getIsLoggedIn: (state) => state.isLoggedIn
+      getIsLoggedIn: (state) => state.isLoggedIn,
+      getIsCustomerAccount: (state) => state.customerAccount
       },
   
     actions: {
       // Aktion, um ein neues Produkt hinzuzufügen
       setUserName(userName) {
         state.userName.push(userName);
-        },
-     setIsLoggedIn(isLoggedIn)
-     {
+      },
+     setIsLoggedIn(isLoggedIn){
         state.isLoggedIn = isLoggedIn;
-     }
+      },
+      setCustomerAccount(customerAccount){
+        state.customerAccount = customerAccount;
+      }
     },
 
   });
