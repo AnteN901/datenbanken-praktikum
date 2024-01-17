@@ -6,7 +6,11 @@ const logOut = () => {
   customerStore.userName = '';
   customerStore.isLoggedIn = false;
   customerStore.postal_code = '';
+  location.reload();
 };
+
+
+
 
 </script>
 
@@ -15,10 +19,9 @@ const logOut = () => {
   <div>
     <nav>
       <router-link to="/">Home</router-link> 
-      <router-link v-if="!customerStore.getIsLoggedIn" to="/register">User Register</router-link> 
-      <router-link v-if="!customerStore.getIsLoggedIn" to="/login">User Login</router-link>
+      <router-link v-if="!customerStore.getIsLoggedIn" to="/register">Register</router-link> 
+      <router-link v-if="!customerStore.getIsLoggedIn" to="/login">Login</router-link>
       <button v-else class="logOut" @click="logOut">Log Out</button> 
-
       <div class="profile-pic-container">
         <router-link to="/profile">
           <img src="./assets/user_light.png" alt="Profile" class="profile-pic"/>
@@ -49,7 +52,10 @@ body, html {
 
 nav {
   background-color: #703bd9d9; /* Orange background */
-  padding: 25px 50px; /* Adjust padding as needed */
+  padding-bottom: 70px;
+  width: 100%; /* Full width */
+  padding: 25px 50px;/* Adjust padding as needed */
+  position:static; 
   text-align: center; /* Aligns the nav items to the left */
   display:flex;
   align-items: center; /* Align items vertically */

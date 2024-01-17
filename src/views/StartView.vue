@@ -1,14 +1,17 @@
 <script setup>
 import axios from 'axios';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import RestaurantCard from '@/components/restaurantCard.vue';
 import RestaurantOverlay from '@/components/restaurantOverlay.vue';
 import { useCustomerStore } from '@/stores/CustomerStore';
 
 const customerStore = useCustomerStore();
 const restaurants = ref([]);
-let selectedRestaurant = ref(null);
+const selectedRestaurant = ref(null);
+const showOverlay = ref(false);
 const postal_code = ref(customerStore.postal_code);
+
+
 
 const getRestaurants = async () => {
   try {
@@ -33,17 +36,24 @@ onMounted(() => {
   getRestaurants();
 });
 
+
+
 const onShowOverlay = (restaurant) => {
+  showOverlay.value = true;
   selectedRestaurant.value = restaurant;
+};
+
+const handleOverlayClose = (value) => {
+  showOverlay.value = value;
 };
 </script>
 
 <template>
   <div class="start">
     <div class="restaurantGrid">
-      <RestaurantCard v-for="restaurant in restaurants" :key="restaurant.id" :restaurant="restaurant" @showOverlay="onShowOverlay" />
+      <RestaurantCard v-for="restaurant in restaurants" :key="restaurant.id" :restaurant="restaurant" @click="onShowOverlay" />
     </div>
-    <RestaurantOverlay v-if="selectedRestaurant" :restaurant="selectedRestaurant" />
+    <RestaurantOverlay v-if="showOverlay" @close="handleOverlayClose" />
   </div>
 </template>
 <style>
@@ -53,11 +63,10 @@ const onShowOverlay = (restaurant) => {
 }
 
 .restaurantGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  width: 100%;
-  max-width: 960px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px; /* Adjust as needed */
 }
 
 .RestaurantCard {

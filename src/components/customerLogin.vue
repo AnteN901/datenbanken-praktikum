@@ -114,7 +114,7 @@ font-size: 16px;
 padding: 10px 15px;
 border: none;
 border-radius: 4px;
-background-color: #fe9c00;
+background-color: #7700fe;
 color: white;
 font-size: 16px;
 cursor: pointer;
@@ -122,6 +122,6 @@ transition: background-color 0.3s;
 }
 
 .submit-button:hover {
-background-color: #d27700;
+background-color: #9765d1;
 }
 </style>

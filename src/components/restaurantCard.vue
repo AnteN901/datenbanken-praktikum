@@ -2,12 +2,18 @@
 import { defineProps, defineEmits } from 'vue';
 
 const props = defineProps(['restaurant']);
+const emit = defineEmits(['click']); // Define the 'click' event
 
+const onClick = () => {
+  emit('click', props.restaurant); // Emit the 'click' event with the restaurant as the payload
+  console.log(JSON.stringify(props.restaurant, null, 2) + " wurde geklickt");
+  
+};
 </script>
 
 
 <template>
-  <div class="restaurantCard">
+  <div class="restaurantCard" @click="onClick">
     <div class="cardContent">
       <img class="cardImage" src="../assets/Firefox.png" alt="Bild" />
       <div class="cardText">
