@@ -19,6 +19,7 @@
   import { ref } from 'vue';
   import axios from 'axios';
   import { useCustomerStore } from '@/stores/CustomerStore';
+  import router from '@/router';
   
   const customerStore = useCustomerStore();
   const userName = ref('');
@@ -27,17 +28,16 @@
   const login = async() => {
     try{
     console.log("Logging in..."); // Use the console object to log the message
-    const response = await axios.post('http://localhost:3000/logIn', 
+    const response = await axios.post('http://localhost:3000/restaurantLogIn', 
     {userName: userName.value, 
      password: password.value
     });
      if (response.data.success) {
         customerStore.$state.userName = userName;
         customerStore.$state.isLoggedIn = true;
+        customerStore.customerAccount = false;
         console.log('Login successful');
-        // Clear the input fields
-        userName.value = '';
-        password.value = '';
+        router.push('/profile');
       } else {
         console.log('Login failed:', response.data.error);
         // Handle login failure, e.g., show an error message to the user

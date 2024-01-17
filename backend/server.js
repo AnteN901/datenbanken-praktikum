@@ -48,11 +48,34 @@ app.post('/create-customer', (req, res) => {
   );
 });
 
-app.post('/logIn', (req,res) =>{
+app.post('/customerLogIn', (req,res) =>{
   console.log('request For LogIn recieved');
   const {userName,password} = req.body;
 
   const query = 'SELECT * FROM customers WHERE userName = ? AND password = ?';
+  db.get(query, [userName,password] ,(err,row) => {
+    if (err) {
+      console.error(err.message);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      if (row) {
+      console.log('Success LogIn');
+      res.json({ success: true, message: 'Login successful' });
+      }
+      else{
+        console.log('userName und Password invalid')
+        res.status(401).json({ error: 'Invalid username or password' });
+      }
+    }
+  });
+
+});
+
+app.post('/restaurantLogIn', (req,res) =>{
+  console.log('request For LogIn recieved');
+  const {userName,password} = req.body;
+
+  const query = 'SELECT * FROM restaurants WHERE name = ? AND password = ?';
   db.get(query, [userName,password] ,(err,row) => {
     if (err) {
       console.error(err.message);

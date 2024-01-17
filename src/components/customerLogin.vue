@@ -45,7 +45,7 @@ watch(() => localIsLoggedIn.value, (newValue) => {
 const login = async() => {
   try {
     console.log("Logging in...");
-    const response = await axios.post('http://localhost:3000/logIn', {
+    const response = await axios.post('http://localhost:3000/customerLogIn', {
       userName: userName.value, 
       password: password.value
     });
@@ -54,6 +54,7 @@ const login = async() => {
       customerStore.$state.userName = userName.value; // Ensure you're setting the value, not the ref
       localIsLoggedIn.value = true;
       customerStore.$state.isLoggedIn = localIsLoggedIn;
+      customerStore.customerAccount = true;
       // userName.value = ''; // You might not want to clear this immediately if you are redirecting
       // password.value = '';
     } else {

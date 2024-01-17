@@ -15,8 +15,12 @@
 import { ref } from 'vue';
 import customerLogin from '@/components/customerLogin.vue';
 import shopLogin from '@/components/shopLogin.vue';
+import { useCustomerStore } from '@/stores/CustomerStore';
+
+const customerStore = useCustomerStore();
 
 const isChecked = ref(false);
+customerStore.customerAccount = !ref(isChecked);
 </script>
 <style scoped>
 .checkbox-container {
