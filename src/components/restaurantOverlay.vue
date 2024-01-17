@@ -4,7 +4,7 @@
         <button class="close-button" @click="emitCloseEvent">X</button>
         <div class="restaurant-info">
           <h2>{{ selectedRestaurant.name }}</h2>
-          <img :src="selectedRestaurant.image" alt="Restaurant Image" class="restaurant-image">
+          <img :src="getImageUrl(selectedRestaurant.image)" alt="Restaurant Image" class="restaurant-image">
           <p><strong>Address:</strong> {{ selectedRestaurant.address }}</p>
           <p>{{ selectedRestaurant.description }}</p>
         </div>
@@ -22,6 +22,10 @@
   const emitCloseEvent = () => {
     emit('close', false);
   };
+
+  const getImageUrl = (imagePath) => {
+  return `http://localhost:3000/${imagePath}`;
+};
   </script>
   
   <style scoped>

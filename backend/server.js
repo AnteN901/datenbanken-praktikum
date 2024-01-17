@@ -2,10 +2,15 @@ const sqlite3 = require('sqlite3').verbose();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const path = require('path');
 const app = express();
 
-app.use(cors());
+
+app.use(cors({
+  origin: 'http://localhost:8080' // Replace with your frontend's origin
+}));
 app.use(bodyParser.json());
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 const db = new sqlite3.Database('./LSDatabase.db', (err) => {
   if (err) {
