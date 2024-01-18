@@ -1,11 +1,11 @@
 <template>
   <div class="container">
     <div class="buttons-container">
-      <button v-if="showWarenkorbBtn" @click="WarenkorbClicked">Warenkorb</button>
-      <button v-if="showBestellHistorieBtn" @click="BestellHisorieClicked">Bestellübersicht</button>
+      <button v-if="showWarenkorbBtn" @click="WarenkorbClicked" class="warenkorb-button">Warenkorb</button>
+      <button v-if="showBestellHistorieBtn" @click="BestellHisorieClicked" class="orderHistory-button">Bestellübersicht</button>
     </div>
 
-    <div v-if="!showButtons" class="text-fields-container">
+    <div v-show="visibleWarenkorb || visibleBestHist" class="text-fields-container">
       <div class="text-fields">
         <input v-if="visibleWarenkorb" type="text" value="Text for Warenkorb" readonly class="text-field" />
         <input v-if="visibleBestHist" type="text" value="Text for Bestellübersicht" readonly class="text-field" />
@@ -47,7 +47,6 @@ export default {
       this.visibleBestHist = true;
       this.showBackButton = true; // Show Back button
       this.showBuyButton = false; // Hide Kaufen button
-
     },
     BackClicked() {
       console.log('Back button clicked');
@@ -68,27 +67,33 @@ export default {
 
 <style scoped>
 .container {
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   padding: 20px;
-  height: 100vh;
-}
-
-.buttons-container {
-  display: flex;
-  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f5f5f5;
 }
 
 .text-fields-container {
   display: flex;
   flex-direction: column;
   align-items: center;
+  max-width: 400px;
+  width: calc(100% - 40px);
+  margin: 0 auto;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .text-fields {
-  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
   text-align: center;
 }
 
@@ -98,16 +103,28 @@ export default {
   margin-top: 20px;
 }
 
-.buy-button, .back-button {
-  width: 100px;
+.buy-button, .back-button, .warenkorb-button, .orderHistory-button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  background-color: #7700fe;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
   margin: 10px;
 }
 
+.buy-button:hover, .back-button:hover, .warenkorb-button:hover, .orderHistory-button:hover {
+  background-color: #9765d1;
+}
+
 .text-field {
-  width: 80%;
+  width: 100%;
   padding: 10px;
   margin: 10px 0;
   font-size: 16px;
   box-sizing: border-box;
 }
 </style>
+
