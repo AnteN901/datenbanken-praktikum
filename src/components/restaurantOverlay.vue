@@ -10,14 +10,23 @@
           <p>{{ selectedRestaurant.description }}</p>
         </div>
       </div>
+      <div class="item-card-container">
+      <restaurantOverlayItems v-for="item in restaurantStore.items" :key="item.id" :item="item" class="itemCard"/>
+    </div>
     </div>
   </div>
 </template>
   
   <script setup>
-  import { defineEmits } from 'vue';
+  import { defineEmits, onMounted } from 'vue';
   import { useOrderStore } from '@/stores/OrderStore';
-  
+  import { useRestaurantStore } from '@/stores/RestaurantStore';
+  import restaurantOverlayItems from './restaurantOverlayItems.vue';
+  const restaurantStore = useRestaurantStore();
+
+  const fetchItems = async (restaurantId) => {
+    await restaurantStore.getRestaurantItems(restaurantId);
+  };
   const selectedRestaurant = useOrderStore().selectedRestaurant;
   const emit = defineEmits(['close']);
   
@@ -29,6 +38,14 @@
   const baseUrl = 'http://localhost:3000';
   return `${baseUrl}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
 };
+onMounted(() => {
+    console.log(restaurantStore); // Check if the store is accessible
+    if (selectedRestaurant) {
+        console.log('Fetching items for:', selectedRestaurant.id);
+        fetchItems(selectedRestaurant.id);
+    }
+});
+
   </script>
   
   <style scoped>
@@ -93,6 +110,16 @@ h2 {
 
 .address {
   font-size: 0.8em; /* adjust as needed */
+}.itemCard {
+  margin-top: 15px; /* adjust as needed */
+}
+
+/* new styles */
+
+.item-card-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 </style>
 

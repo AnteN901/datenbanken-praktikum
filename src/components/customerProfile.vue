@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="buttons-container">
-      <button v-if="showBestellHistorieBtn" @click="BestellHisorieClicked" class="orderHistory-button">Bestellübersicht</button>
+      <button v-if="showBestellHistorieBtn" @click="bestellHisorieClicked" class="orderHistory-button">Bestellübersicht</button>
     </div>
 
     <div v-show="visibleWarenkorb || visibleBestHist" class="text-fields-container">
@@ -10,40 +10,33 @@
       </div>
 
       <div class="buttons-bottom">
-        <button v-if="showBackButton" @click="BackClicked" class="back-button">Back</button>
+        <button v-if="showBackButton" @click="backClicked" class="back-button">Back</button>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      showBestellHistorieBtn: true,
-      showBackButton: false,
-      visibleBestHist: false,
-    };
-  },
-  methods: {
-    BestellHisorieClicked() {
-      console.log('Bestellübersicht button clicked');
-      this.showBestellHistorieBtn = false;
-      this.visibleBestHist = true;
-      this.showBackButton = true; // Show Back button
-    },
-    BackClicked() {
-      console.log('Back button clicked');
-      this.showBestellHistorieBtn = true;
-      this.showBackButton = false; // Hide Back button
-      this.visibleBestHist = false;
-    },
-    buyClicked() {
-      console.log('Kaufen button clicked');
-      // Implement the logic for the Kaufen button
-    },
-  },
+<script setup>
+import { ref } from 'vue';
+
+const showBestellHistorieBtn = ref(true);
+const showBackButton = ref(false);
+const visibleBestHist = ref(false);
+
+const bestellHisorieClicked = () => {
+  console.log('Bestellübersicht button clicked');
+  showBestellHistorieBtn.value = false;
+  visibleBestHist.value = true;
+  showBackButton.value = true; // Show Back button
 };
+
+const backClicked = () => {
+  console.log('Back button clicked');
+  showBestellHistorieBtn.value = true;
+  showBackButton.value = false; // Hide Back button
+  visibleBestHist.value = false;
+};
+
 </script>
 
 <style scoped>

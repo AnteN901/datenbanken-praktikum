@@ -6,6 +6,7 @@ export const useRestaurantStore = defineStore('restaurant', {
     state: () => ({
         selectedRestaurant: null,
         restaurants: [], // This should be an array
+        items: [],
         isLoading: false, // Add loading state
     }),
     actions: {
@@ -31,6 +32,18 @@ export const useRestaurantStore = defineStore('restaurant', {
                 }
             } catch (error) {
                 console.error('Error fetching restaurant data:', error);
+            } finally {
+                this.isLoading = false; // Set loading state to false after fetching data
+            }
+        },
+        async getRestaurantItems(restaurantId) {
+            this.isLoading = true; // Set loading state to true before fetching data
+            try {
+                console.log('Fetching items for restaurant ID:', restaurantId); // Debug line
+                const response = await axios.get(`http://localhost:3000/getRestaurantItems?restaurant_id=${restaurantId}`);
+                this.items = response.data; // Set the state correctly with fetched items
+            } catch (error) {
+                console.error('Error fetching restaurant items:', error);
             } finally {
                 this.isLoading = false; // Set loading state to false after fetching data
             }

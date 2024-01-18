@@ -34,9 +34,6 @@
   transition: transform 0.3s ease-in-out;
 }
 
-.itemCard:hover {
-  transform: scale(1.05);
-}
 
 .cardContent {
   display: flex;
