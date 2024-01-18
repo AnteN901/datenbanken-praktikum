@@ -125,6 +125,25 @@ app.get('/getRestaurantsFiltered', (req, res) => {
   });
 });
 
+app.get('/getRestaurantItems', (req, res) => {
+  console.log('Request for Restaurant Items received');
+  const restaurantId = req.query.restaurant_id;
+
+  if (!restaurantId) {
+      return res.status(400).json({ error: 'Restaurant ID is required' });
+  }
+
+  const query = 'SELECT * FROM items WHERE restaurant_id = ?';
+
+  db.all(query, [restaurantId], (err, rows) => {
+      if (err) {
+          console.error(err.message);
+          res.status(500).json({ error: 'Internal server error' });
+      } else {
+          res.json(rows);
+      }
+  });
+});
 
 
 process.on('SIGINT', () => {
