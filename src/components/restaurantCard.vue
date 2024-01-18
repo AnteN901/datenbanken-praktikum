@@ -23,7 +23,6 @@ const onClick = () => {
       <img class="cardImage" :src="getImageUrl(restaurant.image)" alt="Restaurant Image" @load="console.log(getImageUrl(restaurant.image))">
       <div class="cardText">
         <h2>{{ restaurant.name }}</h2>
-        <h2>{{ restaurant.image }}</h2>
         <p>{{restaurant.description}}</p>
       </div>
     </div>
