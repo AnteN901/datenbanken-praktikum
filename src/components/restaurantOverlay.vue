@@ -1,16 +1,18 @@
 <template>
-    <div class="overlay" v-if="selectedRestaurant">
-      <div class="overlay-content">
-        <button class="close-button" @click="emitCloseEvent">X</button>
-        <div class="restaurant-info">
+  <div class="overlay" v-if="selectedRestaurant">
+    <div class="overlay-content">
+      <button class="close-button" @click="emitCloseEvent">X</button>
+      <div class="restaurant-info">
+        <img :src="getImageUrl(selectedRestaurant.image)" alt="Restaurant Image" class="restaurant-image">
+        <div class="restaurant-details">
           <h2>{{ selectedRestaurant.name }}</h2>
-          <img :src="getImageUrl(selectedRestaurant.image)" alt="Restaurant Image" class="restaurant-image">
-          <p><strong>Address:</strong> {{ selectedRestaurant.address }}</p>
+          <p class="address"><strong>Address:</strong> {{ selectedRestaurant.address }}</p>
           <p>{{ selectedRestaurant.description }}</p>
         </div>
       </div>
     </div>
-  </template>
+  </div>
+</template>
   
   <script setup>
   import { defineEmits } from 'vue';
@@ -24,7 +26,8 @@
   };
 
   const getImageUrl = (imagePath) => {
-  return `http://localhost:3000/${imagePath}`;
+  const baseUrl = 'http://localhost:3000';
+  return `${baseUrl}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
 };
   </script>
   
@@ -68,13 +71,29 @@
   }
   
   .restaurant-info {
-      /* Additional styling for the restaurant info as needed */
-  }
-  
-  .restaurant-image {
-      width: 100%;
-      max-width: 400px;
-      margin-bottom: 20px;
-  }
-  </style>
+  display: flex;
+  align-items: flex-start;
+}
+
+.restaurant-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* reduce gap to bring texts closer together */
+  flex: 1; /* This will allow the details to take up the remaining space */
+}
+
+h2 {
+  font-size: 30px; /* increase font size to make the name bigger */
+}
+
+.restaurant-image {
+  width: 200px; /* adjust as needed */
+  height: auto;
+}
+
+.address {
+  font-size: 0.8em; /* adjust as needed */
+}
+</style>
+
   

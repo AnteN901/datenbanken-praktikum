@@ -1,43 +1,18 @@
 <script setup>
-import axios from 'axios';
-import { onMounted, ref, watch } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRestaurantStore } from '@/stores/RestaurantStore';
+import { useOrderStore } from '@/stores/OrderStore';
 import RestaurantCard from '@/components/restaurantCard.vue';
 import RestaurantOverlay from '@/components/restaurantOverlay.vue';
-import { useCustomerStore } from '@/stores/CustomerStore';
-import { useOrderStore } from '@/stores/OrderStore';
 
-const customerStore = useCustomerStore();
+const restaurantStore = useRestaurantStore();
 const orderStore = useOrderStore();
-const restaurants = ref([]);
 const showOverlay = ref(false);
-const postal_code = ref(customerStore.postal_code);
-
-
-
-const getRestaurants = async () => {
-  try {
-    if(customerStore.isLoggedIn)
-    {
-    const postal_code = customerStore.postal_code;
-    const response = await axios.get(`http://localhost:3000/getRestaurantsFiltered?postal_code=${postal_code}`); //Extrem unangehm und ungewohn, es werde `` gebraucht und nicht ''
-    restaurants.value = response.data;
-    }
-    else
-    {
-      const response = await axios.get('http://localhost:3000/getRestaurants');
-      restaurants.value = response.data;
-    }
-  } catch (error) {
-    console.error('Error fetching restaurant data:', error);
-  }
-};
-
+const restaurants = ref([]);
 
 onMounted(() => {
-  getRestaurants();
+  restaurantStore.getRestaurants(); // Fetch restaurants when component is mounted
 });
-
-
 
 const onShowOverlay = (restaurant) => {
   showOverlay.value = true;
@@ -52,8 +27,17 @@ const handleOverlayClose = (value) => {
 
 <template>
   <div class="start">
-    <div class="restaurantGrid">
-      <RestaurantCard v-for="restaurant in restaurants" :key="restaurant.id" :restaurant="restaurant" @click="onShowOverlay" />
+    <!-- Show loading message when data is being fetched -->
+    <p v-if="restaurantStore.isLoading">Loading...</p>
+
+    <!-- Render restaurant cards when data is ready -->
+    <div v-else class="restaurantGrid">
+      <RestaurantCard
+        v-for="restaurant in restaurantStore.restaurants"
+        :key="restaurant.id"
+        :restaurant="restaurant"
+        @click="onShowOverlay"
+      />
     </div>
     <RestaurantOverlay v-if="showOverlay" @close="handleOverlayClose" />
   </div>
