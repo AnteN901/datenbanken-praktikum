@@ -52,6 +52,7 @@ body, html {
 
 nav {
   background-color: #703bd9d9; /* Orange background */
+  box-sizing: border-box;
   padding-bottom: 70px;
   width: 100%; /* Full width */
   padding: 25px 50px;/* Adjust padding as needed */
