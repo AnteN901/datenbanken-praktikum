@@ -1,9 +1,10 @@
 <script setup>
 import { useCustomerStore } from '@/stores/CustomerStore';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import WarenKorb from './components/warenKorb.vue';
+import { useRestaurantStore } from './stores/RestaurantStore';
 const customerStore = useCustomerStore();
-
+const restaurantStore = useRestaurantStore();
 const logOut = () => {
   customerStore.userName = '';
   customerStore.isLoggedIn = false;
@@ -16,6 +17,10 @@ const cartIsOpen = ref(false);
 const openWarenkorb = () =>{
   cartIsOpen.value = !cartIsOpen.value;
 }
+onMounted(() => {
+  restaurantStore.getRestaurants();
+});
+
 
 </script>
 

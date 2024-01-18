@@ -3,6 +3,7 @@ import { defineProps, defineEmits } from 'vue';
 
 const props = defineProps(['restaurant']);
 const emit = defineEmits(['click']); // Define the 'click' event
+
 const getImageUrl = (imagePath) => {
   const baseUrl = 'http://localhost:3000';
   return `${baseUrl}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
