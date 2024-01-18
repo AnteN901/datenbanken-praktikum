@@ -28,7 +28,7 @@ const openWarenkorb = () =>{
       <router-link v-if="!customerStore.getIsLoggedIn" to="/login">Login</router-link>
       <button v-else class="logOut" @click="logOut">Log Out</button> 
       <div class="profile-pic-container">
-        <button v-if="customerStore.getIsLoggedIn" class="logOut" @click="openWarenkorb">
+        <button v-if="customerStore.getIsLoggedIn && customerStore.getIsCustomerAccount" class="logOut" @click="openWarenkorb">
           <img src="./assets/warenkorb_icon.png" class="profile-pic">
         </button>
         <router-link to="/profile">
