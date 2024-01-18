@@ -1,5 +1,7 @@
 <script setup>
 import { useCustomerStore } from '@/stores/CustomerStore';
+import { ref } from 'vue';
+import WarenKorb from './components/warenKorb.vue';
 const customerStore = useCustomerStore();
 
 const logOut = () => {
@@ -9,8 +11,11 @@ const logOut = () => {
   location.reload();
 };
 
+const cartIsOpen = ref(false);
 
-
+const openWarenkorb = () =>{
+  cartIsOpen.value = !cartIsOpen.value;
+}
 
 </script>
 
@@ -23,12 +28,15 @@ const logOut = () => {
       <router-link v-if="!customerStore.getIsLoggedIn" to="/login">Login</router-link>
       <button v-else class="logOut" @click="logOut">Log Out</button> 
       <div class="profile-pic-container">
+        <button v-if="customerStore.getIsLoggedIn" class="logOut" @click="openWarenkorb">
+          <img src="./assets/warenkorb_icon.png" class="profile-pic">
+        </button>
         <router-link to="/profile">
           <img src="./assets/user_light.png" alt="Profile" class="profile-pic"/>
         </router-link>
       </div>
     </nav>
-    
+    <waren-korb v-if="cartIsOpen"></waren-korb>
     <router-view />
   </div>
 

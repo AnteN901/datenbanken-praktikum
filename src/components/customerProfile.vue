@@ -1,19 +1,16 @@
 <template>
   <div class="container">
     <div class="buttons-container">
-      <button v-if="showWarenkorbBtn" @click="WarenkorbClicked" class="warenkorb-button">Warenkorb</button>
       <button v-if="showBestellHistorieBtn" @click="BestellHisorieClicked" class="orderHistory-button">Bestellübersicht</button>
     </div>
 
     <div v-show="visibleWarenkorb || visibleBestHist" class="text-fields-container">
       <div class="text-fields">
-        <input v-if="visibleWarenkorb" type="text" value="Text for Warenkorb" readonly class="text-field" />
         <input v-if="visibleBestHist" type="text" value="Text for Bestellübersicht" readonly class="text-field" />
       </div>
 
       <div class="buttons-bottom">
         <button v-if="showBackButton" @click="BackClicked" class="back-button">Back</button>
-        <button v-if="showBuyButton" @click="buyClicked" class="buy-button">Kaufen</button>
       </div>
     </div>
   </div>
@@ -23,38 +20,22 @@
 export default {
   data() {
     return {
-      showWarenkorbBtn: true,
       showBestellHistorieBtn: true,
-      showBuyButton: false,
       showBackButton: false,
-      visibleWarenkorb: false,
       visibleBestHist: false,
     };
   },
   methods: {
-    WarenkorbClicked() {
-      console.log('Warenkorb button clicked');
-      this.showBestellHistorieBtn = false;
-      this.showWarenkorbBtn = false;
-      this.visibleWarenkorb = true;
-      this.showBuyButton = true; // Show Kaufen button
-      this.showBackButton = true; // Show Back button
-    },
     BestellHisorieClicked() {
       console.log('Bestellübersicht button clicked');
       this.showBestellHistorieBtn = false;
-      this.showWarenkorbBtn = false;
       this.visibleBestHist = true;
       this.showBackButton = true; // Show Back button
-      this.showBuyButton = false; // Hide Kaufen button
     },
     BackClicked() {
       console.log('Back button clicked');
-      this.showWarenkorbBtn = true;
       this.showBestellHistorieBtn = true;
-      this.showBuyButton = false; // Hide Kaufen button
       this.showBackButton = false; // Hide Back button
-      this.visibleWarenkorb = false;
       this.visibleBestHist = false;
     },
     buyClicked() {
@@ -66,16 +47,6 @@ export default {
 </script>
 
 <style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  min-height: 100vh;
-  background-color: #f5f5f5;
-}
-
 .text-fields-container {
   display: flex;
   flex-direction: column;
@@ -103,7 +74,7 @@ export default {
   margin-top: 20px;
 }
 
-.buy-button, .back-button, .warenkorb-button, .orderHistory-button {
+.back-button, .orderHistory-button {
   padding: 10px 15px;
   border: none;
   border-radius: 4px;
@@ -115,7 +86,7 @@ export default {
   margin: 10px;
 }
 
-.buy-button:hover, .back-button:hover, .warenkorb-button:hover, .orderHistory-button:hover {
+.back-button:hover, .orderHistory-button:hover {
   background-color: #9765d1;
 }
 
