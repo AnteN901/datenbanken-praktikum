@@ -8,7 +8,7 @@ import RestaurantOverlay from '@/components/restaurantOverlay.vue';
 const restaurantStore = useRestaurantStore();
 const orderStore = useOrderStore();
 const showOverlay = ref(false);
-const restaurants = ref([]);
+
 
 onMounted(() => {
   restaurantStore.getRestaurants(); // Fetch restaurants when component is mounted

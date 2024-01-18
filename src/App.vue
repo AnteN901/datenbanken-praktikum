@@ -1,8 +1,8 @@
 <script setup>
 import { useCustomerStore } from '@/stores/CustomerStore';
 import { ref, onMounted } from 'vue';
-import WarenKorb from './components/warenKorb.vue';
 import { useRestaurantStore } from './stores/RestaurantStore';
+import cartOverlay from '@/components/cartOverlay.vue';
 const customerStore = useCustomerStore();
 const restaurantStore = useRestaurantStore();
 const logOut = () => {
@@ -14,7 +14,7 @@ const logOut = () => {
 
 const cartIsOpen = ref(false);
 
-const openWarenkorb = () =>{
+const openCart = () =>{
   cartIsOpen.value = !cartIsOpen.value;
 }
 onMounted(() => {
@@ -33,18 +33,17 @@ onMounted(() => {
       <router-link v-if="!customerStore.getIsLoggedIn" to="/login">Login</router-link>
       <button v-else class="logOut" @click="logOut">Log Out</button> 
       <div class="profile-pic-container">
-        <button v-if="customerStore.getIsLoggedIn && customerStore.getIsCustomerAccount" class="logOut" @click="openWarenkorb">
-          <img src="./assets/warenkorb_icon.png" class="profile-pic">
-        </button>
         <router-link to="/profile">
           <img src="./assets/user_light.png" alt="Profile" class="profile-pic"/>
         </router-link>
+        <button v-if="customerStore.getIsLoggedIn && customerStore.getIsCustomerAccount" class="logOut" @click="openCart">
+          <img src="./assets/warenkorb_icon.png" class="profile-pic">
+        </button>
       </div>
     </nav>
-    <waren-korb v-if="cartIsOpen"></waren-korb>
+    <cartOverlay v-if="cartIsOpen" @close-cart="cartIsOpen = false" />
     <router-view />
   </div>
-
 </template>
 
 
@@ -68,6 +67,7 @@ nav {
   box-sizing: border-box;
   padding-bottom: 70px;
   width: 100%; /* Full width */
+  height: 80px;
   padding: 25px 50px;/* Adjust padding as needed */
   position:static; 
   text-align: center; /* Aligns the nav items to the left */
