@@ -2,11 +2,15 @@ const sqlite3 = require('sqlite3').verbose();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-
+const path = require('path');
 const app = express();
 
-app.use(cors());
+
+app.use(cors({
+  origin: 'http://localhost:8080' // Replace with your frontend's origin
+}));
 app.use(bodyParser.json());
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 const db = new sqlite3.Database('./LSDatabase.db', (err) => {
   if (err) {
@@ -16,46 +20,8 @@ const db = new sqlite3.Database('./LSDatabase.db', (err) => {
     
   }
 });
-/*
-const createCustomerTable = `
-  CREATE TABLE IF NOT EXISTS customers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    userName TEXT,
-    first_name TEXT,
-    last_name TEXT,
-    address TEXT,
-    postal_code TEXT,
-    password TEXT
-  )
-`;
 
-db.run(createCustomerTable, (err) => {
-  if (err) {
-    console.error(err.message);
-  } else {
-    console.log('Table "customers" created or already exists');
-  }
-});
 
-const createShopTable = `
-  CREATE TABLE IF NOT EXISTS shop (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    shop_name TEXT,
-    address TEXT,
-    postal_code TEXT,
-    city TEXT
-    password TEXT
-  )
-`;
-
-db.run(createShopTable, (err) => {
-  if (err) {
-    console.error(err.message);
-  } else {
-    console.log('Table "shop" created or already exists');
-  }
-});
-*/
 
 
 app.post('/create-customer', (req, res) => {
@@ -86,7 +52,7 @@ app.post('/create-customer', (req, res) => {
   );
 });
 
-app.post('/logIn', (req,res) =>{
+app.post('/customerLogIn', (req,res) =>{
   console.log('request For LogIn recieved');
   const {userName,password} = req.body;
   const query = 'SELECT * FROM customers WHERE userName = ? AND password = ?';
@@ -97,7 +63,29 @@ app.post('/logIn', (req,res) =>{
     } else {
       if (row) {
       console.log('Success LogIn');
-      res.json({ success: true, message: 'Login successful', postal_code: row.postal_code});
+      res.json({ success: true, message: 'Login successful', postal_code: row.postal_code });
+      }
+      else{
+        console.log('userName und Password invalid')
+        res.status(401).json({ error: 'Invalid username or password' });
+      }
+    }
+  });
+
+});
+
+app.post('/restaurantLogIn', (req,res) =>{
+  console.log('request For LogIn recieved');
+  const {userName,password} = req.body;
+
+  const query = 'SELECT * FROM restaurants WHERE name = ? AND password = ?';
+  db.get(query, [userName,password] ,(err,row) => {
+    if (err) {
+      console.error(err.message);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      if (row) {
+      res.json({ success: true, message: 'Login successful' });
       }
       else{
         console.log('userName und Password invalid')
@@ -126,7 +114,7 @@ app.get('/getRestaurantsFiltered', (req, res) => {
   const {postal_code} = req.query; //Für axios.get wird req.query gebraucht(?) = erhält parameter aus dem anfrage-String
   const query = "SELECT * FROM  restaurants RIGHT JOIN (SELECT * FROM delivery_radius WHERE postal_code = '"+postal_code+"') AS f_rest ON restaurants.id = f_rest.restaurant_id";
   console.log(query);
-  db.all(query, (err, rows) => {
+  db.all(query,(err, rows) => {
     if (err) {
       console.error(err.message);
       res.status(500).json({ error: 'Internal server error' });
@@ -135,6 +123,27 @@ app.get('/getRestaurantsFiltered', (req, res) => {
     }
   });
 });
+
+app.get('/getRestaurantItems', (req, res) => {
+  console.log('Request for Restaurant Items received');
+  const restaurantId = req.query.restaurant_id;
+
+  if (!restaurantId) {
+      return res.status(400).json({ error: 'Restaurant ID is required' });
+  }
+
+  const query = 'SELECT * FROM items WHERE restaurant_id = ?';
+
+  db.all(query, [restaurantId], (err, rows) => {
+      if (err) {
+          console.error(err.message);
+          res.status(500).json({ error: 'Internal server error' });
+      } else {
+          res.json(rows);
+      }
+  });
+});
+
 
 process.on('SIGINT', () => {
   db.close((err) => {
