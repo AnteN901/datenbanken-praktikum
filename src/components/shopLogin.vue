@@ -16,14 +16,23 @@
   </template>
   
    <script setup>
-  import { ref } from 'vue';
+  import { ref, watch } from 'vue';
   import axios from 'axios';
   import { useCustomerStore } from '@/stores/CustomerStore';
   import router from '@/router';
+ 
   
   const customerStore = useCustomerStore();
   const userName = ref('');
   const password = ref('');
+  const localIsLoggedIn = ref(false);
+
+  watch(() => localIsLoggedIn.value, (newValue) => {
+  if (newValue) {
+    console.log('Redirecting to home...');
+    router.push('/profile'); // Redirect to the profile page or another route as needed
+  }
+});
   
   const login = async() => {
     try{
@@ -34,10 +43,11 @@
     });
      if (response.data.success) {
         customerStore.userName = userName;
-        customerStore.isLoggedIn = true;
+        localIsLoggedIn.value = true;
+        customerStore.isLoggedIn = localIsLoggedIn;
         customerStore.customerAccount = false;
+        customerStore.postal_code = response.data.postcode;
         console.log('Login successful');
-        router.push('/profile');
       } else {
         console.log('Login failed:', response.data.error);
         // Handle login failure, e.g., show an error message to the user

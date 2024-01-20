@@ -4,7 +4,7 @@
     <form @submit.prevent="createAccount" class="user-form">
       <!-- userName Input -->
       <div class="form-group">
-        <label for="userName" class="form-label">userName:</label>
+        <label for="userName" class="form-label">Username:</label>
         <input type="text" id="userName" v-model="userName" class="form-input" required />
       </div>
 
@@ -12,6 +12,11 @@
       <div class="form-group">
         <label for="password" class="form-label">Password:</label>
         <input type="password" id="password" v-model="password" class="form-input" required />
+      </div>
+      <!-- Shop Name-->
+      <div class="form-group">
+        <label for="name" class="form-label">Restaurantname:</label>
+        <input type="text" id="name" v-model="name" class="form-input" required />
       </div>
 
       <!-- Address Inputs -->
@@ -45,9 +50,13 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
-
+import axios from 'axios';
+const name = ref('');
 const userName = ref('');
 const password = ref('');
+const description = ref('');
+const image = 'backend/images/itemImages/restaurantC.jpg'; // ref('') vorerst druch konstante ersetzt.
+
 const address = reactive({
 postcode: '',
 street: '',
@@ -55,10 +64,27 @@ city: '',
 houseNumber: ''
 });
 
-// Add createAccount method if needed
-// const createAccount = async () => {
-//   // API call logic here
-// };
+const createAccount = async () => {
+  try {
+    console.log("Kurz vor dem create-shop post");
+    const response = await axios.post('http://localhost:3000/create-shop', {
+      userName: userName.value,
+      name: name.value,
+      image: image,
+      address: {
+        postcode: address.postcode,
+        street: address.street,
+        city: address.city,
+        houseNumber: address.houseNumber
+      },
+      description: description.value,
+      password: password.value
+    });
+    console.log('Response:', response.data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
 </script>
 
 <style scoped>

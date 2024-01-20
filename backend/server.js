@@ -52,6 +52,31 @@ app.post('/create-customer', (req, res) => {
   );
 });
 
+
+app.post('/create-shop', (req, res) => {
+  console.log('create shop Request received');
+  const {userName, name, image, address, description, password} = req.body;
+  const { postcode, street, city, houseNumber } = address;
+  const insertQuery = `
+    INSERT INTO restaurants (username, name, address, postcode, description, image, password)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  db.run(
+    insertQuery,
+    [userName, name, JSON.stringify(address), postcode, description, image, password],
+    (err) => {
+      if (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Failed to create customer account' });
+      } else {
+        console.log('restaurant account created successfully');
+        res.json({ success: true });
+      }
+    }
+  );
+});
+
 app.post('/customerLogIn', (req,res) =>{
   console.log('request For LogIn recieved');
   const {userName,password} = req.body;
@@ -78,14 +103,14 @@ app.post('/restaurantLogIn', (req,res) =>{
   console.log('request For LogIn recieved');
   const {userName,password} = req.body;
 
-  const query = 'SELECT * FROM restaurants WHERE name = ? AND password = ?';
+  const query = 'SELECT * FROM restaurants WHERE username = ? AND password = ?';
   db.get(query, [userName,password] ,(err,row) => {
     if (err) {
       console.error(err.message);
       res.status(500).json({ error: 'Internal Server Error' });
     } else {
       if (row) {
-      res.json({ success: true, message: 'Login successful' });
+      res.json({ success: true, message: 'Login successful', postcode: row.postcode});
       }
       else{
         console.log('userName und Password invalid')
