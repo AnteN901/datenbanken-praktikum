@@ -137,7 +137,7 @@ app.get('/getRestaurants', (req, res) => {
 app.get('/getRestaurantsFiltered', (req, res) => { 
   console.log('Request for Restaurants Filtered revieced');
   const {postal_code} = req.query; //Für axios.get wird req.query gebraucht(?) = erhält parameter aus dem anfrage-String
-  const query = "SELECT * FROM  restaurants RIGHT JOIN (SELECT * FROM delivery_radius WHERE postal_code = '"+postal_code+"') AS f_rest ON restaurants.id = f_rest.restaurant_id";
+  const query = "SELECT * FROM  restaurants RIGHT JOIN (SELECT * FROM delivery_radius WHERE postal_code = '"+postal_code+"') AS f_rest ON restaurants.id = f_rest.restaurants_id";
   console.log(query);
   db.all(query,(err, rows) => {
     if (err) {
