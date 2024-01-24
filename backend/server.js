@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
+const { stat } = require('fs');
 const app = express();
 
 
@@ -168,7 +169,26 @@ app.get('/getRestaurantItems', (req, res) => {
       }
   });
 });
+//------------------------------------------------------------------------------------
+//Noch neu, möchte status mit id und "status" setzen.
+app.post('/setStatus',(req,res) =>{
+  console.log('setzeStatus');
+  const {bestellId, status }= req.body;
+  const query = 'INSERT INTO oders (status) VALUE (?) WHERE id = '+bestellId+'';
+  db.all(query, [status], (err, rows)=> {
+  if(err)
+  {
+    console.log(err.message);
+    console.log(500).json({errror: 'Internal error'});
+  }
+  else
+  {
+    res.json(rows);
+  }
+});
 
+});
+//------------------------------------------------------------------------------------
 
 process.on('SIGINT', () => {
   db.close((err) => {
