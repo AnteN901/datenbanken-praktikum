@@ -168,6 +168,30 @@ app.get('/getRestaurantItems', (req, res) => {
   });
 });
 
+app.get('/getCustomerOrders/:username', (req, res) => {
+  console.log('Request for Order Items received');
+
+  const username = req.params.username;
+  console.log(username)
+  // Your custom query to get all orders for a certain customer
+  const query = `
+    SELECT orders.id, orders.status, orders.created_at, order_details.*
+    FROM orders
+    JOIN order_details ON orders.id = order_details.order_id
+    WHERE orders.customer_id = (SELECT id FROM customers WHERE username = ?);
+  `;
+
+  db.all(query, [username], (err, rows) => {
+    if (err) {
+      console.error(err.message);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      res.json(rows);
+    }
+  });
+});
+
+
 
 process.on('SIGINT', () => {
   db.close((err) => {

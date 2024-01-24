@@ -6,7 +6,11 @@
 
     <div v-show="visibleWarenkorb || visibleBestHist" class="text-fields-container">
       <div class="text-fields">
-        <input v-if="visibleBestHist" type="text" value="Text for Bestellübersicht" readonly class="text-field" />
+        <ul v-if="visibleBestHist">
+          <li v-for="order in customerOrders" :key="order.id">
+            {{ order.status }} - {{ order.created_at }} <!-- Display other order details as needed -->
+          </li>
+        </ul>
       </div>
 
       <div class="buttons-bottom">
@@ -17,17 +21,32 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import { useCustomerStore } from '@/stores/CustomerStore';
+
+const customerStore = useCustomerStore();
 
 const showBestellHistorieBtn = ref(true);
 const showBackButton = ref(false);
 const visibleBestHist = ref(false);
+const visibleWarenkorb = ref(false);
+const customerOrders = ref([]);
 
-const bestellHisorieClicked = () => {
+const bestellHisorieClicked = async () => {
   console.log('Bestellübersicht button clicked');
   showBestellHistorieBtn.value = false;
   visibleBestHist.value = true;
-  showBackButton.value = true; // Show Back button
+  showBackButton.value = true; 
+
+
+  const username = customerStore.userName; 
+  try {
+    const response = await axios.get(`http://localhost:3000/getCustomerOrders/${username}`);
+    customerOrders.value = response.data;
+  } catch (error) {
+    console.error('Error fetching customer orders:', error);
+  }
 };
 
 const backClicked = () => {
