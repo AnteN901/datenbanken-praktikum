@@ -45,9 +45,13 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
-
+import axios from 'axios';
+const name = ref('');
 const userName = ref('');
 const password = ref('');
+const description = ref('');
+const image = 'backend/images/itemImages/restaurantC.jpg'; // ref('') vorerst druch konstante ersetzt.
+
 const address = reactive({
 postcode: '',
 street: '',
@@ -55,10 +59,27 @@ city: '',
 houseNumber: ''
 });
 
-// Add createAccount method if needed
-// const createAccount = async () => {
-//   // API call logic here
-// };
+const createAccount = async () => {
+  try {
+    console.log("Kurz vor dem create-shop post");
+    const response = await axios.post('http://localhost:3000/create-shop', {
+      userName: userName.value,
+      name: name.value,
+      image: image,
+      address: {
+        postcode: address.postcode,
+        street: address.street,
+        city: address.city,
+        houseNumber: address.houseNumber
+      },
+      description: description.value,
+      password: password.value
+    });
+    console.log('Response:', response.data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
 </script>
 
 <style scoped>

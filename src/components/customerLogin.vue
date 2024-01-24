@@ -53,7 +53,7 @@ const login = async() => {
     if (response.data.success) {
       customerStore.userName = userName.value; // Ensure you're setting the value, not the ref
       localIsLoggedIn.value = true;
-      customerStore.isLoggedIn = localIsLoggedIn; //Verstehe ich (Fabio) noch nicht den nutzen?
+      customerStore.isLoggedIn = localIsLoggedIn;
       customerStore.customerAccount = true;
       customerStore.postal_code = response.data.postal_code; //Einfach für SQL anfragen
      

@@ -35,8 +35,6 @@ app.post('/create-customer', (req, res) => {
     VALUES (?, ?, ?, ?, ?, ?)
   `;
 
-  
-
   db.run(
     insertQuery,
     [userName, firstName, lastName, JSON.stringify(address), postcode, password],
@@ -46,6 +44,30 @@ app.post('/create-customer', (req, res) => {
         res.status(500).json({ error: 'Failed to create customer account' });
       } else {
         console.log('Customer account created successfully');
+        res.json({ success: true });
+      }
+    }
+  );
+});
+
+app.post('/create-shop', (req, res) => {
+  console.log('create shop Request received');
+  const {userName, name, image, address, description, password} = req.body;
+  const { postcode, street, city, houseNumber } = address;
+  const insertQuery = `
+    INSERT INTO restaurants (username, name, address, postcode, description, image, password)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  db.run(
+    insertQuery,
+    [userName, name, JSON.stringify(address), postcode, description, image, password],
+    (err) => {
+      if (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Failed to create customer account' });
+      } else {
+        console.log('restaurant account created successfully');
         res.json({ success: true });
       }
     }
@@ -79,14 +101,14 @@ app.post('/restaurantLogIn', (req,res) =>{
   console.log('request For LogIn recieved');
   const {userName,password} = req.body;
 
-  const query = 'SELECT * FROM restaurants WHERE name = ? AND password = ?';
+  const query = 'SELECT * FROM restaurants WHERE username = ? AND password = ?';
   db.get(query, [userName,password] ,(err,row) => {
     if (err) {
       console.error(err.message);
       res.status(500).json({ error: 'Internal Server Error' });
     } else {
       if (row) {
-      res.json({ success: true, message: 'Login successful' });
+      res.json({ success: true, message: 'Login successful', postcode: row.postcode});
       }
       else{
         console.log('userName und Password invalid')
@@ -96,6 +118,7 @@ app.post('/restaurantLogIn', (req,res) =>{
   });
 
 });
+
 
 app.get('/getRestaurants', (req, res) => { 
   console.log('Request for Restaurants revieced');
@@ -113,7 +136,7 @@ app.get('/getRestaurants', (req, res) => {
 app.get('/getRestaurantsFiltered', (req, res) => { 
   console.log('Request for Restaurants Filtered revieced');
   const {postal_code} = req.query; //Für axios.get wird req.query gebraucht(?) = erhält parameter aus dem anfrage-String
-  const query = "SELECT * FROM  restaurants RIGHT JOIN (SELECT * FROM delivery_radius WHERE postal_code = '"+postal_code+"') AS f_rest ON restaurants.id = f_rest.restaurant_id";
+  const query = "SELECT * FROM  restaurants RIGHT JOIN (SELECT * FROM delivery_radius WHERE postal_code = '"+postal_code+"') AS f_rest ON restaurants.id = f_rest.restaurants_id";
   console.log(query);
   db.all(query,(err, rows) => {
     if (err) {
