@@ -8,11 +8,11 @@
       <div class="text-fields">
         <ul v-if="visibleBestHist">
           <li v-for="order in customerOrders" :key="order.id">
-            {{ order.status }} - {{ order.created_at }} <!-- Display other order details as needed -->
+            <p>Status: {{ order.status }}</p>
+            <p>Order Date: {{ order.created_at }}</p>
           </li>
         </ul>
       </div>
-
       <div class="buttons-bottom">
         <button v-if="showBackButton" @click="backClicked" class="back-button">Back</button>
       </div>
@@ -52,7 +52,7 @@ const bestellHisorieClicked = async () => {
 const backClicked = () => {
   console.log('Back button clicked');
   showBestellHistorieBtn.value = true;
-  showBackButton.value = false; // Hide Back button
+  showBackButton.value = false; 
   visibleBestHist.value = false;
 };
 

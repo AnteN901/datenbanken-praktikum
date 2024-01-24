@@ -172,8 +172,10 @@ app.get('/getCustomerOrders/:username', (req, res) => {
   console.log('Request for Order Items received');
 
   const username = req.params.username;
-  console.log(username)
-  // Your custom query to get all orders for a certain customer
+
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required' });
+  }
   const query = `
     SELECT orders.id, orders.status, orders.created_at, order_details.*
     FROM orders
