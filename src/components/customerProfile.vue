@@ -7,10 +7,17 @@
     <div v-show="visibleWarenkorb || visibleBestHist" class="text-fields-container">
       <div class="text-fields">
         <ul v-if="visibleBestHist">
-          <li v-for="order in customerOrders" :key="order.id">
-            <p>Status: {{ order.status }}</p>
-            <p>Order Date: {{ order.created_at }}</p>
-            <p>Order Id: {{ order.order_id }} </p>
+          <li v-for="groupedOrder in groupedOrders" :key="groupedOrder.order_id">
+            <p>Status: {{ groupedOrder.status }}, {{ groupedOrder.created_at }}</p>
+            <!-- Iterate over items for the current order -->
+            <ul>
+              <li v-for="item in groupedOrder.items" :key="item.id">
+                <p>Item Id: {{ item.id }}</p>
+                <p>Quantity: {{ item.quantity }}</p>
+                <p>Note: {{ item.note }}</p>
+                <!-- Add more item details as needed -->
+              </li>
+            </ul>
           </li>
         </ul>
       </div>
@@ -22,7 +29,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import { useCustomerStore } from '@/stores/CustomerStore';
 
@@ -34,12 +41,37 @@ const visibleBestHist = ref(false);
 const visibleWarenkorb = ref(false);
 const customerOrders = ref([]);
 
+const groupedOrders = computed(() => {
+  const groupedOrdersMap = new Map();
+  
+  // Group orders by order_id
+  customerOrders.value.forEach(order => {
+    if (!groupedOrdersMap.has(order.order_id)) {
+      groupedOrdersMap.set(order.order_id, {
+        order_id: order.order_id,
+        status: order.status,
+        created_at: order.created_at,
+        items: [],
+      });
+    }
+    // Add item to the corresponding order
+    groupedOrdersMap.get(order.order_id).items.push({
+      id: order.id,
+      quantity: order.quantity,
+      note: order.note,
+      // Add more item details as needed
+    });
+  });
+
+  // Convert map values to array
+  return Array.from(groupedOrdersMap.values());
+});
+
 const bestellHisorieClicked = async () => {
   console.log('Bestellübersicht button clicked');
   showBestellHistorieBtn.value = false;
   visibleBestHist.value = true;
   showBackButton.value = true; 
-
 
   const username = customerStore.userName; 
   try {
@@ -58,6 +90,7 @@ const backClicked = () => {
 };
 
 </script>
+
 
 <style scoped>
 .text-fields-container {
