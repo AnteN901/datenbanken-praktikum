@@ -10,6 +10,7 @@
           <li v-for="order in customerOrders" :key="order.id">
             <p>Status: {{ order.status }}</p>
             <p>Order Date: {{ order.created_at }}</p>
+            <p>Order Id: {{ order.order_id }} </p>
           </li>
         </ul>
       </div>

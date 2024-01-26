@@ -177,11 +177,24 @@ app.get('/getCustomerOrders/:username', (req, res) => {
     return res.status(400).json({ error: 'Username is required' });
   }
   const query = `
-    SELECT orders.id, orders.status, orders.created_at, order_details.*
-    FROM orders
-    JOIN order_details ON orders.id = order_details.order_id
-    WHERE orders.customer_id = (SELECT id FROM customers WHERE username = ?);
-  `;
+    SELECT
+      o.id AS order_id,
+      o.created_at,
+      o.status,
+      od.quantity,
+      od.note,
+      i.id
+    FROM
+      orders o
+    JOIN
+      order_details od ON o.id = od.order_id
+    JOIN
+      items i ON od.item_id = i.id
+    WHERE
+      o.customer_id = (SELECT id FROM customers WHERE username = ?)
+    ORDER BY
+      o.created_at DESC;
+`;
 
   db.all(query, [username], (err, rows) => {
     if (err) {
