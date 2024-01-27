@@ -3,7 +3,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
-const { stat } = require('fs');
 const app = express();
 
 
@@ -36,8 +35,6 @@ app.post('/create-customer', (req, res) => {
     VALUES (?, ?, ?, ?, ?, ?)
   `;
 
-  
-
   db.run(
     insertQuery,
     [userName, firstName, lastName, JSON.stringify(address), postcode, password],
@@ -52,7 +49,6 @@ app.post('/create-customer', (req, res) => {
     }
   );
 });
-
 
 app.post('/create-shop', (req, res) => {
   console.log('create shop Request received');
@@ -81,6 +77,7 @@ app.post('/create-shop', (req, res) => {
 app.post('/customerLogIn', (req,res) =>{
   console.log('request For LogIn recieved');
   const {userName,password} = req.body;
+
   const query = 'SELECT * FROM customers WHERE userName = ? AND password = ?';
   db.get(query, [userName,password] ,(err,row) => {
     if (err) {
@@ -121,6 +118,7 @@ app.post('/restaurantLogIn', (req,res) =>{
   });
 
 });
+
 
 app.get('/getRestaurants', (req, res) => { 
   console.log('Request for Restaurants revieced');
@@ -169,6 +167,86 @@ app.get('/getRestaurantItems', (req, res) => {
       }
   });
 });
+
+app.get('/getCustomerOrders/:username', (req, res) => {
+  console.log('Request for Order Items received');
+
+  const username = req.params.username;
+
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required' });
+  }
+  const query = `
+    SELECT
+      o.id AS order_id,
+      o.created_at,
+      o.status,
+      od.quantity,
+      od.note,
+      i.id
+    FROM
+      orders o
+    JOIN
+      order_details od ON o.id = od.order_id
+    JOIN
+      items i ON od.item_id = i.id
+    WHERE
+      o.customer_id = (SELECT id FROM customers WHERE username = ?)
+    ORDER BY
+      o.created_at DESC;
+`;
+
+  db.all(query, [username], (err, rows) => {
+    if (err) {
+      console.error(err.message);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      res.json(rows);
+    }
+  });
+});
+
+app.get('/getId', (req, res) => { 
+  console.log('Request for Id revieced');
+  const {username} = req.query; //Für axios.get wird req.query gebraucht(?) = erhält parameter aus dem anfrage-String
+  const query = "SELECT id FROM restaurants WHERE username = "+username+" ";
+  console.log(query);
+  db.all(query,(err, rows) => {
+    if (err) {
+      console.error(err.message);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      res.json(rows);
+    }
+  });
+});
+
+app.post('/insertItem', (req, res) => {
+  console.log('insert Request received');
+
+  const {name, price, description, image, category, restaurantId } = req.body;
+  const imagePath = '/images/restaurantImages/' + image;
+
+  const insertQuery = `
+    INSERT INTO items (restaurant_id, name, description, price, image, category)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+
+  db.run(
+    insertQuery,
+    [restaurantId, name, description, price, imagePath, category],
+    (err) => {
+      if (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Failed to create customer account' });
+      } else {
+        console.log('Customer account created successfully');
+        res.json({ success: true });
+      }
+    }
+  );
+});
+
 //------------------------------------------------------------------------------------
 //Noch neu, möchte status mit id und "status" setzen.
 app.post('/setStatus',(req,res) =>{
@@ -189,6 +267,8 @@ app.post('/setStatus',(req,res) =>{
 
 });
 //------------------------------------------------------------------------------------
+
+
 
 process.on('SIGINT', () => {
   db.close((err) => {
