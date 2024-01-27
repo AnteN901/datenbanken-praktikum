@@ -206,6 +206,8 @@ app.get('/getCustomerOrders/:username', (req, res) => {
   });
 });
 
+//Alle für insert Item 
+
 app.get('/getId', (req, res) => { 
   console.log('Request for Id revieced');
   const {username} = req.query; //Für axios.get wird req.query gebraucht(?) = erhält parameter aus dem anfrage-String

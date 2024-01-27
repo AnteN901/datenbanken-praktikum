@@ -1,4 +1,7 @@
+
+
 <script setup>
+ //--------------------Alles neu --------------------------------------------------------
  import { ref, watch } from 'vue';
   import axios from 'axios';
   import { useCustomerStore } from '@/stores/CustomerStore';
@@ -12,6 +15,7 @@
   const image = ref('');
   const insertItem = ref(false);
   const category = ref('');
+
 
   const getId = async() =>
   {
@@ -30,7 +34,7 @@
     insertItem.value = !insertItem.value;
   }
 
-  const inserItem = async () => {
+  const addItem = async () => {
   try {
     const response = await axios.post('http://localhost:3000/insertItem', {
       name: name.value,
@@ -57,7 +61,7 @@
   
   <div class="form-container" v-show="insertItem">
   <h1>Füge Item hinzu</h1>
-  <form @submit.prevent="insertItem" class="item-form">
+  <form @submit="addItem()" class="item-form">
     <!-- name -->
     <div class="form-group">
       <label for="name" class="form-label">Name:</label>
