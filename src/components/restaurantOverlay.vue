@@ -11,42 +11,59 @@
         </div>
       </div>
       <div class="item-card-container">
-      <restaurantOverlayItems v-for="item in restaurantStore.items" :key="item.id" :item="item" class="itemCard"/>
-    </div>
+        <restaurantOverlayItems v-for="item in restaurantStore.items" :key="item.id" :item="item" @updateQuantity="updateItemQuantity" class="itemCard"/>
+      </div>
+      <button class="add-to-cart-button" @click="addToCart">Add to Cart</button>
     </div>
   </div>
 </template>
-  
-  <script setup>
-  import { defineEmits, onMounted } from 'vue';
-  import { useOrderStore } from '@/stores/OrderStore';
-  import { useRestaurantStore } from '@/stores/RestaurantStore';
-  import restaurantOverlayItems from './restaurantOverlayItems.vue';
-  const restaurantStore = useRestaurantStore();
 
-  const fetchItems = async (restaurantId) => {
-    await restaurantStore.getRestaurantItems(restaurantId);
-  };
-  const selectedRestaurant = useOrderStore().selectedRestaurant;
-  const emit = defineEmits(['close']);
-  
-  const emitCloseEvent = () => {
-    emit('close', false);
-  };
+<script setup>
+import { defineEmits, onMounted, ref } from 'vue';
+import { useOrderStore } from '@/stores/OrderStore';
+import { useRestaurantStore } from '@/stores/RestaurantStore';
+import restaurantOverlayItems from './restaurantOverlayItems.vue';
 
-  const getImageUrl = (imagePath) => {
+const restaurantStore = useRestaurantStore();
+const selectedRestaurant = useOrderStore().selectedRestaurant;
+const OrderStore = useOrderStore();
+const emit = defineEmits(['close']);
+
+const itemQuantities = ref({});
+
+const emitCloseEvent = () => {
+  emit('close', false);
+};
+
+const updateItemQuantity = ({ id, name, quantity }) => {
+  itemQuantities.value[id] = { id, name, quantity };
+};
+
+const addToCart = () => {
+  const itemsToAdd = Object.values(itemQuantities.value)
+    .filter(item => item.quantity > 0)
+    .map(item => ({ ...item, restaurantId: selectedRestaurant.id }));
+
+  console.log(itemsToAdd); 
+  OrderStore.cartItems = [...OrderStore.cartItems, ...itemsToAdd];
+  console.log(OrderStore.cartItems);
+};
+
+const getImageUrl = (imagePath) => {
   const baseUrl = 'http://localhost:3000';
   return `${baseUrl}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
 };
+
 onMounted(() => {
-    console.log(restaurantStore); // Check if the store is accessible
-    if (selectedRestaurant) {
-        console.log('Fetching items for:', selectedRestaurant.id);
-        fetchItems(selectedRestaurant.id);
-    }
+  if (selectedRestaurant) {
+    fetchItems(selectedRestaurant.id);
+  }
 });
 
-  </script>
+const fetchItems = async (restaurantId) => {
+  await restaurantStore.getRestaurantItems(restaurantId);
+};
+</script>
   
   <style scoped>
   .overlay {
@@ -121,6 +138,22 @@ h2 {
   justify-content: center;
   flex-wrap: wrap;
 }
+
+.add-to-cart-button {
+      background-color: #4CAF50; /* Green background */
+      color: white; /* White text */
+      padding: 10px 20px; /* Padding for better button size */
+      margin-top: 10px; /* Adjust top margin */
+      border: none; /* Remove border */
+      border-radius: 5px; /* Rounded corners */
+      cursor: pointer; /* Cursor changes to pointer on hover */
+      font-size: 16px; /* Increased font size */
+      transition: background-color 0.3s; /* Smooth transition for hover effect */
+  }
+
+  .add-to-cart-button:hover {
+      background-color: #45a049; /* Slightly darker green on hover */
+  }
 </style>
 
   
