@@ -206,6 +206,49 @@ app.get('/getCustomerOrders/:username', (req, res) => {
   });
 });
 
+app.get('/getId', (req, res) => { 
+  console.log('Request for Id revieced');
+  const {username} = req.query; //Für axios.get wird req.query gebraucht(?) = erhält parameter aus dem anfrage-String
+  const query = 'SELECT id FROM restaurants WHERE username = ?';
+  console.log(query);
+  db.get(query, [username],(err, rows) => {
+    if (err) {
+      console.error(err.message);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      console.log(rows);
+      res.json(rows);
+    }
+  });
+});
+
+app.post('/insertItem', (req, res) => {
+  console.log('insert Request received');
+
+  const {name, price, description, image, category, restaurantId } = req.body;
+  const imagePath = '/images/restaurantImages/' + image;
+
+  const insertQuery = `
+    INSERT INTO items (restaurant_id, name, description, price, image, category)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+
+  db.run(
+    insertQuery,
+    [restaurantId, name, description, price, imagePath, category],
+    (err) => {
+      if (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Failed to insert item' });
+      } else {
+        console.log('item created successfully');
+        res.json({ success: true });
+      }
+    }
+  );
+});
+
+
 
 
 process.on('SIGINT', () => {
