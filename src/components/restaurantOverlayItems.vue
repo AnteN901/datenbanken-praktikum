@@ -34,7 +34,7 @@
   const quantity = ref(0);
   
   watch(quantity, (newQuantity) => {
-    emits('updateQuantity', { id: props.item.id, name: props.item.name, quantity: newQuantity });
+    emits('updateQuantity', { id: props.item.id,price: props.item.price, name: props.item.name, quantity: newQuantity });
   });
   
   const increment = () => {
