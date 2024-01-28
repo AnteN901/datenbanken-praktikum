@@ -1,49 +1,52 @@
 <template>
     <div class="item-card">
-        <img :src="item.image" alt="Item Image" class="item-image" />
-        <div class="item-details">
-            <h3 class="item-title">{{ item.title }}</h3>
-            <p class="item-description">{{ item.description }}</p>
-            <div class="item-footer">
-                <div class="price-and-control">
-                    <span class="item-price">{{ item.price }} €</span>
-                    <div class="quantity-control">
-                        <button class="minus-button" @click="decrement">−</button>
-                        <input type="number" class="quantity-field" :value="quantity" readonly />
-                        <button class="plus-button" @click="increment">+</button>
-                    </div>
-                </div>
+      <img :src="item.image" alt="Item Image" class="item-image" />
+      <div class="item-details">
+        <h3 class="item-title">{{ item.name }}</h3>
+        <p class="item-description">{{ item.description }}</p>
+        <div class="item-footer">
+          <div class="price-and-control">
+            <span class="item-price">{{ item.price }} €</span>
+            <div class="quantity-control">
+              <button class="minus-button" @click="decrement">−</button>
+              <input type="number" class="quantity-field" :value="quantity" readonly />
+              <button class="plus-button" @click="increment">+</button>
             </div>
+          </div>
         </div>
+      </div>
     </div>
-</template>
-
-<script setup>
-import { ref } from 'vue';
-import { defineProps } from 'vue';
-
-const props = defineProps({
+  </template>
+  
+  <script setup>
+  import { ref, watch } from 'vue';
+  import { defineProps, defineEmits } from 'vue';
+  
+  const props = defineProps({
     item: {
-        type: Object,
-        required: true
+      type: Object,
+      required: true
     }
-});
-
-const quantity = ref(0);
-
-const increment = () => {
+  });
+  
+  const emits = defineEmits(['updateQuantity']);
+  
+  const quantity = ref(0);
+  
+  watch(quantity, (newQuantity) => {
+    emits('updateQuantity', { id: props.item.id, name: props.item.name, quantity: newQuantity });
+  });
+  
+  const increment = () => {
     quantity.value++;
-};
-
-const decrement = () => {
+  };
+  
+  const decrement = () => {
     if (quantity.value > 0) {
-        quantity.value--;
+      quantity.value--;
     }
-};
-
-
-</script>
-
+  };
+  </script>
 
 <style scoped>
 .item-card {

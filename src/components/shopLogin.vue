@@ -27,10 +27,11 @@
   const password = ref('');
   const localIsLoggedIn = ref(false);
 
-  watch(() => localIsLoggedIn.value, (newValue) => {
+  // Watch for changes in isLoggedIn state
+watch(() => localIsLoggedIn.value, (newValue) => {
   if (newValue) {
     console.log('Redirecting to home...');
-    router.push('/profile'); // Redirect to the profile page or another route as needed
+    router.push('/profile'); // Redirect to the home page or another route as needed
   }
 });
   

@@ -43,7 +43,7 @@ const routes = [
     component: ProfileView,
     beforeEnter: (to, from, next) => {
       const customerStore = useCustomerStore();
-      if (customerStore.isLoggedIn) {
+      if (!customerStore.isLoggedIn) {
         next({ name: 'start' }); // Replace 'Home' with the name of your home route
       } else {
         next();

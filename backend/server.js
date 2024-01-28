@@ -206,18 +206,17 @@ app.get('/getCustomerOrders/:username', (req, res) => {
   });
 });
 
-//Alle für insert Item 
-
 app.get('/getId', (req, res) => { 
   console.log('Request for Id revieced');
   const {username} = req.query; //Für axios.get wird req.query gebraucht(?) = erhält parameter aus dem anfrage-String
-  const query = "SELECT id FROM restaurants WHERE username = "+username+" ";
+  const query = 'SELECT id FROM restaurants WHERE username = ?';
   console.log(query);
-  db.all(query,(err, rows) => {
+  db.get(query, [username],(err, rows) => {
     if (err) {
       console.error(err.message);
       res.status(500).json({ error: 'Internal server error' });
     } else {
+      console.log(rows);
       res.json(rows);
     }
   });
@@ -240,35 +239,15 @@ app.post('/insertItem', (req, res) => {
     (err) => {
       if (err) {
         console.error(err.message);
-        res.status(500).json({ error: 'Failed to create customer account' });
+        res.status(500).json({ error: 'Failed to insert item' });
       } else {
-        console.log('Customer account created successfully');
+        console.log('item created successfully');
         res.json({ success: true });
       }
     }
   );
 });
 
-//------------------------------------------------------------------------------------
-//Noch neu, möchte status mit id und "status" setzen.
-app.post('/setStatus',(req,res) =>{
-  console.log('setzeStatus');
-  const {bestellId, status }= req.body;
-  const query = 'INSERT INTO oders (status) VALUE (?) WHERE id = '+bestellId+'';
-  db.all(query, [status], (err, rows)=> {
-  if(err)
-  {
-    console.log(err.message);
-    console.log(500).json({errror: 'Internal error'});
-  }
-  else
-  {
-    res.json(rows);
-  }
-});
-
-});
-//------------------------------------------------------------------------------------
 
 
 
