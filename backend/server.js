@@ -74,6 +74,28 @@ app.post('/create-shop', (req, res) => {
   );
 });
 
+app.post('/set-order-state', (req, res) => {
+  console.log('Orderstate change request received');
+  const { orderId, status } = req.body;
+
+  const updateQuery = `
+    UPDATE orders 
+    SET status = ?
+    WHERE id = ?;
+  `;
+
+  db.run(updateQuery, [status, orderId], function (err) {
+    if (err) {
+      console.error(err.message);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      console.log(`Rows affected: ${this.changes}`);
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+
 app.post('/customerLogIn', (req,res) =>{
   console.log('request For LogIn recieved');
   const {userName,password} = req.body;

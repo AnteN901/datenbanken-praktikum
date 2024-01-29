@@ -59,6 +59,29 @@ const groupedOrders = computed(() => {
   return Array.from(groupedOrdersMap.values());
 });
 
+const acceptOrder = async (groupedOrder) => {
+  const orderId = groupedOrder.order_id;
+
+  axios.post('http://localhost:3000/set-order-state', { orderId, status: 'In Zubereitung' })
+    .then(response => {
+      console.log(response.data);
+    })
+    .catch(error => {
+      console.error('Error accepting order:', error);
+    });
+};
+
+const rejectOrder = async (groupedOrder) => {
+  const orderId = groupedOrder.order_id;
+
+  axios.post('http://localhost:3000/set-order-state', { orderId, status: 'storniert' })
+    .then(response => {
+      console.log(response.data);
+    })
+    .catch(error => {
+      console.error('Error rejecting order:', error);
+    });
+};
 const getId = async () =>
   {
     try{
@@ -143,8 +166,8 @@ const getId = async () =>
     <h1>Bestellübersicht</h1>
     <div class="text-fields">
         <ul v-if="showHistory">
-          <li v-for="groupedOrder in groupedOrders" :key="groupedOrder.order_id">
-            <p>Status: {{ groupedOrder.status }}, {{ groupedOrder.created_at }}</p>
+          <li v-for="groupedOrder in groupedOrders" :key="groupedOrder.order_id" class="text-fields-container">
+            <p>Status: {{ groupedOrder.status }}, {{ groupedOrder.created_at }}, {{ groupedOrder.order_id }}</p>
             <!-- Iterate over items for the current order -->
             <ul>
               <li v-for="item in groupedOrder.items" :key="item.id">
@@ -154,6 +177,10 @@ const getId = async () =>
                 <!-- Add more item details as needed -->
               </li>
             </ul>
+            <div v-if="groupedOrder.status=='in Bearbeitung'">
+              <button @click="acceptOrder(groupedOrder)">Annehmen</button>
+              <button @click="rejectOrder(groupedOrder)">Ablehnen</button>
+            </div>
           </li>
         </ul>
       </div>
@@ -162,3 +189,17 @@ const getId = async () =>
   </div>
 </template>
 
+<style scoped>
+.text-fields-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 400px;
+  width: calc(100% - 40px);
+  margin: 0 auto;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+</style>
