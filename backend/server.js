@@ -286,6 +286,29 @@ app.post('/insertItem', (req, res) => {
   );
 });
 
+app.post('http://localhost:3000/deleteItem', (req,res)=> {
+  console.log('delte Request received');
+  const {itemId, restaurantId} = req.body;
+  const deleteQuery = `
+    DELETE FROM items WHERE restaurant_id = ? AND id = ?
+  `;
+
+  db.run(
+    deleteQuery,
+    [itemId ,restaurantId],
+    (err) => {
+      if (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Failed to delete item' });
+      } else {
+        console.log('item created successfully');
+        res.json({ success: true });
+      }
+    }
+  );
+});
+
+
 
 
 

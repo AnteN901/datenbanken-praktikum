@@ -9,9 +9,11 @@ const price = ref('');
 const description = ref('');
 const image = ref('');
 const insertItem = ref(false);
-const showHistory = ref(false)
+const showHistory = ref(false);
+const deleteItem = ref(false);
 const category = ref('');
 const restaurantOrders = ref([]);
+const itemId = ref(99999);
 
 const toggleInsert = () =>{
   insertItem.value = !insertItem.value;
@@ -21,6 +23,9 @@ const toggleHistory = () =>{
     getOrders();
   }
   showHistory.value = !showHistory.value;
+}
+const toggleDelte = () =>{
+  deleteItem.value = !deleteItem.value;
 }
 
 const getOrders = async() =>{
@@ -88,6 +93,21 @@ const getId = async () =>
   } catch (error) {
       console.log(error);
   }
+  }  
+  
+  const removeItem = async () => {
+  const restaurantId = await getId();
+  console.log('R_id: ',restaurantId.id, 'itemId:', itemId.value);
+  try {
+    const response = await axios.post('http://localhost:3000/deleteItem', {
+      restaurantId : restaurantId.id,
+      itemId : itemId.value,
+      
+    });
+    console.log('Response:', response.data);
+  } catch (error) {
+      console.log(error);
+  }
   }
   
 </script>
@@ -98,7 +118,10 @@ const getId = async () =>
     <button @click="toggleInsert" v-else>hideInsertItem</button>
     <button @click="toggleHistory" v-if="!showHistory">showHistory</button>
     <button @click="toggleHistory" v-else>hideHistory</button> 
-  <div class="form-container" v-show="insertItem">
+    <button @click="toggleDelte" v-if="!deleteItem">showDeleteItem</button>
+    <button @click="toggleDelte" v-else>hideDeleteItem</button>
+  
+    <div class="form-container" v-show="insertItem">
   <h1>Füge Item hinzu</h1>
   <form @submit.prevent="addItem()" class="item-form">
     <!-- name -->
@@ -159,6 +182,24 @@ const getId = async () =>
       </div>
   
   </div>
+
+  <div class="form-container" v-show="deleteItem">
+  <h1>Lösche Item</h1>
+  <form @submit.prevent="removeItem()" class="item-form">
+    
+    <!-- id -->
+    <div class="form-group">
+      <label for="id" class="form-label">Item ID:</label>
+      <input type="number" id="itemId" v-model="itemId" class="form-input" required />
+    </div>
+   
+    <!-- Submit Button -->
+    <div class="form-group">
+      <button type="submit" class="submit-button">Delete Item</button>
+    </div>
+  </form>
+  </div>
+
   </div>
 </template>
 
