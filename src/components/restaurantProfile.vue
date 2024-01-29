@@ -105,13 +105,13 @@ const getId = async () =>
   }
   }  
   
-  const removeItem = async () => {
+  const removeItem = async (itemId) => {
   const restaurantId = await getId();
   console.log('R_id: ',restaurantId, 'itemId:', itemId.value);
   try {
     const response = await axios.post('http://localhost:3000/deleteItem', {
       restaurantId : restaurantId,
-      itemId : itemId.value,
+      itemId : itemId,
     });
     if(response.data)
     {
@@ -202,33 +202,16 @@ const getId = async () =>
           </li>
         </ul>
       </div>
-  
-  </div>
-
-  <div class="form-container" v-show="deleteItem">
-   <h1>Lösche Item</h1>
-   <form @submit.prevent="removeItem()" class="item-form">
-    
-    <!-- id -->
-    <div class="form-group">
-      <label for="id" class="form-label">Item ID:</label>
-      <input type="number" id="itemId" v-model="itemId" class="form-input" required />
     </div>
-   
-    <!-- Submit Button -->
-    <div class="form-group">
-      <button type="submit" class="submit-button">Delete Item</button>
-    </div>
+ 
 
-    <div class="form-group">
+    <div class="form-group" v-show="deleteItem">
       <li v-for="item in restaurantStore.items" :key="item.id">
-          <p>ID: {{ item.id }}</p>
         <p>Name: {{ item.name }}</p>
+        <button @click="removeItem(item.id)">Delete Item</button>
       </li>
-    </div>
-  </form>
-        
+    </div>        
    </div>
-   </div>
+   
 </template>
 

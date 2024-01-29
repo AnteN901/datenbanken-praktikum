@@ -286,6 +286,33 @@ app.post('/insertItem', (req, res) => {
   );
 });
 
+
+app.post('/updateItem', (req, res) => {
+  console.log('update Request received');
+
+  const {name, price, description, image, category, restaurantId } = req.body;
+  const imagePath = '/images/restaurantImages/' + image;
+
+  const updateQuery = `
+    UPDATE INTO items (restaurant_id, name, description, price, image, category)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+
+  db.run(
+    insertQuery,
+    [restaurantId, name, description, price, imagePath, category],
+    (err) => {
+      if (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Failed to insert item' });
+      } else {
+        console.log('item created successfully');
+        res.json({ success: true });
+      }
+    }
+  );
+});
+
 app.post('/deleteItem', (req,res)=> {
   console.log('delte Request received');
   const {itemId, restaurantId} = req.body;
