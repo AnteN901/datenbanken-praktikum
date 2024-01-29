@@ -286,7 +286,7 @@ app.post('/insertItem', (req, res) => {
   );
 });
 
-app.post('http://localhost:3000/deleteItem', (req,res)=> {
+app.post('/deleteItem', (req,res)=> {
   console.log('delte Request received');
   const {itemId, restaurantId} = req.body;
   const deleteQuery = `
@@ -295,7 +295,7 @@ app.post('http://localhost:3000/deleteItem', (req,res)=> {
 
   db.run(
     deleteQuery,
-    [itemId ,restaurantId],
+    [restaurantId ,itemId],
     (err) => {
       if (err) {
         console.error(err.message);

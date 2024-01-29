@@ -1,9 +1,11 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import { useCustomerStore } from '@/stores/CustomerStore';
+import { useRestaurantStore } from '@/stores/RestaurantStore';
 
 const customerStore = useCustomerStore();
+const restaurantStore = useRestaurantStore();
 const name = ref('');
 const price = ref('');
 const description = ref('');
@@ -14,6 +16,11 @@ const deleteItem = ref(false);
 const category = ref('');
 const restaurantOrders = ref([]);
 const itemId = ref(99999);
+
+
+onMounted(() => {
+  getItemListe();
+});
 
 const toggleInsert = () =>{
   insertItem.value = !insertItem.value;
@@ -26,6 +33,7 @@ const toggleHistory = () =>{
 }
 const toggleDelte = () =>{
   deleteItem.value = !deleteItem.value;
+  
 }
 
 const getOrders = async() =>{
@@ -68,8 +76,8 @@ const getId = async () =>
   {
     try{
         const response = await axios.get(`http://localhost:3000/getId?username=${customerStore.getUserName}`);
-        console.log(response);
-        return response.data;
+        console.log('Respondes from getId: ',response.data.id);
+        return response.data.id;
     }
     catch(error)
     {
@@ -79,7 +87,6 @@ const getId = async () =>
 
   const addItem = async () => {
   const id = await getId();
-  console.log(id.id);
   try {
     const response = await axios.post('http://localhost:3000/insertItem', {
       name: name.value,
@@ -87,9 +94,12 @@ const getId = async () =>
       description: description.value,
       image: image.value,
       category : category.value,
-      restaurantId : id.id,
+      restaurantId : id,
     });
-    console.log('Response:', response.data);
+    if(response.data)
+    {
+      restaurantStore.getRestaurantItems(id);
+    }
   } catch (error) {
       console.log(error);
   }
@@ -97,18 +107,30 @@ const getId = async () =>
   
   const removeItem = async () => {
   const restaurantId = await getId();
-  console.log('R_id: ',restaurantId.id, 'itemId:', itemId.value);
+  console.log('R_id: ',restaurantId, 'itemId:', itemId.value);
   try {
     const response = await axios.post('http://localhost:3000/deleteItem', {
-      restaurantId : restaurantId.id,
+      restaurantId : restaurantId,
       itemId : itemId.value,
-      
     });
-    console.log('Response:', response.data);
+    if(response.data)
+    {
+      restaurantStore.getRestaurantItems(restaurantId);
+    }
+    
   } catch (error) {
       console.log(error);
   }
   }
+
+  const getItemListe = async () =>{
+    const restaurantId = await getId();
+    console.log('R_id: ',restaurantId);
+    restaurantStore.getRestaurantItems(restaurantId);
+  }
+
+
+
   
 </script>
 
@@ -184,8 +206,8 @@ const getId = async () =>
   </div>
 
   <div class="form-container" v-show="deleteItem">
-  <h1>Lösche Item</h1>
-  <form @submit.prevent="removeItem()" class="item-form">
+   <h1>Lösche Item</h1>
+   <form @submit.prevent="removeItem()" class="item-form">
     
     <!-- id -->
     <div class="form-group">
@@ -197,9 +219,16 @@ const getId = async () =>
     <div class="form-group">
       <button type="submit" class="submit-button">Delete Item</button>
     </div>
-  </form>
-  </div>
 
-  </div>
+    <div class="form-group">
+      <li v-for="item in restaurantStore.items" :key="item.id">
+          <p>ID: {{ item.id }}</p>
+        <p>Name: {{ item.name }}</p>
+      </li>
+    </div>
+  </form>
+        
+   </div>
+   </div>
 </template>
 
