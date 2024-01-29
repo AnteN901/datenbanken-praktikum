@@ -26,14 +26,17 @@
 <script setup>
 import { ref, watch } from 'vue';
 import axios from 'axios';
+import { useToast } from 'vue-toastification'; // Import useToast
 import { useCustomerStore } from '@/stores/CustomerStore';
 import { useRouter } from 'vue-router';
 
+const toast = useToast(); // Use the useToast composable
 const customerStore = useCustomerStore();
 const router = useRouter();
 const userName = ref('');
 const password = ref('');
 const localIsLoggedIn = ref(false);
+
 // Watch for changes in isLoggedIn state
 watch(() => localIsLoggedIn.value, (newValue) => {
   if (newValue) {
@@ -51,22 +54,24 @@ const login = async() => {
     });
 
     if (response.data.success) {
-      customerStore.userName = userName.value; // Ensure you're setting the value, not the ref
+      customerStore.userName = userName.value;
       localIsLoggedIn.value = true;
       customerStore.isLoggedIn = localIsLoggedIn;
       customerStore.customerAccount = true;
-      customerStore.postal_code = response.data.postal_code; //Einfach für SQL anfragen
-     
+      customerStore.postal_code = response.data.postal_code;
+
+      toast.success('Login successful!'); // Display success toast
     } else {
       console.log('Login failed:', response.data.error);
-      // Handle login failure
+      toast.error('Username or Password wrong'); // Display error toast
     }
   } catch (error) {
     console.error('Error:', error.message);
-    // Handle network errors or other issues
+    toast.error('Error: ' + error.message); // Display error toast for network errors or other issues
   }
 };
 </script>
+
 
 <style scoped>
 .form-container {

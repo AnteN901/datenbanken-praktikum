@@ -282,6 +282,8 @@ app.get('/getId', (req, res) => {
   });
 });
 
+
+
 app.post('/insertItem', (req, res) => {
   console.log('insert Request received');
 
@@ -307,6 +309,71 @@ app.post('/insertItem', (req, res) => {
     }
   );
 });
+
+
+app.post('/createOrder', (req, res) => {
+  const { customerUserName, restaurantId, items } = req.body;
+
+  // Step 1: Retrieve the customer ID using the username
+  const getCustomerIdQuery = `SELECT id FROM customers WHERE username = ?`;
+
+  db.get(getCustomerIdQuery, [customerUserName], (err, row) => {
+    if (err) {
+      console.error(err.message);
+      return res.status(500).json({ error: 'Failed to retrieve customer ID' });
+    }
+
+    if (!row) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+
+    const customerId = row.id;
+
+    // Step 2: Insert into the 'orders' table
+    const insertOrderQuery = `
+      INSERT INTO orders (status, restaurants_id, customer_id)
+      VALUES ('in Bearbeitung', ?, ?)
+    `;
+
+    db.run(insertOrderQuery, [restaurantId, customerId], function(err) {
+      if (err) {
+        console.error(err.message);
+        return res.status(500).json({ error: 'Failed to create order' });
+      }
+
+      const orderId = this.lastID; // Retrieve the ID of the newly inserted order
+
+      // Step 3: Insert items into the 'order_details' table
+      const insertOrderDetailQuery = `
+        INSERT INTO order_details (order_id, item_id, quantity, note)
+        VALUES (?, ?, ?, ?)
+      `;
+
+      // Use a transaction to ensure all inserts succeed or fail together
+      db.serialize(() => {
+        db.run("BEGIN TRANSACTION");
+        items.forEach(item => {
+          db.run(insertOrderDetailQuery, [orderId, item.itemId, item.quantity, item.specialRequests || ''], (err) => {
+            if (err) {
+              console.error(err.message);
+              db.run("ROLLBACK");
+              return; // Exit the forEach loop on error
+            }
+          });
+        });
+        db.run("COMMIT", (err) => {
+          if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: 'Failed to commit transaction' });
+          } else {
+            res.json({ success: true, message: 'Order created successfully', orderId: orderId });
+          }
+        });
+      });
+    });
+  });
+});
+
 
 
 

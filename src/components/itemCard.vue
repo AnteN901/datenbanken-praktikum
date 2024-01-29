@@ -5,7 +5,7 @@
       <span class="item-price">{{ scaledPrice }} €</span>
     </div>
     <div class="controls-container">
-      <input type="text" class="special-requests" placeholder="Special Requests">
+      <input type="text" class="special-requests" placeholder="Special Requests" v-model="specialRequests" @input="updateSpecialRequests">
       <div class="quantity-control">
         <button class="minus-button" @click="decrement">−</button>
         <input type="number" class="quantity-field" :value="quantity" readonly />
@@ -18,41 +18,45 @@
 
 
 <script setup>
-import { ref, computed, defineProps, watch } from 'vue';
+import { ref, computed, defineProps, watch, defineEmits } from 'vue';
 
 const props = defineProps({
-  item: {
-    type: Object,
-    default: () => ({})
-  }
+  item: Object
 });
 
+const emit = defineEmits(['item-update']);
+
 const quantity = ref(props.item.quantity || 0);
+const specialRequests = ref(props.item.specialRequests || '');  // Define specialRequests as a reactive property
 
 // Computed property for scaled price
 const scaledPrice = computed(() => {
-  return (props.item.price * quantity.value).toFixed(2); // Fixes the price to 2 decimal places
+  return (props.item.price * quantity.value).toFixed(2);
 });
 
 const increment = () => {
   quantity.value++;
+  emit('item-update', { id: props.item.id, quantity: quantity.value, specialRequests: specialRequests.value });
 };
 
 const decrement = () => {
   if (quantity.value > 0) {
     quantity.value--;
+    emit('item-update', { id: props.item.id, quantity: quantity.value, specialRequests: specialRequests.value });
   }
 };
 
-// Example of how you might emit the scaled price to a parent component
-// Define emits
-const emit = defineEmits(['updateScaledPrice']);
+// Emit changes when special requests are updated
+const updateSpecialRequests = () => {
+  emit('item-update', { id: props.item.id, quantity: quantity.value, specialRequests: specialRequests.value });
+};
 
-// Watcher to emit scaled price whenever it changes
+// Emit scaled price changes
 watch(scaledPrice, (newValue) => {
   emit('updateScaledPrice', newValue);
 });
 </script>
+
 
 <style scoped>
 .item-card {

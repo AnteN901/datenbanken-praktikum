@@ -5,29 +5,128 @@
       <h1>Cart</h1>
     </div>
     <div class="cart-content">
-      <ItemCard v-for="item in OrderStore.cartItems" :key="item.id" :item="item" />
+      <ItemCard
+        v-for="item in OrderStore.cartItems"
+        :key="item.id"
+        :item="item"
+        @item-update="handleItemUpdate"
+/>
+      <div class="total-price">Total: {{ totalPrice }} €</div>
       <button v-if="customerStore.isLoggedIn" class="orderButton" @click="createOrder">Order Now!</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { defineEmits, onMounted } from 'vue';
+import { computed, defineEmits } from 'vue';
 import { useOrderStore } from '@/stores/OrderStore';
-import ItemCard from './itemCard.vue'; // Make sure the path and component name are correct
+import ItemCard from './itemCard.vue'; // Adjust the path as necessary
 import { useCustomerStore } from '@/stores/CustomerStore';
-const customerStore = useCustomerStore();
-const emit = defineEmits(['close-cart']);
+import { useToast } from 'vue-toastification';
 const OrderStore = useOrderStore();
+const customerStore = useCustomerStore();
+
+// Computed property to calculate the total price
+const totalPrice = computed(() => {
+  return OrderStore.cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  ).toFixed(2);
+});
+
+const handleItemUpdate = ({ id, quantity, specialRequests }) => {
+  const itemIndex = OrderStore.cartItems.findIndex(item => item.id === id);
+  if (itemIndex !== -1) {
+    const item = OrderStore.cartItems[itemIndex];
+    item.quantity = quantity;
+    item.specialRequests = specialRequests;
+
+    if (quantity === 0) {
+      // Remove the item from the cart if quantity is 0
+      OrderStore.cartItems.splice(itemIndex, 1);
+    }
+    // No need to call recalculateTotalPrice() since totalPrice is a computed property
+  }
+};
+
+const recalculateTotalPrice = () => {
+  totalPrice.value = OrderStore.cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  ).toFixed(2);
+};
+
+
+
+const emit = defineEmits(['close-cart']);
 
 const closeCart = () => {
   emit('close-cart');
 };
 
-onMounted(() => {
-  console.log(OrderStore.cartItems);
-});
+const createOrderData = () => {
+  if (OrderStore.cartItems.length === 0) {
+    alert("Your cart is empty.");
+    return null;
+  }
+
+  // Use the restaurantId from the first item in the cart
+  const restaurantId = OrderStore.cartItems[0].restaurantId;
+
+  return {
+    customerUserName: customerStore.userName,
+    restaurantId: restaurantId,  // Use the restaurantId from the cart item
+    items: OrderStore.cartItems.map(item => ({
+      itemId: item.id,
+      quantity: item.quantity,
+      specialRequests: item.specialRequests || '',
+      price: item.price
+    }))
+  };
+};
+
+
+const createOrder = async () => {
+  const toast = useToast();
+  const orderData = createOrderData();
+
+  if (!orderData) {
+    toast.error("Order data is not available.");
+    return;
+  }
+
+  console.log("Order Data:", orderData);
+
+  try {
+    const response = await fetch('http://localhost:3000/createOrder', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok.');
+    }
+
+    const data = await response.json();
+    console.log(data);
+
+    OrderStore.cartItems = [];
+    closeCart();
+
+    toast.success("Order placed successfully!");
+
+  } catch (error) {
+    console.error('There was a problem with the fetch operation:', error);
+    toast.error("Failed to place the order. Please try again.");
+  }
+};
+
+
 </script>
+
 
 
 <style scoped>
@@ -96,6 +195,13 @@ onMounted(() => {
   .orderButton :hover {
       background-color: #45a049; /* Slightly darker green on hover */
   }
+
+  .total-price {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 10px; /* Adjust as necessary */
+  align-self: center; /* Center the total price within the cart-content */
+}
   
   
     </style>

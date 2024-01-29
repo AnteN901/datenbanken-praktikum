@@ -47,6 +47,8 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router'; // Import useRouter
+import { useToast } from 'vue-toastification'; // Import useToast
 
 const userName = ref('');
 const firstName = ref('');
@@ -58,6 +60,9 @@ const address = reactive({
   city: '',
   houseNumber: ''
 });
+
+const router = useRouter(); // Use useRouter composable
+const toast = useToast(); // Use the useToast composable for toast notifications
 
 const createAccount = async () => {
   try {
@@ -73,12 +78,25 @@ const createAccount = async () => {
         houseNumber: address.houseNumber
       }
     });
-    console.log('Response:', response.data);
+
+    // Check the response for successful registration
+    if (response && response.data) {
+      // Show success toast
+      toast.success('Account created successfully! Redirecting to login...');
+
+      // Redirect to login page after a short delay to allow user to see the toast
+      setTimeout(() => {
+        router.push('/login');
+      }, 2000); // Adjust delay as needed
+    }
   } catch (error) {
     console.error('Error:', error);
+    // Show error toast
+    toast.error('Failed to create account. Please try again.');
   }
 };
 </script>
+
 
 <style scoped>
 .form-container {
