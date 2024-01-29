@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import { useCustomerStore } from '@/stores/CustomerStore';
 
@@ -16,12 +16,13 @@ const restaurantOrders = ref([]);
 const toggleInsert = () =>{
   insertItem.value = !insertItem.value;
 }
-const toggleHistory = () =>{
+
+const toggleHistory = async () => {
   if (!showHistory.value) {
-    getOrders();
+    await getOrders();
   }
   showHistory.value = !showHistory.value;
-}
+};
 
 const getOrders = async() =>{
   const username = customerStore.userName; 
@@ -62,25 +63,25 @@ const groupedOrders = computed(() => {
 const acceptOrder = async (groupedOrder) => {
   const orderId = groupedOrder.order_id;
 
-  axios.post('http://localhost:3000/set-order-state', { orderId, status: 'In Zubereitung' })
-    .then(response => {
-      console.log(response.data);
-    })
-    .catch(error => {
-      console.error('Error accepting order:', error);
-    });
+  try {
+    await axios.post('http://localhost:3000/set-order-state', { orderId, status: 'In Zubereitung' });
+    console.log('Order status updated successfully');
+    await getOrders(); // Refresh order history
+  } catch (error) {
+    console.error('Error accepting order:', error);
+  }
 };
 
 const rejectOrder = async (groupedOrder) => {
   const orderId = groupedOrder.order_id;
 
-  axios.post('http://localhost:3000/set-order-state', { orderId, status: 'storniert' })
-    .then(response => {
-      console.log(response.data);
-    })
-    .catch(error => {
-      console.error('Error rejecting order:', error);
-    });
+  try {
+    await axios.post('http://localhost:3000/set-order-state', { orderId, status: 'storniert' });
+    console.log('Order status updated successfully');
+    await getOrders(); // Refresh order history
+  } catch (error) {
+    console.error('Error rejecting order:', error);
+  }
 };
 const getId = async () =>
   {
@@ -112,6 +113,10 @@ const getId = async () =>
       console.log(error);
   }
   }
+onMounted(() => {
+  // Initial fetch of orders when the component is mounted
+  getOrders();
+});
   
 </script>
 
