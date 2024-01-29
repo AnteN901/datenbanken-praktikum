@@ -206,6 +206,44 @@ app.get('/getCustomerOrders/:username', (req, res) => {
   });
 });
 
+app.get('/getRestaurantOrders/:username', (req, res) => {
+  console.log('Request for Restaurant Order Items received');
+
+  const username = req.params.username;
+
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required' });
+  }
+  const query = `
+    SELECT
+      o.id AS order_id,
+      o.created_at,
+      o.status,
+      od.quantity,
+      od.note,
+      i.id
+    FROM
+      orders o
+    JOIN
+      order_details od ON o.id = od.order_id
+    JOIN
+      items i ON od.item_id = i.id
+    WHERE
+      o.restaurants_id = (SELECT id FROM restaurants WHERE username = ?)
+    ORDER BY
+      o.created_at DESC;
+`;
+
+  db.all(query, [username], (err, rows) => {
+    if (err) {
+      console.error(err.message);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      res.json(rows);
+    }
+  });
+});
+
 app.get('/getId', (req, res) => { 
   console.log('Request for Id revieced');
   const {username} = req.query; //Für axios.get wird req.query gebraucht(?) = erhält parameter aus dem anfrage-String

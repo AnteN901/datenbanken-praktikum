@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import axios from 'axios';
 import { useCustomerStore } from '@/stores/CustomerStore';
 
@@ -9,11 +9,55 @@ const price = ref('');
 const description = ref('');
 const image = ref('');
 const insertItem = ref(false);
+const showHistory = ref(false)
 const category = ref('');
+const restaurantOrders = ref([]);
 
 const toggleInsert = () =>{
   insertItem.value = !insertItem.value;
 }
+const toggleHistory = () =>{
+  if (!showHistory.value) {
+    getOrders();
+  }
+  showHistory.value = !showHistory.value;
+}
+
+const getOrders = async() =>{
+  const username = customerStore.userName; 
+  try {
+    const response = await axios.get(`http://localhost:3000/getRestaurantOrders/${username}`);
+    restaurantOrders.value = response.data;
+  } catch (error) {
+    console.error('Error fetching Restaurant orders:', error);
+  }
+}
+
+const groupedOrders = computed(() => {
+  const groupedOrdersMap = new Map();
+  
+  // Group orders by order_id
+  restaurantOrders.value.forEach(order => {
+    if (!groupedOrdersMap.has(order.order_id)) {
+      groupedOrdersMap.set(order.order_id, {
+        order_id: order.order_id,
+        status: order.status,
+        created_at: order.created_at,
+        items: [],
+      });
+    }
+    // Add item to the corresponding order
+    groupedOrdersMap.get(order.order_id).items.push({
+      id: order.id,
+      quantity: order.quantity,
+      note: order.note,
+      // Add more item details as needed
+    });
+  });
+
+  // Convert map values to array
+  return Array.from(groupedOrdersMap.values());
+});
 
 const getId = async () =>
   {
@@ -52,7 +96,8 @@ const getId = async () =>
   <div>
     <button @click="toggleInsert" v-if="!insertItem">showInsertItem</button>
     <button @click="toggleInsert" v-else>hideInsertItem</button>
-  
+    <button @click="toggleHistory" v-if="!showHistory">showHistory</button>
+    <button @click="toggleHistory" v-else>hideHistory</button> 
   <div class="form-container" v-show="insertItem">
   <h1>Füge Item hinzu</h1>
   <form @submit.prevent="addItem()" class="item-form">
@@ -92,7 +137,28 @@ const getId = async () =>
       <button type="submit" class="submit-button">Insert Item</button>
     </div>
   </form>
-</div>
-</div>
+  </div>
+  
+  <div v-show="showHistory">
+    <h1>Bestellübersicht</h1>
+    <div class="text-fields">
+        <ul v-if="showHistory">
+          <li v-for="groupedOrder in groupedOrders" :key="groupedOrder.order_id">
+            <p>Status: {{ groupedOrder.status }}, {{ groupedOrder.created_at }}</p>
+            <!-- Iterate over items for the current order -->
+            <ul>
+              <li v-for="item in groupedOrder.items" :key="item.id">
+                <p>Item Id: {{ item.id }}</p>
+                <p>Quantity: {{ item.quantity }}</p>
+                <p>Note: {{ item.note }}</p>
+                <!-- Add more item details as needed -->
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+  
+  </div>
+  </div>
 </template>
 

@@ -13,7 +13,7 @@
       <div class="item-card-container">
         <restaurantOverlayItems v-for="item in restaurantStore.items" :key="item.id" :item="item" @updateQuantity="updateItemQuantity" class="itemCard"/>
       </div>
-      <button class="add-to-cart-button" @click="addToCart">Add to Cart</button>
+      <button v-if="customerStore.isLoggedIn" class="add-to-cart-button" @click="addToCart">Add to Cart</button>
     </div>
   </div>
 </template>
@@ -23,10 +23,12 @@ import { defineEmits, onMounted, ref } from 'vue';
 import { useOrderStore } from '@/stores/OrderStore';
 import { useRestaurantStore } from '@/stores/RestaurantStore';
 import restaurantOverlayItems from './restaurantOverlayItems.vue';
+import {useCustomerStore} from '@/stores/CustomerStore';
 
 const restaurantStore = useRestaurantStore();
 const selectedRestaurant = useOrderStore().selectedRestaurant;
 const OrderStore = useOrderStore();
+const customerStore = useCustomerStore();
 const emit = defineEmits(['close']);
 
 const itemQuantities = ref({});
@@ -35,8 +37,8 @@ const emitCloseEvent = () => {
   emit('close', false);
 };
 
-const updateItemQuantity = ({ id, name, quantity }) => {
-  itemQuantities.value[id] = { id, name, quantity };
+const updateItemQuantity = ({ id, price, name, quantity }) => {
+  itemQuantities.value[id] = { id, price, name, quantity };
 };
 
 const addToCart = () => {

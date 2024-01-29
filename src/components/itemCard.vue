@@ -1,124 +1,136 @@
-<script setup>
-
-
-</script>
-
-
 <template>
-  <div class="itemCard">
-    <div class="cardContent">
-      <img src="../assets/logo.png" alt="Image Description" class="itemImage">
-      <div class="cardText">
-        <h2>Itemname</h2>
-        <h3>itembeschreibung</h3>
+  <div v-if="item" class="item-card">
+    <div class="card-header">
+      <h3 class="item-title">{{ item.name }}</h3>
+      <span class="item-price">{{ scaledPrice }} €</span>
+    </div>
+    <div class="controls-container">
+      <input type="text" class="special-requests" placeholder="Special Requests">
+      <div class="quantity-control">
+        <button class="minus-button" @click="decrement">−</button>
+        <input type="number" class="quantity-field" :value="quantity" readonly />
+        <button class="plus-button" @click="increment">+</button>
       </div>
     </div>
-    <div class="buttons-container">
-      <button class="addButton">+</button>
-      <button class="subButton">-</button>
-    </div>
-    <input type="text" class="textField" placeholder="Sonderwünsche">
-  </div>  
+  </div>
 </template>
 
-<style>
-.itemCard {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 16px;
-  margin: 16px;
-  width: 600px; /* Adjust width as needed */
-  height: 50px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  transition: transform 0.3s ease-in-out;
-}
 
 
-.cardContent {
-  display: flex;
-}
+<script setup>
+import { ref, computed, defineProps, watch } from 'vue';
 
-.cardImage {
-  width: 50px; /* Width of the image */
-  height: 50px; /* Height of the image (making it square) */
-  object-fit: cover;
-  border-radius: 4px;
-  margin-right: 10px; /* Adds some space to the right of the image */
-}
+const props = defineProps({
+  item: {
+    type: Object,
+    default: () => ({})
+  }
+});
 
-.cardText {
+const quantity = ref(props.item.quantity || 0);
+
+// Computed property for scaled price
+const scaledPrice = computed(() => {
+  return (props.item.price * quantity.value).toFixed(2); // Fixes the price to 2 decimal places
+});
+
+const increment = () => {
+  quantity.value++;
+};
+
+const decrement = () => {
+  if (quantity.value > 0) {
+    quantity.value--;
+  }
+};
+
+// Example of how you might emit the scaled price to a parent component
+// Define emits
+const emit = defineEmits(['updateScaledPrice']);
+
+// Watcher to emit scaled price whenever it changes
+watch(scaledPrice, (newValue) => {
+  emit('updateScaledPrice', newValue);
+});
+</script>
+
+<style scoped>
+.item-card {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  margin-top: 5px; /* Adjust the top margin */
-  margin-bottom: 5px; /* Adjust the bottom margin */
-}
-
-h2, h3 {
-  margin: 0; /* Remove default margin for h2 and h3 */
-  padding: 0; /* Remove default padding for h2 and h3 */
-}
-
-
-.itemImage {
-  height: 60px; /* Adjust to the desired size */
-  width: 60px; /* Adjust to the desired size */
-  object-fit: cover; /* Ensures the image covers the area without stretching */
-  margin-left: 10px; /* Adds some space between the picture and other items */
-}
-
-.buttons-container {
-    display: flex;
-}
-.addButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 15px;
-  width: 25px;
-  border: none;
-  border-radius: 4px;
-  background-color: #7700fe;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin: 1px;
-}
-
-.subButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 15px;
-  width: 25px;
-  border: none;
-  border-radius: 4px;
-  background-color: #9b9b9b;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin: 1px;
-}
-
-
-.addButton:hover{
-  background-color: #9765d1;
-}
-
-.subButton:hover {
-  background-color: #d16565;
-}
-
-.textField {
-  width: 600px;
   padding: 10px;
-  margin-left: 10px;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
+  border-radius: 5px;
+  width: 300px; /* Adjust width as needed */
   box-sizing: border-box;
+  background-color: white;
+  margin-bottom: 10px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 6px; /* Space between header and controls */
+}
+
+.item-title {
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.item-price {
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.controls-container {
+  display: flex;
+  justify-content: space-between; /* Aligns children to the sides */
+  width: 100%;
+  align-items: center; /* Keeps items aligned at their center */
+}
+
+.special-requests {
+  width: calc(50% - 10px); /* Adjusted to take up half of the container width */
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  background-color: lightgrey;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.plus-button, .minus-button {
+  background-color: inherit;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.quantity-field {
+  width: 42px;
+  text-align: center;
+  border: none;
+  background-color: inherit;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+
+.quantity-field::-webkit-inner-spin-button, 
+.quantity-field::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.quantity-field::-moz-focus-inner {
+  border: 0;
 }
 </style>
