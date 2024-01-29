@@ -34,6 +34,8 @@ const getOrders = async() =>{
   }
 }
 
+
+// AB HIER FÜR BESTELLHISTORIE ------------------------------------------------------------------
 const groupedOrders = computed(() => {
   const groupedOrdersMap = new Map();
   
@@ -83,6 +85,21 @@ const rejectOrder = async (groupedOrder) => {
     console.error('Error rejecting order:', error);
   }
 };
+
+const completeOrder = async (groupedOrder) => {
+  const orderId = groupedOrder.order_id;
+
+  try {
+    await axios.post('http://localhost:3000/set-order-state', { orderId, status: 'abgeschlossen' });
+    console.log('Order status updated successfully');
+    await getOrders(); // Refresh order history
+  } catch (error) {
+    console.error('Error rejecting order:', error);
+  }
+};
+
+// BIS HIER -----------------------------------------------------------------------
+
 const getId = async () =>
   {
     try{
@@ -114,7 +131,7 @@ const getId = async () =>
   }
   }
 onMounted(() => {
-  // Initial fetch of orders when the component is mounted
+  // Initial fetch of orders when the component is mounted, kein plan deger
   getOrders();
 });
   
@@ -185,6 +202,9 @@ onMounted(() => {
             <div v-if="groupedOrder.status=='in Bearbeitung'">
               <button @click="acceptOrder(groupedOrder)">Annehmen</button>
               <button @click="rejectOrder(groupedOrder)">Ablehnen</button>
+            </div>
+            <div v-if="groupedOrder.status=='In Zubereitung'">
+              <button @click="completeOrder(groupedOrder)">Abschließen</button>
             </div>
           </li>
         </ul>
