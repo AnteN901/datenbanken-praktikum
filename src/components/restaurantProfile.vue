@@ -2,16 +2,27 @@
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import { useCustomerStore } from '@/stores/CustomerStore';
+import { useRestaurantStore } from '@/stores/RestaurantStore';
 
+const restaurantStore = useRestaurantStore();
 const customerStore = useCustomerStore();
 const name = ref('');
 const price = ref('');
 const description = ref('');
 const image = ref('');
 const insertItem = ref(false);
+const deleteItem = ref(false);
 const showHistory = ref(false)
 const category = ref('');
 const restaurantOrders = ref([]);
+
+onMounted(() => {
+  getItemListe();
+});
+
+const toggleDelete = () =>{
+  deleteItem.value = !deleteItem.value;
+  }
 
 const toggleInsert = () =>{
   insertItem.value = !insertItem.value;
@@ -104,8 +115,7 @@ const getId = async () =>
   {
     try{
         const response = await axios.get(`http://localhost:3000/getId?username=${customerStore.getUserName}`);
-        console.log(response);
-        return response.data;
+        return response.data.id;
     }
     catch(error)
     {
@@ -113,9 +123,8 @@ const getId = async () =>
     }
   }
 
-  const addItem = async () => {
+const addItem = async () => {
   const id = await getId();
-  console.log(id.id);
   try {
     const response = await axios.post('http://localhost:3000/insertItem', {
       name: name.value,
@@ -123,17 +132,46 @@ const getId = async () =>
       description: description.value,
       image: image.value,
       category : category.value,
-      restaurantId : id.id,
+      restaurantId : id,
     });
-    console.log('Response:', response.data);
+    if(response.data)
+    {
+      restaurantStore.getRestaurantItems(id);
+    }
   } catch (error) {
       console.log(error);
   }
   }
-onMounted(() => {
-  // Initial fetch of orders when the component is mounted, kein plan deger
-  getOrders();
-});
+
+  const removeItem = async (itemId) => {
+  const restaurantId = await getId();
+  console.log('R_id: ',restaurantId, 'itemId:', itemId.value);
+  try {
+    const response = await axios.post('http://localhost:3000/deleteItem', {
+      restaurantId : restaurantId,
+      itemId : itemId,
+    });
+    if(response.data)
+    {
+      restaurantStore.getRestaurantItems(restaurantId);
+    }
+    
+  } catch (error) {
+      console.log(error);
+  }
+  }
+
+  const getItemListe = async () =>{
+    const restaurantId = await getId();
+    console.log('R_id: ',restaurantId);
+    restaurantStore.getRestaurantItems(restaurantId);
+  }
+const update = ref(false);
+
+const updateItem = async () => {
+  update.value = !update.value
+}
+
   
 </script>
 
@@ -143,6 +181,8 @@ onMounted(() => {
     <button @click="toggleInsert" v-else>hideInsertItem</button>
     <button @click="toggleHistory" v-if="!showHistory">showHistory</button>
     <button @click="toggleHistory" v-else>hideHistory</button> 
+    <button @click="toggleDelete" v-if="!deleteItem">Delete/Update Item</button>
+    <button @click="toggleDelete" v-else>Delete/Update Item</button>
   <div class="form-container" v-show="insertItem">
   <h1>Füge Item hinzu</h1>
   <form @submit.prevent="addItem()" class="item-form">
@@ -209,10 +249,18 @@ onMounted(() => {
           </li>
         </ul>
       </div>
-  
-  </div>
+    </div>
+      <div class="form-group" v-show="deleteItem">
+      <li v-for="item in restaurantStore.items" :key="item.id">
+        <p>Name: {{ item.name }}</p>
+        <button @click="removeItem(item.id)">Delete Item</button>
+        <button @click="updateItem()">Update Item</button>
+      </li>
+    </div>    
   </div>
 </template>
+      
+  
 
 <style scoped>
 .text-fields-container {

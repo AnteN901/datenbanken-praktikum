@@ -310,6 +310,28 @@ app.post('/insertItem', (req, res) => {
   );
 });
 
+app.post('/deleteItem', (req,res)=> {
+  console.log('delete Request received');
+  const {restaurantId, itemId} = req.body;
+  const deleteQuery = `
+    DELETE FROM items WHERE restaurant_id = ? AND id = ?
+  `;
+
+  db.run(
+    deleteQuery,
+    [restaurantId ,itemId],
+    (err) => {
+      if (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Failed to delete item' });
+      } else {
+        console.log('item created successfully');
+        res.json({ success: true });
+      }
+    }
+  );
+});
+
 
 app.post('/createOrder', (req, res) => {
   const { customerUserName, restaurantId, items } = req.body;
