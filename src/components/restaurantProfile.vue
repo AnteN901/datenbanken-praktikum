@@ -6,15 +6,20 @@ import { useRestaurantStore } from '@/stores/RestaurantStore';
 
 const restaurantStore = useRestaurantStore();
 const customerStore = useCustomerStore();
+
 const name = ref('');
-const price = ref('');
+const price = ref(999.999);
 const description = ref('');
 const image = ref('');
+const category = ref('');
+const itemId = ref(9999999);
+
 const insertItem = ref(false);
 const deleteItem = ref(false);
 const showHistory = ref(false)
-const category = ref('');
+
 const restaurantOrders = ref([]);
+
 
 onMounted(() => {
   getItemListe();
@@ -22,10 +27,14 @@ onMounted(() => {
 
 const toggleDelete = () =>{
   deleteItem.value = !deleteItem.value;
+  insertItem.value = false;
+  showHistory.value = false;
   }
 
 const toggleInsert = () =>{
   insertItem.value = !insertItem.value;
+  showHistory.value = false;
+  deleteItem.value = false;
 }
 
 const toggleHistory = async () => {
@@ -33,6 +42,8 @@ const toggleHistory = async () => {
     await getOrders();
   }
   showHistory.value = !showHistory.value;
+  insertItem.value = false;
+  deleteItem.value =false;
 };
 
 const getOrders = async() =>{
@@ -110,6 +121,7 @@ const completeOrder = async (groupedOrder) => {
 };
 
 // BIS HIER -----------------------------------------------------------------------
+// AB HIER MANIPULATION VON ITEMS
 
 const getId = async () =>
   {
@@ -168,11 +180,35 @@ const addItem = async () => {
   }
 const update = ref(false);
 
-const updateItem = async () => {
+const toggleUpdate = async () => {
   update.value = !update.value
 }
 
-  
+const updateItem = async (itemId, rId, name, description, price, image, category) =>
+{
+  //console.log("ItemId "+itemId+"rId "+rId+"name"+name+"description"+description+"price"+price+"image"+image+"category"+category);
+  console.log("updateItem:"+itemId);
+  try {
+    const response = await axios.post('http://localhost:3000/updateItem', {
+      itemId : itemId,
+      restaurantId : rId,
+      name : name,
+      description : description,
+      price : price,
+      image : image,
+      category : category,
+    });
+    if(response.success)
+    {
+      restaurantStore.getRestaurantItems(restaurantId);
+    }
+    
+  } catch (error) {
+      console.log("Test: "+error);
+  }
+}
+
+//--------------BIS HIER--------------------
 </script>
 
 <template>
@@ -250,13 +286,33 @@ const updateItem = async () => {
         </ul>
       </div>
     </div>
-      <div class="form-group" v-show="deleteItem">
-      <li v-for="item in restaurantStore.items" :key="item.id">
-        <p>Name: {{ item.name }}</p>
-        <button @click="removeItem(item.id)">Delete Item</button>
-        <button @click="updateItem()">Update Item</button>
+    <div class="form-group" v-show="deleteItem">
+    <div class="item-cards">
+      <button @click="toggleUpdate()" class="update-btn">Delete/Update Item</button>
+      <div v-show="update">
+      <li v-for="item in restaurantStore.items" :key="item.id" class="item-card">
+        <h3>{{ item.name }}</h3>
+        <div class="item-actions">
+          <button @click="removeItem(item.id)" class="delete-btn">Delete Item</button>
+          </div>
       </li>
-    </div>    
+    </div>
+    <div>
+      <li v-show="!update" v-for="item in restaurantStore.items" :key="item.id" class="item-card">
+        <p>ID: {{ item.id }}</p>
+        <p>ItemName:  <input v-model="item.name"></p>
+        <p>ItemDescription: <input v-model="item.description"></p>
+        <p>ItemPrice: <input v-model="item.price" type="price"></p>
+        <p>ItemImage: <input v-model="item.image"></p>
+        <p>ItemCategory: <input v-model="item.category"></p>
+        
+        
+        <button @click="updateItem(item.id, item.restaurant_id, item.name, item.description, item.price, item.image, item.category)" class="update-btn">Update Item</button>
+          
+      </li>
+    </div>
+    </div>
+</div> 
   </div>
 </template>
       
@@ -264,6 +320,19 @@ const updateItem = async () => {
 
 <style scoped>
 .text-fields-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 400px;
+  width: calc(100% - 40px);
+  margin: 0 auto;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.item-cards {
   display: flex;
   flex-direction: column;
   align-items: center;

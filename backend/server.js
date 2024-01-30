@@ -159,7 +159,6 @@ app.get('/getRestaurantsFiltered', (req, res) => {
   console.log('Request for Restaurants Filtered revieced');
   const {postal_code} = req.query; //Für axios.get wird req.query gebraucht(?) = erhält parameter aus dem anfrage-String
   const query = "SELECT * FROM  restaurants RIGHT JOIN (SELECT * FROM delivery_radius WHERE postal_code = '"+postal_code+"') AS f_rest ON restaurants.id = f_rest.restaurants_id";
-  console.log(query);
   db.all(query,(err, rows) => {
     if (err) {
       console.error(err.message);
@@ -326,6 +325,32 @@ app.post('/deleteItem', (req,res)=> {
         res.status(500).json({ error: 'Failed to delete item' });
       } else {
         console.log('item created successfully');
+        res.json({ success: true });
+      }
+    }
+  );
+});
+
+app.post('/updateItem', (req, res) => {
+  console.log('update Request received');
+
+  const {itemId, restaurantId, name, price, description, image, category} = req.body;
+  const imagePath = '/images/restaurantImages/' + image;
+  console.log("ItemId "+itemId+"\nrId "+restaurantId+"\nname"+name+"\ndescription"+description+"\nprice"+price+"\nimage"+image+"\ncategory"+category);
+  const updateQuery = `
+    UPDATE items SET restaurant_id = ?, name = ?, description = ?, price = ?, image = ?, category = ?
+    WHERE id = ?
+  `;
+
+  db.run(
+    updateQuery,
+    [restaurantId, name, description, price, imagePath, category, itemId],
+    (err) => {
+      if (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Failed to insert item' });
+      } else {
+        console.log('item updated successfully');
         res.json({ success: true });
       }
     }
