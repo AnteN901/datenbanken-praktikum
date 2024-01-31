@@ -421,8 +421,55 @@ app.post('/createOrder', (req, res) => {
   });
 });
 
+app.post('/insertRadius', (req, res) => {
+  console.log('insert Request received');
 
+  const {restaurantId, radius} = req.body;
 
+  const insertQuery = `
+    INSERT INTO delivery_radius (postal_code, restaurants_id)
+    VALUES (?, ?)
+  `;
+
+  db.run(
+    insertQuery,
+    [radius, restaurantId],
+    (err) => {
+      if (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Failed to insert radius' });
+      } else {
+        console.log('Radius added successfully');
+        res.json({ success: true });
+      }
+    }
+  );
+});
+
+app.post('/deleteRadius', (req, res) => {
+  console.log('delete Request received');
+
+  const {restaurantId, radius} = req.body;
+
+  const insertQuery = `
+    DELETE FROM delivery_radius WHERE postal_code=? AND restaurants_id=?
+    
+  `;
+
+  db.run(
+    insertQuery,
+    [radius, restaurantId],
+    (err) => {
+      if (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Failed to delete radius' });
+      } else {
+        console.log('Radius delete successfully');
+        res.json({ success: true });
+      }
+    }
+  );
+});
 
 
 process.on('SIGINT', () => {

@@ -12,12 +12,14 @@ const price = ref(999.999);
 const description = ref('');
 const image = ref('');
 const category = ref('');
-const itemId = ref(9999999);
 
 const insertItem = ref(false);
 const deleteItem = ref(false);
 const showHistory = ref(false)
 
+const insertRadius = ref(false);
+const radius = ref(0);
+const radiusMode = ref(false);
 const restaurantOrders = ref([]);
 
 
@@ -25,16 +27,18 @@ onMounted(() => {
   getItemListe();
 });
 
-const toggleDelete = () =>{
+const toggleDeleteItem = () =>{
   deleteItem.value = !deleteItem.value;
   insertItem.value = false;
   showHistory.value = false;
+  insertRadius.value = false;
   }
 
-const toggleInsert = () =>{
+const toggleInsertItem = () =>{
   insertItem.value = !insertItem.value;
   showHistory.value = false;
   deleteItem.value = false;
+  insertRadius.value = false;
 }
 
 const toggleHistory = async () => {
@@ -44,7 +48,20 @@ const toggleHistory = async () => {
   showHistory.value = !showHistory.value;
   insertItem.value = false;
   deleteItem.value =false;
+  insertRadius.value = false;
 };
+
+const toggleInsertRadius = () =>{
+  insertRadius.value = !insertRadius.value;
+  showHistory.value = false;
+  deleteItem.value = false;
+  insertItem.value = false;
+}
+
+const toggleRadiusMode = () =>{
+  radiusMode.value = !radiusMode.value 
+}
+
 
 const getOrders = async() =>{
   const username = customerStore.userName; 
@@ -209,16 +226,53 @@ const updateItem = async (itemId, rId, name, description, price, image, category
 }
 
 //--------------BIS HIER--------------------
+//-------AB HIER LIEFERRADIUS
+const addRadius = async (radius) => {
+  const id = await getId();
+  try {
+    const response = await axios.post('http://localhost:3000/insertRadius', {
+      restaurantId : id,
+      radius : radius
+    });
+    if(response.data)
+    {
+      console.log("addRadius succes");
+    }
+  } catch (error) {
+      console.log(error);
+  }
+  }
+
+  const deleteRadius = async (radius) => {
+  const id = await getId();
+  try {
+    const response = await axios.post('http://localhost:3000/deleteRadius', {
+      restaurantId : id,
+      radius : radius
+    });
+    if(response.data)
+    {
+      console.log("delete Radius succes");
+    }
+  } catch (error) {
+      console.log(error);
+  }
+  }
+
+
+//-------------BIS HIER---------------------
 </script>
 
 <template>
   <div>
-    <button @click="toggleInsert" v-if="!insertItem">showInsertItem</button>
-    <button @click="toggleInsert" v-else>hideInsertItem</button>
+    <button @click="toggleInsertItem" v-if="!insertItem">showInsertItem</button>
+    <button @click="toggleInsertItem" v-else>hideInsertItem</button>
     <button @click="toggleHistory" v-if="!showHistory">showHistory</button>
     <button @click="toggleHistory" v-else>hideHistory</button> 
-    <button @click="toggleDelete" v-if="!deleteItem">Delete/Update Item</button>
-    <button @click="toggleDelete" v-else>Delete/Update Item</button>
+    <button @click="toggleDeleteItem" v-if="!deleteItem">Delete/Update Item</button>
+    <button @click="toggleDeleteItem" v-else>Delete/Update Item</button>
+    <button @click="toggleInsertRadius" v-if="!insertRadius">AddRadius</button>
+    <button @click="toggleInsertRadius" v-else>AddRadius</button>
   <div class="form-container" v-show="insertItem">
   <h1>Füge Item hinzu</h1>
   <form @submit.prevent="addItem()" class="item-form">
@@ -306,14 +360,25 @@ const updateItem = async (itemId, rId, name, description, price, image, category
         <p>ItemImage: <input v-model="item.image"></p>
         <p>ItemCategory: <input v-model="item.category"></p>
         
-        
         <button @click="updateItem(item.id, item.restaurant_id, item.name, item.description, item.price, item.image, item.category)" class="update-btn">Update Item</button>
-          
       </li>
     </div>
     </div>
-</div> 
   </div>
+  <div v-show="insertRadius">
+    <div v-show="!radiusMode">
+    <button @click="toggleRadiusMode()" >Add/Delete Radius</button>
+    Radius: <input type="number" v-model="radius">
+    <button @click="addRadius(radius)">Add Radius</button>
+    </div>
+    <div v-show="radiusMode">
+    <button @click="toggleRadiusMode()" >Add/Delete Radius</button>
+    Radius: <input type="number" v-model="radius">
+    <button @click="deleteRadius(radius)">Delete Radius</button>
+    </div>
+  </div>
+
+</div> 
 </template>
       
   
