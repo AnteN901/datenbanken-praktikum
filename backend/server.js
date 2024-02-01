@@ -95,6 +95,24 @@ app.post('/set-order-state', (req, res) => {
   });
 });
 
+app.post('/set-description', (req, res) => {
+  const { description,  username} = req.body;
+  const updateQuery = `
+    UPDATE restaurants 
+    SET description = ?
+    WHERE username = ?;
+  `;
+
+  db.run(updateQuery, [description, username], function (err) {
+    if (err) {
+      console.error(err.message);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      res.json({ message: 'Restaurant Description updated successfully' });
+    }
+  });
+});
+
 
 app.post('/customerLogIn', (req,res) =>{
   console.log('request For LogIn recieved');
@@ -283,7 +301,19 @@ app.get('/getId', (req, res) => {
   });
 });
 
-
+app.get('/getShopDescription', (req, res) => { 
+  console.log('Request for shop description revieced');
+  const {username} = req.query; //Für axios.get wird req.query gebraucht(?) = erhält parameter aus dem anfrage-String
+  const query = 'SELECT description FROM restaurants WHERE username = ?';
+  db.get(query, [username],(err, rows) => {
+    if (err) {
+      console.error(err.message);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      res.json(rows);
+    }
+  });
+});
 
 app.post('/insertItem', (req, res) => {
   console.log('insert Request received');

@@ -10,14 +10,16 @@ const customerStore = useCustomerStore();
 const name = ref('');
 const price = ref(999.999);
 const description = ref('');
+const shopdescription = ref('');
 const image = ref('');
 const category = ref('');
 
 const insertItem = ref(false);
 const deleteItem = ref(false);
 const showHistory = ref(false)
-
+const showDescription = ref(false);
 const insertRadius = ref(false);
+
 const radius = ref(0);
 const radiusMode = ref(false);
 const restaurantOrders = ref([]);
@@ -32,7 +34,20 @@ const day = ref(1);
 
 onMounted(() => {
   getItemListe();
+  getShopDescription();
 });
+
+const getShopDescription = async () => {
+  const username = customerStore.userName;
+  try {
+    const response = await axios.get(`http://localhost:3000/getShopDescription?username=${username}`);
+    
+    shopdescription.value = response.data.description;
+    
+  } catch (error) {
+    console.error('Error fetching shop description:', error);
+  }
+};
 
 const toggleDeleteItem = () =>{
   deleteItem.value = !deleteItem.value;
@@ -40,6 +55,7 @@ const toggleDeleteItem = () =>{
   showHistory.value = false;
   insertRadius.value = false;
   insertHours.value = false;
+  showDescription.value = false;
   }
 
 const toggleInsertItem = () =>{
@@ -48,6 +64,16 @@ const toggleInsertItem = () =>{
   deleteItem.value = false;
   insertRadius.value = false;
   insertHours.value = false;
+  showDescription.value = false;
+}
+
+const toggleDescription = () => {
+  showDescription.value = !showDescription.value;
+  showHistory.value = false;
+  deleteItem.value = false;
+  insertRadius.value = false;
+  insertHours.value = false;
+  insertItem.value = false;
 }
 
 const toggleHistory = async () => {
@@ -59,6 +85,7 @@ const toggleHistory = async () => {
   deleteItem.value =false;
   insertRadius.value = false;
   insertHours.value = false;
+  showDescription.value = false;
 };
 
 const toggleInsertRadius = () =>{
@@ -67,6 +94,7 @@ const toggleInsertRadius = () =>{
   deleteItem.value = false;
   insertItem.value = false;
   insertHours.value = false;
+  showDescription.value = false;
 }
 
 const toggleRadiusMode = () =>{
@@ -79,6 +107,7 @@ const toggleInsertDate = () =>{
   showHistory.value = false;
   deleteItem.value = false;
   insertItem.value = false;
+  showDescription.value = false;
 }
 
 
@@ -134,6 +163,17 @@ const groupedOrders = computed(() => {
 
   return groupedOrdersArray;
 });
+const updateShopDescription = async (description) => {
+  const username = customerStore.userName;
+
+
+  try {
+    await axios.post('http://localhost:3000/set-description', { description, username });
+    console.log('Shop description updated successfully');
+  } catch (error) {
+    console.error('Error accepting order:', error);
+  }
+};
 
 const acceptOrder = async (groupedOrder) => {
   const orderId = groupedOrder.order_id;
@@ -332,16 +372,12 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
 
 <template>
   <div>
-    <button @click="toggleInsertItem" v-if="!insertItem">InsertItem</button>
-    <button @click="toggleInsertItem" v-else>InsertItem</button>
-    <button @click="toggleHistory" v-if="!showHistory">History</button>
-    <button @click="toggleHistory" v-else>History</button> 
-    <button @click="toggleDeleteItem" v-if="!deleteItem">Delete/Update Item</button>
-    <button @click="toggleDeleteItem" v-else>Delete/Update Item</button>
-    <button @click="toggleInsertRadius" v-if="!insertRadius">AddRadius</button>
-    <button @click="toggleInsertRadius" v-else>AddRadius</button>
-    <button @click="toggleInsertDate" v-if="!insertHours">Add Opening/Closing Time</button>
-    <button @click="toggleInsertDate" v-else>Add Opening/Closing Time</button>
+    <button @click="toggleDescription">Change description</button>
+    <button @click="toggleInsertItem">InsertItem</button>
+    <button @click="toggleHistory">History</button> 
+    <button @click="toggleDeleteItem">Delete/Update Item</button>
+    <button @click="toggleInsertRadius">AddRadius</button>
+    <button @click="toggleInsertDate">Add Opening/Closing Time</button>
   <div class="form-container" v-show="insertItem">
   <h1>Füge Item hinzu</h1>
   <form @submit.prevent="addItem()" class="item-form">
@@ -459,9 +495,14 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
     <input type="number" min="0" max="59" step="1" v-model="endM"> Minutes
   </p>
   <button @click="addHours(day,openingH,openingM,endH,endM)">Add Hours</button>
+  </div>
+  <div v-show="showDescription">
+  <h1>Change your restaurants description</h1>  
+        <textarea type="text" id="description" v-model="shopdescription" class="description-input">
+        </textarea>
+  <button @click="updateShopDescription(shopdescription)">Submit</button>
+  </div> 
 </div>
-
-</div> 
 </template>
       
   
@@ -492,4 +533,14 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
+.description-input {
+  width: 50%;
+  height: 300px; /* Set the initial height as per your requirement */
+  resize: none;
+  overflow-y: auto; /* Always show vertical scrollbar if needed */
+  overflow-x: hidden; /* Hide horizontal scrollbar */
+  box-sizing: border-box;
+  padding: 8px;
+}
+
 </style>
