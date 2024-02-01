@@ -77,7 +77,7 @@ const getOrders = async() =>{
 // AB HIER FÜR BESTELLHISTORIE ------------------------------------------------------------------
 const groupedOrders = computed(() => {
   const groupedOrdersMap = new Map();
-  
+
   // Group orders by order_id
   restaurantOrders.value.forEach(order => {
     if (!groupedOrdersMap.has(order.order_id)) {
@@ -93,12 +93,29 @@ const groupedOrders = computed(() => {
       id: order.id,
       quantity: order.quantity,
       note: order.note,
-      // Add more item details as needed
+      // Add other item details here
     });
   });
 
   // Convert map values to array
-  return Array.from(groupedOrdersMap.values());
+  const groupedOrdersArray = Array.from(groupedOrdersMap.values());
+
+  // wir wird gezaubert um "neue bestellungen"->"zubereitungen"-> "abgeschlossen ODER storniert"
+  const orderedStatus = ["in Bearbeitung", "In Zubereitung","abgeschlossen", "storniert"];
+  groupedOrdersArray.sort((a, b) => {
+  const indexA = orderedStatus.indexOf(a.status);
+  const indexB = orderedStatus.indexOf(b.status);
+
+  if (indexA <= 1 || indexB <= 1) {
+      return indexA - indexB;
+    } else {
+      return 2; // Treat all other statuses as equal
+    }
+  });
+
+  console.log(groupedOrdersArray);
+
+  return groupedOrdersArray;
 });
 
 const acceptOrder = async (groupedOrder) => {

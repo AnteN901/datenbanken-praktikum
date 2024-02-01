@@ -62,9 +62,21 @@ const groupedOrders = computed(() => {
       // Add more item details as needed
     });
   });
+  const groupedOrdersArray = Array.from(groupedOrdersMap.values());
 
-  // Convert map values to array
-  return Array.from(groupedOrdersMap.values());
+  const orderedStatus = ["in Bearbeitung", "In Zubereitung","abgeschlossen", "storniert"];
+  groupedOrdersArray.sort((a, b) => {
+  const indexA = orderedStatus.indexOf(a.status);
+  const indexB = orderedStatus.indexOf(b.status);
+
+  if (indexA <= 1 || indexB <= 1) {
+      return -1; // funktion geklaut aus restaurantProfile nur, dass hier egal ist welche reihenfolge bearbeitung/zubereitung haben
+    } else {
+      return 1; // Treat all other statuses as equal
+    }
+  });
+
+  return groupedOrdersArray;
 });
 
 const bestellHisorieClicked = async () => {
