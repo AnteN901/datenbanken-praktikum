@@ -472,6 +472,58 @@ app.post('/deleteRadius', (req, res) => {
 });
 
 
+app.post('/insertHours', (req, res) => {
+  console.log('insert Request received');
+
+  const {restaurantId, day, opening, end} = req.body;
+  
+
+  const insertQuery = `
+    INSERT INTO opening_hours (restaurant_id, day_of_week, opening_time, closing_time)
+    VALUES (?, ?, ?, ?)
+  `;
+
+  db.run(
+    insertQuery,
+    [restaurantId, day, opening, end],
+    (err) => {
+      if (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Failed to insert hours' });
+      } else {
+        console.log('hours created successfully');
+        res.json({ success: true });
+      }
+    }
+  );
+});
+
+app.post('/deleteHours', (req, res) => {
+  console.log('delete Request received');
+
+  const {restaurantId, day} = req.body;
+
+  const insertQuery = `
+    DELETE FROM opening_hours WHERE day_of_week=? AND restaurants_id=?
+    
+  `;
+
+  db.run(
+    insertQuery,
+    [day, restaurantId],
+    (err) => {
+      if (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Failed to delete radius' });
+      } else {
+        console.log('Radius delete successfully');
+        res.json({ success: true });
+      }
+    }
+  );
+});
+
+
 process.on('SIGINT', () => {
   db.close((err) => {
     if (err) {

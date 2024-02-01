@@ -22,6 +22,13 @@ const radius = ref(0);
 const radiusMode = ref(false);
 const restaurantOrders = ref([]);
 
+const insertHours = ref(false);
+const openingH = ref(0);
+const openingM = ref(0);
+const endH = ref(0);
+const endM = ref(0);
+const day = ref(1);
+
 
 onMounted(() => {
   getItemListe();
@@ -32,6 +39,7 @@ const toggleDeleteItem = () =>{
   insertItem.value = false;
   showHistory.value = false;
   insertRadius.value = false;
+  insertHours.value = false;
   }
 
 const toggleInsertItem = () =>{
@@ -39,6 +47,7 @@ const toggleInsertItem = () =>{
   showHistory.value = false;
   deleteItem.value = false;
   insertRadius.value = false;
+  insertHours.value = false;
 }
 
 const toggleHistory = async () => {
@@ -49,6 +58,7 @@ const toggleHistory = async () => {
   insertItem.value = false;
   deleteItem.value =false;
   insertRadius.value = false;
+  insertHours.value = false;
 };
 
 const toggleInsertRadius = () =>{
@@ -56,10 +66,19 @@ const toggleInsertRadius = () =>{
   showHistory.value = false;
   deleteItem.value = false;
   insertItem.value = false;
+  insertHours.value = false;
 }
 
 const toggleRadiusMode = () =>{
   radiusMode.value = !radiusMode.value 
+}
+
+const toggleInsertDate = () =>{
+  insertHours.value = !insertHours.value;
+  insertRadius.value = false;
+  showHistory.value = false;
+  deleteItem.value = false;
+  insertItem.value = false;
 }
 
 
@@ -261,18 +280,53 @@ const addRadius = async (radius) => {
 
 
 //-------------BIS HIER---------------------
+//------------HOURS-------------------------
+const addHours = async (day,openingH,openingM,endH,endM) => {
+  const id = await getId();
+  let opening,end;
+  if(openingM <10){
+     opening = openingH+':0'+openingM;
+  }
+  else{
+     opening = openingH+':'+openingM;
+  }
+  if(endM < 10){
+     end = endH+':0'+endM;
+  }
+  else{
+   end = endH+':'+endM;
+  }
+  try {
+    const response = await axios.post('http://localhost:3000/insertHours', {
+      restaurantId : id,
+      day : day,
+      opening : opening,
+      end : end,
+    });
+    if(response.data)
+    {
+      console.log("add hours succes");
+    }
+  } catch (error) {
+      console.log(error);
+  }
+  }
+
+//-----------BIS HIER-----------------------
 </script>
 
 <template>
   <div>
-    <button @click="toggleInsertItem" v-if="!insertItem">showInsertItem</button>
-    <button @click="toggleInsertItem" v-else>hideInsertItem</button>
-    <button @click="toggleHistory" v-if="!showHistory">showHistory</button>
-    <button @click="toggleHistory" v-else>hideHistory</button> 
+    <button @click="toggleInsertItem" v-if="!insertItem">InsertItem</button>
+    <button @click="toggleInsertItem" v-else>InsertItem</button>
+    <button @click="toggleHistory" v-if="!showHistory">History</button>
+    <button @click="toggleHistory" v-else>History</button> 
     <button @click="toggleDeleteItem" v-if="!deleteItem">Delete/Update Item</button>
     <button @click="toggleDeleteItem" v-else>Delete/Update Item</button>
     <button @click="toggleInsertRadius" v-if="!insertRadius">AddRadius</button>
     <button @click="toggleInsertRadius" v-else>AddRadius</button>
+    <button @click="toggleInsertDate" v-if="!insertHours">Add Opening/Closing Time</button>
+    <button @click="toggleInsertDate" v-else>Add Opening/Closing Time</button>
   <div class="form-container" v-show="insertItem">
   <h1>Füge Item hinzu</h1>
   <form @submit.prevent="addItem()" class="item-form">
@@ -359,7 +413,6 @@ const addRadius = async (radius) => {
         <p>ItemPrice: <input v-model="item.price" type="price"></p>
         <p>ItemImage: <input v-model="item.image"></p>
         <p>ItemCategory: <input v-model="item.category"></p>
-        
         <button @click="updateItem(item.id, item.restaurant_id, item.name, item.description, item.price, item.image, item.category)" class="update-btn">Update Item</button>
       </li>
     </div>
@@ -377,6 +430,21 @@ const addRadius = async (radius) => {
     <button @click="deleteRadius(radius)">Delete Radius</button>
     </div>
   </div>
+  <div v-show="insertHours">
+  <p>Weekday (1-Monday | 7-Saturday)</p>
+  <input type="number" min="1" max="7" step="1" v-model="day">
+  <p>
+    Opening Time:
+    <input type="number" min="0" max="23" step="1" v-model="openingH"> Hours
+    <input type="number" min="0" max="59" step="1" v-model="openingM"> Minutes
+  </p>
+  <p>
+    Closing Time:
+    <input type="number" min="0" max="23" step="1" v-model="endH"> Hours
+    <input type="number" min="0" max="59" step="1" v-model="endM"> Minutes
+  </p>
+  <button @click="addHours(day,openingH,openingM,endH,endM)">Add Hours</button>
+</div>
 
 </div> 
 </template>
