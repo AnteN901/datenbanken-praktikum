@@ -64,15 +64,15 @@ const groupedOrders = computed(() => {
   });
   const groupedOrdersArray = Array.from(groupedOrdersMap.values());
 
-  const orderedStatus = ["in Bearbeitung", "In Zubereitung","abgeschlossen", "storniert"];
+  const orderedStatus = ["In Zubereitung", "in Bearbeitung","abgeschlossen", "storniert"]; // bei Kunden sind die fast fertigen bestellungen weiter oben
   groupedOrdersArray.sort((a, b) => {
   const indexA = orderedStatus.indexOf(a.status);
   const indexB = orderedStatus.indexOf(b.status);
 
   if (indexA <= 1 || indexB <= 1) {
-      return -1; // funktion geklaut aus restaurantProfile nur, dass hier egal ist welche reihenfolge bearbeitung/zubereitung haben
+      return indexA - indexB;
     } else {
-      return 1; // Treat all other statuses as equal
+      return 2; // Treat all other statuses as equal
     }
   });
 
