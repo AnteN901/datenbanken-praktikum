@@ -376,9 +376,9 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
     <button @click="toggleDescription">Change description</button>
     <button @click="toggleHistory">History</button>
     <button @click="toggleInsertItem">Insert Item</button> 
-    <button @click="toggleDeleteItem">Delete/Update Item</button>
-    <button @click="toggleInsertRadius">Add radius</button>
     <button @click="toggleInsertDate">Add Opening/Closing Time</button>
+    <button @click="toggleInsertRadius">Add radius</button>
+    <button @click="toggleDeleteItem">Delete/Update Item</button>
     </div>
   <div class="form-container" v-show="insertItem">
   <h1>Insert item into menue</h1>
