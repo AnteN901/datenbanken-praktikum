@@ -49,6 +49,7 @@ const addToCart = () => {
   console.log(itemsToAdd); 
   OrderStore.cartItems = [...OrderStore.cartItems, ...itemsToAdd];
   console.log(OrderStore.cartItems);
+  emitCloseEvent();
 };
 
 const getImageUrl = (imagePath) => {
