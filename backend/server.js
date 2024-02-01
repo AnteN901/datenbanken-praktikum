@@ -204,7 +204,8 @@ app.get('/getCustomerOrders/:username', (req, res) => {
       o.status,
       od.quantity,
       od.note,
-      i.id
+      i.id AS item_id,
+      i.name AS item_name
     FROM
       orders o
     JOIN
@@ -242,7 +243,8 @@ app.get('/getRestaurantOrders/:username', (req, res) => {
       o.status,
       od.quantity,
       od.note,
-      i.id
+      i.id AS item_id,
+      i.name AS item_name
     FROM
       orders o
     JOIN

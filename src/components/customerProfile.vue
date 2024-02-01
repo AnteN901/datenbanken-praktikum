@@ -12,7 +12,7 @@
             <!-- Iterate over items for the current order -->
             <ul>
               <li v-for="item in groupedOrder.items" :key="item.id">
-                <p>Item Id: {{ item.id }}</p>
+                <p>Id: {{ item.id }}, Name: {{  item.item_name }}</p>
                 <p>Quantity: {{ item.quantity }}</p>
                 <p>Note: {{ item.note }}</p>
                 <!-- Add more item details as needed -->
@@ -56,15 +56,28 @@ const groupedOrders = computed(() => {
     }
     // Add item to the corresponding order
     groupedOrdersMap.get(order.order_id).items.push({
-      id: order.id,
+      id: order.item_id,
       quantity: order.quantity,
       note: order.note,
+      item_name : order.item_name,
       // Add more item details as needed
     });
   });
+  const groupedOrdersArray = Array.from(groupedOrdersMap.values());
 
-  // Convert map values to array
-  return Array.from(groupedOrdersMap.values());
+  const orderedStatus = ["In Zubereitung", "in Bearbeitung","abgeschlossen", "storniert"]; // bei Kunden sind die fast fertigen bestellungen weiter oben
+  groupedOrdersArray.sort((a, b) => {
+  const indexA = orderedStatus.indexOf(a.status);
+  const indexB = orderedStatus.indexOf(b.status);
+
+  if (indexA <= 1 || indexB <= 1) {
+      return indexA - indexB;
+    } else {
+      return 2; // Treat all other statuses as equal
+    }
+  });
+
+  return groupedOrdersArray;
 });
 
 const bestellHisorieClicked = async () => {

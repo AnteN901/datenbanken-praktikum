@@ -96,7 +96,7 @@ const getOrders = async() =>{
 // AB HIER FÜR BESTELLHISTORIE ------------------------------------------------------------------
 const groupedOrders = computed(() => {
   const groupedOrdersMap = new Map();
-  
+
   // Group orders by order_id
   restaurantOrders.value.forEach(order => {
     if (!groupedOrdersMap.has(order.order_id)) {
@@ -109,15 +109,30 @@ const groupedOrders = computed(() => {
     }
     // Add item to the corresponding order
     groupedOrdersMap.get(order.order_id).items.push({
-      id: order.id,
+      id: order.item_id,
       quantity: order.quantity,
       note: order.note,
-      // Add more item details as needed
+      item_name : order.item_name,
     });
   });
 
   // Convert map values to array
-  return Array.from(groupedOrdersMap.values());
+  const groupedOrdersArray = Array.from(groupedOrdersMap.values());
+
+  // wir wird gezaubert um "neue bestellungen"->"zubereitungen"-> "abgeschlossen ODER storniert"
+  const orderedStatus = ["in Bearbeitung", "In Zubereitung","abgeschlossen", "storniert"];
+  groupedOrdersArray.sort((a, b) => {
+  const indexA = orderedStatus.indexOf(a.status);
+  const indexB = orderedStatus.indexOf(b.status);
+
+  if (indexA <= 1 || indexB <= 1) {
+      return indexA - indexB;
+    } else {
+      return 2; // Treat all other statuses as equal
+    }
+  });
+
+  return groupedOrdersArray;
 });
 
 const acceptOrder = async (groupedOrder) => {
@@ -377,7 +392,7 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
             <!-- Iterate over items for the current order -->
             <ul>
               <li v-for="item in groupedOrder.items" :key="item.id">
-                <p>Item Id: {{ item.id }}</p>
+                <p>Id: {{ item.id }}, Name: {{  item.item_name }}</p>
                 <p>Quantity: {{ item.quantity }}</p>
                 <p>Note: {{ item.note }}</p>
                 <!-- Add more item details as needed -->
