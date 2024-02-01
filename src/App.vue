@@ -1,10 +1,15 @@
 <script setup>
 import { useCustomerStore } from '@/stores/CustomerStore';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRestaurantStore } from './stores/RestaurantStore';
 import cartOverlay from '@/components/cartOverlay.vue';
+import { useOrderStore } from './stores/OrderStore';
+
 const customerStore = useCustomerStore();
+const orderStore = useOrderStore();
 const restaurantStore = useRestaurantStore();
+
+
 const logOut = () => {
   customerStore.userName = '';
   customerStore.isLoggedIn = false;
@@ -20,6 +25,18 @@ const openCart = () =>{
 onMounted(() => {
   restaurantStore.getRestaurants();
 });
+
+watch(
+  () => orderStore.cartItems.length,
+  (newLength, oldLength) => {
+    // Check if the length of the array has increased (item added)
+    if (newLength > oldLength) {
+      // Open the cart overlay
+      cartIsOpen.value = true;
+    }
+  }
+);
+
 
 
 </script>

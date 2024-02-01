@@ -49,14 +49,6 @@ const handleItemUpdate = ({ id, quantity, specialRequests }) => {
   }
 };
 
-const recalculateTotalPrice = () => {
-  totalPrice.value = OrderStore.cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  ).toFixed(2);
-};
-
-
 
 const emit = defineEmits(['close-cart']);
 

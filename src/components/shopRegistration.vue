@@ -8,6 +8,12 @@
         <input type="text" id="userName" v-model="userName" class="form-input" required />
       </div>
 
+      <!--Name inpur-->
+      <div class="form-group">
+        <label for="name" class="form-label">Restaurant-Name:</label>
+        <input type="text" id="name" v-model="name" class="form-input" required />
+      </div>
+
       <!-- Password Input -->
       <div class="form-group">
         <label for="password" class="form-label">Password:</label>
@@ -35,6 +41,10 @@
         <input type="text" id="houseNumber" v-model="address.houseNumber" class="form-input" required />
       </div>
 
+      <div class="form-group">
+        <label for="description" class="form-label">Restaurant Description:</label>
+        <input type="text" id="description" v-model="description" class="form-input" required />
+      </div>
       <!-- Submit Button -->
       <div class="form-group">
         <button type="submit" class="submit-button">Create Account</button>
@@ -46,6 +56,7 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import axios from 'axios';
+import router from '@/router';
 const name = ref('');
 const userName = ref('');
 const password = ref('');
@@ -76,6 +87,9 @@ const createAccount = async () => {
       password: password.value
     });
     console.log('Response:', response.data);
+    setTimeout(() => {
+        router.push('/login');
+    }, 2000);
   } catch (error) {
     console.error('Error:', error);
   }
