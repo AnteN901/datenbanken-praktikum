@@ -392,7 +392,7 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
             <!-- Iterate over items for the current order -->
             <ul>
               <li v-for="item in groupedOrder.items" :key="item.id">
-                <p>Id: {{ item.id }}, Name: {{  item.item_name }}</p>
+                <p>Item: {{ item.id }} , {{  item.item_name }}</p>
                 <p>Quantity: {{ item.quantity }}</p>
                 <p>Note: {{ item.note }}</p>
                 <!-- Add more item details as needed -->
