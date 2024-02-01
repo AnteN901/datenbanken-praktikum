@@ -90,10 +90,10 @@ const groupedOrders = computed(() => {
     }
     // Add item to the corresponding order
     groupedOrdersMap.get(order.order_id).items.push({
-      id: order.id,
+      id: order.item_id,
       quantity: order.quantity,
       note: order.note,
-      // Add other item details here
+      item_name : order.item_name,
     });
   });
 
@@ -112,8 +112,6 @@ const groupedOrders = computed(() => {
       return 2; // Treat all other statuses as equal
     }
   });
-
-  console.log(groupedOrdersArray);
 
   return groupedOrdersArray;
 });
@@ -340,7 +338,7 @@ const addRadius = async (radius) => {
             <!-- Iterate over items for the current order -->
             <ul>
               <li v-for="item in groupedOrder.items" :key="item.id">
-                <p>Item Id: {{ item.id }}</p>
+                <p>Id: {{ item.id }}, Name: {{  item.item_name }}</p>
                 <p>Quantity: {{ item.quantity }}</p>
                 <p>Note: {{ item.note }}</p>
                 <!-- Add more item details as needed -->
