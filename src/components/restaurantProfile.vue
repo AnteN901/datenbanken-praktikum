@@ -372,7 +372,12 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
      <!-- category Inputs -->
      <div class="form-group">
       <label for="category" class="form-label">Kategorie:</label>
-      <input type="text" id="category" v-model="category" class="form-input" placeholder="Vorspeise, Hauptspeise, Nachspeise" required />
+      <select v-model="category" class="form-input" required>
+    <option value="Vorspeise">Vorspeise</option>
+    <option value="Nachspeise">Nachspeise</option>
+    <option value="Hauptspeise">Hauptspeise</option>
+    <option value="Getränk">Getränk</option>
+    </select >
     </div>
 
    
@@ -427,7 +432,14 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
         <p>ItemDescription: <input v-model="item.description"></p>
         <p>ItemPrice: <input v-model="item.price" type="price"></p>
         <p>ItemImage: <input v-model="item.image"></p>
-        <p>ItemCategory: <input v-model="item.category"></p>
+        <p>ItemCategory: 
+        <select v-model="item.category">
+          <option value="Vorspeise">Vorspeise</option>
+          <option value="Nachspeise">Nachspeise</option>
+          <option value="Hauptspeise">Hauptspeise</option>
+          <option value="Getränk">Getränk</option>
+        </select>
+    </p>
         <button @click="updateItem(item.id, item.restaurant_id, item.name, item.description, item.price, item.image, item.category)" class="update-btn">Update Item</button>
       </li>
     </div>
@@ -457,10 +469,10 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
     Closing Time:
     <input type="number" min="0" max="23" step="1" v-model="endH"> Hours
     <input type="number" min="0" max="59" step="1" v-model="endM"> Minutes
+    
   </p>
   <button @click="addHours(day,openingH,openingM,endH,endM)">Add Hours</button>
 </div>
-
 </div> 
 </template>
       
