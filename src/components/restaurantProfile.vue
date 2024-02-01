@@ -372,14 +372,16 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
 
 <template>
   <div>
+    <div class="ui-buttons">
     <button @click="toggleDescription">Change description</button>
-    <button @click="toggleInsertItem">InsertItem</button>
-    <button @click="toggleHistory">History</button> 
+    <button @click="toggleHistory">History</button>
+    <button @click="toggleInsertItem">Insert Item</button> 
     <button @click="toggleDeleteItem">Delete/Update Item</button>
-    <button @click="toggleInsertRadius">AddRadius</button>
+    <button @click="toggleInsertRadius">Add radius</button>
     <button @click="toggleInsertDate">Add Opening/Closing Time</button>
+    </div>
   <div class="form-container" v-show="insertItem">
-  <h1>Füge Item hinzu</h1>
+  <h1>Insert item into menue</h1>
   <form @submit.prevent="addItem()" class="item-form">
     <!-- name -->
     <div class="form-group">
@@ -429,7 +431,7 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
     <div class="text-fields">
         <ul v-if="showHistory">
           <li v-for="groupedOrder in groupedOrders" :key="groupedOrder.order_id" class="text-fields-container">
-            <p>Status: {{ groupedOrder.status }}, {{ groupedOrder.created_at }}, {{ groupedOrder.order_id }}</p>
+            <p>Status: {{ groupedOrder.status }}, {{ groupedOrder.created_at }}</p>
             <!-- Iterate over items for the current order -->
             <ul>
               <li v-for="item in groupedOrder.items" :key="item.id">
@@ -440,24 +442,25 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
               </li>
             </ul>
             <div v-if="groupedOrder.status=='in Bearbeitung'">
-              <button @click="acceptOrder(groupedOrder)">Annehmen</button>
-              <button @click="rejectOrder(groupedOrder)">Ablehnen</button>
+              <button @click="acceptOrder(groupedOrder)" class="accept-btn">Annehmen</button>
+              <button @click="rejectOrder(groupedOrder)" class="decline-btn">Ablehnen</button>
             </div>
             <div v-if="groupedOrder.status=='In Zubereitung'">
-              <button @click="completeOrder(groupedOrder)">Abschließen</button>
+              <button @click="completeOrder(groupedOrder)" class="submit-button">Abschließen</button>
             </div>
           </li>
         </ul>
       </div>
     </div>
     <div class="form-group" v-show="deleteItem">
+    <h1>Delete or edit items</h1>
     <div class="item-cards">
-      <button @click="toggleUpdate()" class="update-btn">Delete/Update Item</button>
+      <button @click="toggleUpdate()" class="accept-btn">Delete/Update Item</button>
       <div v-show="update">
       <li v-for="item in restaurantStore.items" :key="item.id" class="item-card">
         <h3>{{ item.name }}</h3>
         <div class="item-actions">
-          <button @click="removeItem(item.id)" class="delete-btn">Delete Item</button>
+          <button @click="removeItem(item.id)" class="decline-btn">Delete Item</button>
           </div>
       </li>
     </div>
@@ -476,25 +479,26 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
           <option value="Getränk">Getränk</option>
         </select>
     </p>
-        <button @click="updateItem(item.id, item.restaurant_id, item.name, item.description, item.price, item.image, item.category)" class="update-btn">Update Item</button>
+        <button @click="updateItem(item.id, item.restaurant_id, item.name, item.description, item.price, item.image, item.category)" class="submit-button">Update Item</button>
       </li>
     </div>
     </div>
   </div>
   <div v-show="insertRadius">
+    <h1>Adjust the delivery radius</h1>
     <div v-show="!radiusMode">
-    <button @click="toggleRadiusMode()" >Add/Delete Radius</button>
+    <button @click="toggleRadiusMode()">Add/Delete Radius</button>
     Radius: <input type="number" v-model="radius">
     <button @click="addRadius(radius)">Add Radius</button>
     </div>
     <div v-show="radiusMode">
-    <button @click="toggleRadiusMode()" >Add/Delete Radius</button>
+    <button @click="toggleRadiusMode()">Add/Delete Radius</button>
     Radius: <input type="number" v-model="radius">
     <button @click="deleteRadius(radius)">Delete Radius</button>
     </div>
   </div>
   <div v-show="insertHours">
-  <p>Weekday (1-Monday | 7-Saturday)</p>
+  <h1>Weekday (1-Monday | 7-Saturday)</h1>
   <input type="number" min="1" max="7" step="1" v-model="day">
   <p>
     Opening Time:
@@ -507,13 +511,13 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
     <input type="number" min="0" max="59" step="1" v-model="endM"> Minutes
     
   </p>
-  <button @click="addHours(day,openingH,openingM,endH,endM)">Add Hours</button>
+  <button @click="addHours(day,openingH,openingM,endH,endM)" class="submit-button">Add Hours</button>
   </div>
   <div v-show="showDescription">
   <h1>Change your restaurants description</h1>  
         <textarea type="text" id="description" v-model="shopdescription" class="description-input">
         </textarea>
-  <button @click="updateShopDescription(shopdescription)">Submit</button>
+  <button @click="updateShopDescription(shopdescription)" class="submit-button">Submit</button>
   </div> 
 </div>
 </template>
@@ -555,5 +559,64 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
   box-sizing: border-box;
   padding: 8px;
 }
+
+.ui-buttons {
+  display: flex;
+  flex-wrap: wrap; /* Allow buttons to wrap to the next line */
+  justify-content: flex-start; /* Align buttons to the start of the container (left) */
+  gap: 8px; /* Optional: Add gap between buttons */
+}
+
+.ui-buttons button {
+  flex: 0 0 calc(33.33% - 8px); /* Three buttons in a row, with 8px gap between them */
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  background-color: #b691ffd9; /* Match the button color to registration form */
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.ui-buttons button:hover{
+  background-color: #a3a3a3d9;
+}
+
+.submit-button{
+  background-color: #4CAF50; /* Green background */
+  color: white; /* White text */
+  padding: 10px 20px; /* Padding for better button size */
+  margin-top: 10px; /* Adjust top margin */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Cursor changes to pointer on hover */
+  font-size: 16px; /* Increased font size */
+  transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+.accept-btn{
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  background-color: #febe00;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin: 10px;
+}
+
+.decline-btn{
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  background-color: #fe5900;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin: 10px;
+}
+
 
 </style>
