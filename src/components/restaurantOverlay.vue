@@ -83,17 +83,27 @@ const fetchItems = async (restaurantId) => {
   }
   
   .overlay-content {
-      position: relative;
-      width: 90%;
-      max-width: 900px;
-      height: 80%;
-      max-height: 600px;
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      overflow-y: auto;
-  }
+    position: relative;
+    width: 90%;
+    max-width: 900px;
+    height: 80%;
+    max-height: 600px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    /* Allow vertical scrolling */
+    overflow-y: auto;
+    /* Hide scrollbar for Webkit browsers */
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge, and Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
   
   .close-button {
       position: absolute;
