@@ -34,6 +34,7 @@ const onClick = () => {
 .restaurantCard {
   border: 1px solid #ccc;
   border-radius: 8px;
+  background-color: white;
   padding: 16px;
   margin: 16px;
   width: 600px; /* Adjust width as needed */

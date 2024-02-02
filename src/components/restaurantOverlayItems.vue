@@ -19,7 +19,7 @@
   </template>
   
   <script setup>
-  import { ref, watch } from 'vue';
+  import { ref, watch, onMounted } from 'vue';
   import { defineProps, defineEmits } from 'vue';
   
   const props = defineProps({
@@ -39,6 +39,7 @@
   
   const increment = () => {
     quantity.value++;
+    console.log(props.item)
   };
   
   const decrement = () => {
@@ -46,6 +47,7 @@
       quantity.value--;
     }
   };
+
   </script>
 
 <style scoped>
@@ -56,7 +58,6 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     position: relative;
-    width: 120%;
     box-sizing: border-box;
     min-height: 100px; /* Adjust the min-height to accommodate content */
 }

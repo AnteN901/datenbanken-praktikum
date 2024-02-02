@@ -42,7 +42,7 @@ const handleOverlayClose = (value) => {
     <RestaurantOverlay v-if="showOverlay" @close="handleOverlayClose" />
   </div>
 </template>
-<style>
+<style scoped>
 .start {
   display: flex;
   justify-content: center;

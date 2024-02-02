@@ -64,7 +64,6 @@ watch(
 </template>
 
 
-
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -74,7 +73,7 @@ watch(
   color: #2c3e50;
 }
 
-body, html {
+body, html, #app {
   margin: 0;
   padding: 0;
 }
