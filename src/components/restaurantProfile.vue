@@ -382,18 +382,44 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
   }
 
 //-----------BIS HIER-----------------------
+
+const getStatusClass = (status) => {
+  switch (status) {
+    case "in Bearbeitung":
+      return "in-bearbeitung";
+    case "In Zubereitung":
+      return "in-zubereitung";
+    case "abgeschlossen":
+      return "abgeschlossen";
+    case "storniert":
+      return "storniert";
+    default:
+      return ""; // Return an empty string or a default class if none of the cases match
+  }
+};
+
+
+const validateRadius = () => {
+  radius.value = radius.value.replace(/[^0-9]/g, '').slice(0, 5);
+};
+
+
 </script>
 
 <template>
-  <div>
-    <div class="ui-buttons">
-    <button @click="toggleDescription">Change description</button>
-    <button @click="toggleHistory">History</button> 
-    <button @click="toggleInsertItem">Insert Item</button>
-    <button @click="toggleInsertDate">Add Opening/Closing Time</button>
-    <button @click="toggleInsertRadius">Add radius</button>
-    <button @click="toggleDeleteItem">Delete/Update Item</button>
-</div>
+  <div class="main">
+    <nav class="navbar">
+    <ul class="nav-list">
+       <li><button @click="toggleDescription">Change Description</button></li>
+       <li><button @click="toggleHistory">History</button></li>
+       <li><button @click="toggleInsertItem">Insert Item</button></li>
+       <li><button @click="toggleInsertDate">Add Opening/Closing Time</button></li>
+       <li><button @click="toggleInsertRadius">Add Radius</button></li>
+       <li><button @click="toggleDeleteItem">Delete/Update Item</button></li>
+    </ul>
+</nav>
+
+
   <div class="form-container" v-show="insertItem">
   <h1>Insert item into menue</h1>
   <form @submit.prevent="addItem()" class="item-form">
@@ -440,32 +466,36 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
   </form>
   </div>
   
-  <div v-show="showHistory">
-    <h1>Bestellübersicht</h1>
-    <div class="text-fields">
-        <ul v-if="showHistory">
-          <li v-for="groupedOrder in groupedOrders" :key="groupedOrder.order_id" class="text-fields-container">
-            <p>Status: {{ groupedOrder.status }}, {{ groupedOrder.created_at }}</p>
-            <!-- Iterate over items for the current order -->
-            <ul>
-              <li v-for="item in groupedOrder.items" :key="item.id">
-                <p>Item: {{ item.id }} , {{  item.item_name }}</p>
-                <p>Quantity: {{ item.quantity }}</p>
-                <p>Note: {{ item.note }}</p>
-                <!-- Add more item details as needed -->
-              </li>
-            </ul>
-            <div v-if="groupedOrder.status=='in Bearbeitung'">
-              <button @click="acceptOrder(groupedOrder)" class="accept-btn">Annehmen</button>
-              <button @click="rejectOrder(groupedOrder)" class="decline-btn">Ablehnen</button>
-            </div>
-            <div v-if="groupedOrder.status=='In Zubereitung'">
-              <button @click="completeOrder(groupedOrder)" class="submit-button">Abschließen</button>
-            </div>
-          </li>
-        </ul>
+  <div v-show="showHistory" class="order-history">
+  <h1>Bestellübersicht</h1>
+  <div class="order-list-container">
+    <div class="order-card" v-for="groupedOrder in groupedOrders" :key="groupedOrder.order_id">
+      <div class="order-header">
+        <div class="status-indicator" :class="getStatusClass(groupedOrder.status)">
+          {{ groupedOrder.status }}
+        </div>
+        <p class="order-date">{{ groupedOrder.created_at }}</p>
+      </div>
+      <div class="item-grid">
+        <div v-for="item in groupedOrder.items" :key="item.id" class="order-item">
+          <div class="item-box">
+            <p class="item-name">{{ item.item_name }}</p>
+            <p class="item-quantity">Quantity: {{ item.quantity }}</p>
+            <p class="item-note">Note: {{ item.note }}</p>
+          </div>
+        </div>
+      </div>
+      <div v-if="groupedOrder.status === 'in Bearbeitung'" class="buttons-container">
+        <button @click="acceptOrder(groupedOrder)" class="accept-btn">Annehmen</button>
+        <button @click="rejectOrder(groupedOrder)" class="decline-btn">Ablehnen</button>
+      </div>
+      <div v-if="groupedOrder.status === 'In Zubereitung'" class="buttons-container">
+        <button @click="completeOrder(groupedOrder)" class="submit-button">Abschließen</button>
       </div>
     </div>
+  </div>
+</div>
+
     <div class="form-group" v-show="deleteItem">
 <h1>Delete or edit items</h1>
     <div class="item-cards">
@@ -498,19 +528,20 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
     </div>
     </div>
   </div>
-  <div v-show="insertRadius">
-<h1>Adjust the delivery radius</h1>
-    <div v-show="!radiusMode">
-    <button @click="toggleRadiusMode()">Add/Delete Radius</button>
-    Radius: <input type="number" v-model="radius">
-    <button @click="addRadius(radius)">Add Radius</button>
+  <div v-show="insertRadius" class="radius-section">
+  <h1>Adjust the delivery radius</h1>
+  <div class="radius-controls">
+    <button @click="toggleRadiusMode()" class="radius-toggle-btn">Toggle Mode</button>
+    <div class="radius-input-group">
+      <label for="radius">Radius:</label>
+      <input type="text" id="radius" v-model="radius" class="radius-input" @input="validateRadius">
     </div>
-    <div v-show="radiusMode">
-    <button @click="toggleRadiusMode()">Add/Delete Radius</button>
-    Radius: <input type="number" v-model="radius">
-    <button @click="deleteRadius(radius)">Delete Radius</button>
-    </div>
+    <button @click="radiusMode ? deleteRadius(radius) : addRadius(radius)" class="radius-action-btn">
+      {{ radiusMode ? 'Delete Radius' : 'Add Radius' }}
+    </button>
   </div>
+</div>
+
   <div v-show="insertHours">
   <button @click="toggleDateMode()" class="accept-btn">Add/Delete Opening Hours</button>
   <h1>Weekday (0-Sunday | 6-Saturday)</h1>
@@ -540,97 +571,207 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
   
 
 <style scoped>
-.text-fields-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 400px;
-  width: calc(100% - 40px);
-  margin: 0 auto;
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+/* General layout and button styling */
+/* Style for the navbar container */
+.navbar {
+  text-align: center;
+  margin-top: 20px; /* Space from top */
+  background-color: transparent;
 }
 
-.item-cards {
+.nav-list {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 400px;
-  width: calc(100% - 40px);
+  list-style: none;
+  padding: 0;
   margin: 0 auto;
+  background-color: #5262a3; /* Navbar background */
+  border-radius: 20px;
+  overflow: hidden; /* Ensure rounded corners for inner buttons */
+}
+
+.nav-list li {
+  flex: 1; /* Distribute space evenly among list items */
+}
+
+.nav-list li button {
+  background-color: #5262a3; /* Match navbar background */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  display: flex; /* Use flexbox for centering */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  width: 100%; /* Take up 100% width of the parent */
+  height: 40px; /* Set a fixed height for all buttons */
+  transition: background-color 0.3s;
+}
+
+.nav-list li button:hover {
+  background-color: #6f7bb6; /* Lighter shade for hover */
+}
+
+/* Ensure other buttons retain their specific styles */
+/* Reset for buttons to avoid global styling interference */
+button {
+  background-color: #4CAF50; /* Default green background for other buttons */
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+/* Specific styles for submit, accept, and decline buttons */
+.submit-button {
+  background-color: #4CAF50; /* Keep your specific green color */
+}
+
+.accept-btn {
+  background-color: #febe00; /* Specific yellow color */
+}
+
+.decline-btn {
+  background-color: #fe5900; /* Specific orange color */
+}
+
+
+/* Form and input styling */
+.form-container, .description-input, .item-cards {
+  margin: 20px auto;
   padding: 20px;
-  background: white;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: white;
+  max-width: 600px;
+  width: calc(100% - 40px);
 }
-.description-input {
-  width: 50%;
-  height: 300px; /* Set the initial height as per your requirement */
-  resize: none;
-  overflow-y: auto; /* Always show vertical scrollbar if needed */
-  overflow-x: hidden; /* Hide horizontal scrollbar */
-  box-sizing: border-box;
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.form-input, textarea {
+  width: 100%;
   padding: 8px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 
-.ui-buttons {
+/* Order history styling */
+.order-history {
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 800px;
+  width: calc(100% - 40px);
+}
+
+.order-card {
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  padding: 15px;
+}
+
+.order-header {
   display: flex;
-  flex-wrap: wrap; /* Allow buttons to wrap to the next line */
-  justify-content: flex-start; /* Align buttons to the start of the container (left) */
-  gap: 8px; /* Optional: Add gap between buttons */
+  justify-content: space-between;
+  margin-bottom: 15px;
 }
 
-.ui-buttons button {
-  flex: 0 0 calc(33.33% - 8px); /* Three buttons in a row, with 8px gap between them */
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  background-color: #b691ffd9; /* Match the button color to registration form */
+.status-indicator {
+  padding: 5px 10px;
+  border-radius: 5px;
   color: white;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-.ui-buttons button:hover{
-  background-color: #a3a3a3d9;
+  font-weight: bold;
 }
 
-.submit-button{
-  background-color: #4CAF50; /* Green background */
-  color: white; /* White text */
-  padding: 10px 20px; /* Padding for better button size */
-  margin-top: 10px; /* Adjust top margin */
-  border: none; /* Remove border */
-  border-radius: 5px; /* Rounded corners */
-  cursor: pointer; /* Cursor changes to pointer on hover */
-  font-size: 16px; /* Increased font size */
-  transition: background-color 0.3s; /* Smooth transition for hover effect */
+/* Status colors */
+.in-bearbeitung {
+  background-color: #3498db; /* Blue */
 }
 
-.accept-btn{
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  background-color: #febe00;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
+.in-zubereitung {
+  background-color: #f1c40f; /* Yellow */
+}
+
+.abgeschlossen {
+  background-color: #27ae60; /* Green */
+}
+
+.storniert {
+  background-color: #e74c3c; /* Red */
+}
+
+.order-date {
+  color: #888;
+}
+
+.item-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-box {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.item-name, .item-quantity, .item-note {
+  margin: 5px 0;
+}
+
+/* Hover effects for interactive elements */
+.ui-buttons button:hover, .submit-button:hover, .accept-btn:hover, .decline-btn:hover {
+  opacity: 0.9;
+}
+
+.radius-section {
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.radius-controls {
+  margin-top: 15px;
+}
+
+.radius-toggle-btn, .radius-action-btn {
   margin: 10px;
-}
-
-.decline-btn{
   padding: 10px 15px;
   border: none;
   border-radius: 4px;
-  background-color: #fe5900;
+  background-color: #007bff;
   color: white;
-  font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s;
-  margin: 10px;
+}
+
+.radius-toggle-btn:hover, .radius-action-btn:hover {
+  background-color: #0056b3;
+}
+
+.radius-input-group {
+  margin: 15px 0;
+}
+
+.radius-input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 200px; /* Adjust as needed */
+  text-align: center;
 }
 
 
