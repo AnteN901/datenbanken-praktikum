@@ -552,7 +552,7 @@ const validateRadius = () => {
   <div v-show="insertRadius" class="radius-section">
   <h1>Adjust the delivery radius</h1>
   <div class="radius-controls">
-    <button @click="toggleRadiusMode()" class="radius-toggle-btn">Toggle Mode</button>
+    <button @click="toggleRadiusMode()" class="radius-toggle-btn">Add/Delete Radius</button>
     <div class="radius-input-group">
       <label for="radius">Radius:</label>
       <input type="text" id="radius" v-model="radius" class="radius-input" @input="validateRadius">
