@@ -28,6 +28,11 @@
       </div>
 
       <div class="form-group">
+        <label for="city" class="form-label">City:</label>
+        <input type="text" id="city" v-model="address.city" class="form-input" required />
+      </div>
+
+      <div class="form-group">
         <label for="street" class="form-label">Street:</label>
         <input type="text" id="street" v-model="address.street" class="form-input" required />
       </div>

@@ -4,7 +4,7 @@
     <form @submit.prevent="createAccount" class="user-form">
       <!-- userName Input -->
       <div class="form-group">
-        <label for="userName" class="form-label">userName:</label>
+        <label for="userName" class="form-label">User Name:</label>
         <input type="text" id="userName" v-model="userName" class="form-input" required />
       </div>
 
@@ -27,13 +27,13 @@
       </div>
 
       <div class="form-group">
-        <label for="street" class="form-label">Street:</label>
-        <input type="text" id="street" v-model="address.street" class="form-input" required />
+        <label for="city" class="form-label">City:</label>
+        <input type="text" id="city" v-model="address.city" class="form-input" required />
       </div>
 
       <div class="form-group">
-        <label for="city" class="form-label">City:</label>
-        <input type="text" id="city" v-model="address.city" class="form-input" required />
+        <label for="street" class="form-label">Street:</label>
+        <input type="text" id="street" v-model="address.street" class="form-input" required />
       </div>
 
       <div class="form-group">
