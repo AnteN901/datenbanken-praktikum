@@ -495,39 +495,60 @@ const validateRadius = () => {
     </div>
   </div>
 </div>
-
-    <div class="form-group" v-show="deleteItem">
-<h1>Delete or edit items</h1>
-    <div class="item-cards">
-      <button @click="toggleUpdate()" class="accept-btn">Delete/Update Item</button>
-      <div v-show="update">
-      <li v-for="item in restaurantStore.items" :key="item.id" class="item-card">
-        <h3>{{ item.name }}</h3>
-        <div class="item-actions">
-          <button @click="removeItem(item.id)" class="decline-btn">Delete Item</button>
+<div v-show="deleteItem" class="form-group">
+  <h1>Delete or Edit Items</h1>
+  <div class="item-cards">
+    <button @click="toggleUpdate()" class="accept-btn">Delete/Update Item</button>
+    <div v-show="update">
+      <div v-for="item in restaurantStore.items" :key="item.id" class="item-card">
+        <div class="item-card-bg">
+          <div class="item-card-content">
+            <h3>{{ item.name }}</h3>
+            <div class="item-actions">
+              <button @click="removeItem(item.id)" class="decline-btn">Delete Item</button>
+            </div>
           </div>
-      </li>
+        </div>
+      </div>
     </div>
     <div>
-      <li v-show="!update" v-for="item in restaurantStore.items" :key="item.id" class="item-card">
-        <p>ID: {{ item.id }}</p>
-        <p>ItemName:  <input v-model="item.name"></p>
-        <p>ItemDescription: <input v-model="item.description"></p>
-        <p>ItemPrice: <input v-model="item.price" type="price"></p>
-        <p>ItemImage: <input v-model="item.image"></p>
-        <p>ItemCategory: 
-        <select v-model="item.category">
-          <option value="Vorspeise">Vorspeise</option>
-          <option value="Nachspeise">Nachspeise</option>
-          <option value="Hauptspeise">Hauptspeise</option>
-          <option value="Getränk">Getränk</option>
-        </select>
-    </p>
-        <button @click="updateItem(item.id, item.restaurant_id, item.name, item.description, item.price, item.image, item.category)" class="submit-button">Update Item</button>
-      </li>
-    </div>
+      <div v-show="!update" v-for="item in restaurantStore.items" :key="item.id" class="item-card">
+        <div class="item-card-bg">
+          <div class="item-card-content">
+            <p>ID: {{ item.id }}</p>
+            <div class="form-group">
+              <label for="itemName" class="form-label">Item Name:</label>
+              <input type="text" id="itemName" v-model="item.name" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label for="itemDescription" class="form-label">Item Description:</label>
+              <input type="text" id="itemDescription" v-model="item.description" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label for="itemPrice" class="form-label">Item Price:</label>
+              <input type="text" id="itemPrice" v-model="item.price" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label for="itemImage" class="form-label">Item Image:</label>
+              <input type="text" id="itemImage" v-model="item.image" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label for="itemCategory" class="form-label">Item Category:</label>
+              <select id="itemCategory" v-model="item.category" class="form-input">
+                <option value="Vorspeise">Vorspeise</option>
+                <option value="Nachspeise">Nachspeise</option>
+                <option value="Hauptspeise">Hauptspeise</option>
+                <option value="Getränk">Getränk</option>
+              </select>
+            </div>
+            <button @click="updateItem(item.id, item.restaurant_id, item.name, item.description, item.price, item.image, item.category)" class="submit-button">Update Item</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+</div>
+
   <div v-show="insertRadius" class="radius-section">
   <h1>Adjust the delivery radius</h1>
   <div class="radius-controls">
