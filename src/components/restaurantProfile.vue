@@ -500,17 +500,12 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
   </div>
   <div v-show="insertRadius">
 <h1>Adjust the delivery radius</h1>
-    <div v-show="!radiusMode">
     <button @click="toggleRadiusMode()">Add/Delete Radius</button>
     Radius: <input type="number" v-model="radius">
-    <button @click="addRadius(radius)">Add Radius</button>
+    <button @click="addRadius(radius)" v-if="radiusMode">Add Radius</button>
+    <button @click="deleteRadius(radius)" v-else>Delete Radius</button>
     </div>
-    <div v-show="radiusMode">
-    <button @click="toggleRadiusMode()">Add/Delete Radius</button>
-    Radius: <input type="number" v-model="radius">
-    <button @click="deleteRadius(radius)">Delete Radius</button>
-    </div>
-  </div>
+ 
   <div v-show="insertHours">
   <button @click="toggleDateMode()" class="accept-btn">Add/Delete Opening Hours</button>
   <h1>Weekday (0-Sunday | 6-Saturday)</h1>
