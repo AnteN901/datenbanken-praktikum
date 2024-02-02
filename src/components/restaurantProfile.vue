@@ -10,19 +10,23 @@ const customerStore = useCustomerStore();
 const name = ref('');
 const price = ref(999.999);
 const description = ref('');
+const shopdescription = ref('');
 const image = ref('');
 const category = ref('');
 
 const insertItem = ref(false);
 const deleteItem = ref(false);
 const showHistory = ref(false)
-
+const showDescription = ref(false);
 const insertRadius = ref(false);
+
 const radius = ref(0);
 const radiusMode = ref(false);
+
 const restaurantOrders = ref([]);
 
 const insertHours = ref(false);
+const dateMode = ref(false);
 const openingH = ref(0);
 const openingM = ref(0);
 const endH = ref(0);
@@ -32,7 +36,20 @@ const day = ref(1);
 
 onMounted(() => {
   getItemListe();
+getShopDescription();
 });
+
+const getShopDescription = async () => {
+  const username = customerStore.userName;
+  try {
+    const response = await axios.get(`http://localhost:3000/getShopDescription?username=${username}`);
+    
+    shopdescription.value = response.data.description;
+    
+  } catch (error) {
+    console.error('Error fetching shop description:', error);
+  }
+};
 
 const toggleDeleteItem = () =>{
   deleteItem.value = !deleteItem.value;
@@ -40,6 +57,7 @@ const toggleDeleteItem = () =>{
   showHistory.value = false;
   insertRadius.value = false;
   insertHours.value = false;
+showDescription.value = false;
   }
 
 const toggleInsertItem = () =>{
@@ -48,6 +66,16 @@ const toggleInsertItem = () =>{
   deleteItem.value = false;
   insertRadius.value = false;
   insertHours.value = false;
+showDescription.value = false;
+}
+
+const toggleDescription = () => {
+  showDescription.value = !showDescription.value;
+  showHistory.value = false;
+  deleteItem.value = false;
+  insertRadius.value = false;
+  insertHours.value = false;
+  insertItem.value = false;
 }
 
 const toggleHistory = async () => {
@@ -59,6 +87,7 @@ const toggleHistory = async () => {
   deleteItem.value =false;
   insertRadius.value = false;
   insertHours.value = false;
+showDescription.value = false;
 };
 
 const toggleInsertRadius = () =>{
@@ -67,6 +96,7 @@ const toggleInsertRadius = () =>{
   deleteItem.value = false;
   insertItem.value = false;
   insertHours.value = false;
+showDescription.value = false;
 }
 
 const toggleRadiusMode = () =>{
@@ -79,6 +109,11 @@ const toggleInsertDate = () =>{
   showHistory.value = false;
   deleteItem.value = false;
   insertItem.value = false;
+showDescription.value = false;
+}
+
+const toggleDateMode = () =>{
+  dateMode.value = !dateMode.value 
 }
 
 
@@ -134,6 +169,17 @@ const groupedOrders = computed(() => {
 
   return groupedOrdersArray;
 });
+const updateShopDescription = async (description) => {
+  const username = customerStore.userName;
+
+
+  try {
+    await axios.post('http://localhost:3000/set-description', { description, username });
+    console.log('Shop description updated successfully');
+  } catch (error) {
+    console.error('Error accepting order:', error);
+  }
+};
 
 const acceptOrder = async (groupedOrder) => {
   const orderId = groupedOrder.order_id;
@@ -298,19 +344,11 @@ const addRadius = async (radius) => {
 //------------HOURS-------------------------
 const addHours = async (day,openingH,openingM,endH,endM) => {
   const id = await getId();
-  let opening,end;
-  if(openingM <10){
-     opening = openingH+':0'+openingM;
-  }
-  else{
-     opening = openingH+':'+openingM;
-  }
-  if(endM < 10){
-     end = endH+':0'+endM;
-  }
-  else{
-   end = endH+':'+endM;
-  }
+  
+  const opening =(openingH < 10 ? '0' : '') + openingH + ':' + (openingM < 10 ? '0' : '') + openingM;
+  const end = (endH < 10 ? '0' : '') + endH + ':' + (endM < 10 ? '0' : '') + endM;
+  console.log(opening, end)
+
   try {
     const response = await axios.post('http://localhost:3000/insertHours', {
       restaurantId : id,
@@ -327,23 +365,37 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
   }
   }
 
+  const deleteHours = async (day) => {
+  const id = await getId();
+  try {
+    const response = await axios.post('http://localhost:3000/deleteHours', {
+      restaurantId : id,
+      day : day
+    });
+    if(response.data)
+    {
+      console.log("delete hour succes");
+    }
+  } catch (error) {
+      console.log(error);
+  }
+  }
+
 //-----------BIS HIER-----------------------
 </script>
 
 <template>
   <div>
-    <button @click="toggleInsertItem" v-if="!insertItem">InsertItem</button>
-    <button @click="toggleInsertItem" v-else>InsertItem</button>
-    <button @click="toggleHistory" v-if="!showHistory">History</button>
-    <button @click="toggleHistory" v-else>History</button> 
-    <button @click="toggleDeleteItem" v-if="!deleteItem">Delete/Update Item</button>
-    <button @click="toggleDeleteItem" v-else>Delete/Update Item</button>
-    <button @click="toggleInsertRadius" v-if="!insertRadius">AddRadius</button>
-    <button @click="toggleInsertRadius" v-else>AddRadius</button>
-    <button @click="toggleInsertDate" v-if="!insertHours">Add Opening/Closing Time</button>
-    <button @click="toggleInsertDate" v-else>Add Opening/Closing Time</button>
+    <div class="ui-buttons">
+    <button @click="toggleDescription">Change description</button>
+    <button @click="toggleHistory">History</button> 
+    <button @click="toggleInsertItem">Insert Item</button>
+    <button @click="toggleInsertDate">Add Opening/Closing Time</button>
+    <button @click="toggleInsertRadius">Add radius</button>
+    <button @click="toggleDeleteItem">Delete/Update Item</button>
+</div>
   <div class="form-container" v-show="insertItem">
-  <h1>Füge Item hinzu</h1>
+  <h1>Insert item into menue</h1>
   <form @submit.prevent="addItem()" class="item-form">
     <!-- name -->
     <div class="form-group">
@@ -372,7 +424,12 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
      <!-- category Inputs -->
      <div class="form-group">
       <label for="category" class="form-label">Kategorie:</label>
-      <input type="text" id="category" v-model="category" class="form-input" placeholder="Vorspeise, Hauptspeise, Nachspeise" required />
+      <select v-model="category" class="form-input" required>
+    <option value="Vorspeise">Vorspeise</option>
+    <option value="Nachspeise">Nachspeise</option>
+    <option value="Hauptspeise">Hauptspeise</option>
+    <option value="Getränk">Getränk</option>
+    </select >
     </div>
 
    
@@ -388,7 +445,7 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
     <div class="text-fields">
         <ul v-if="showHistory">
           <li v-for="groupedOrder in groupedOrders" :key="groupedOrder.order_id" class="text-fields-container">
-            <p>Status: {{ groupedOrder.status }}, {{ groupedOrder.created_at }}, {{ groupedOrder.order_id }}</p>
+            <p>Status: {{ groupedOrder.status }}, {{ groupedOrder.created_at }}</p>
             <!-- Iterate over items for the current order -->
             <ul>
               <li v-for="item in groupedOrder.items" :key="item.id">
@@ -399,24 +456,25 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
               </li>
             </ul>
             <div v-if="groupedOrder.status=='in Bearbeitung'">
-              <button @click="acceptOrder(groupedOrder)">Annehmen</button>
-              <button @click="rejectOrder(groupedOrder)">Ablehnen</button>
+              <button @click="acceptOrder(groupedOrder)" class="accept-btn">Annehmen</button>
+              <button @click="rejectOrder(groupedOrder)" class="decline-btn">Ablehnen</button>
             </div>
             <div v-if="groupedOrder.status=='In Zubereitung'">
-              <button @click="completeOrder(groupedOrder)">Abschließen</button>
+              <button @click="completeOrder(groupedOrder)" class="submit-button">Abschließen</button>
             </div>
           </li>
         </ul>
       </div>
     </div>
     <div class="form-group" v-show="deleteItem">
+<h1>Delete or edit items</h1>
     <div class="item-cards">
-      <button @click="toggleUpdate()" class="update-btn">Delete/Update Item</button>
+      <button @click="toggleUpdate()" class="accept-btn">Delete/Update Item</button>
       <div v-show="update">
       <li v-for="item in restaurantStore.items" :key="item.id" class="item-card">
         <h3>{{ item.name }}</h3>
         <div class="item-actions">
-          <button @click="removeItem(item.id)" class="delete-btn">Delete Item</button>
+          <button @click="removeItem(item.id)" class="decline-btn">Delete Item</button>
           </div>
       </li>
     </div>
@@ -427,40 +485,55 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
         <p>ItemDescription: <input v-model="item.description"></p>
         <p>ItemPrice: <input v-model="item.price" type="price"></p>
         <p>ItemImage: <input v-model="item.image"></p>
-        <p>ItemCategory: <input v-model="item.category"></p>
-        <button @click="updateItem(item.id, item.restaurant_id, item.name, item.description, item.price, item.image, item.category)" class="update-btn">Update Item</button>
+        <p>ItemCategory: 
+        <select v-model="item.category">
+          <option value="Vorspeise">Vorspeise</option>
+          <option value="Nachspeise">Nachspeise</option>
+          <option value="Hauptspeise">Hauptspeise</option>
+          <option value="Getränk">Getränk</option>
+        </select>
+    </p>
+        <button @click="updateItem(item.id, item.restaurant_id, item.name, item.description, item.price, item.image, item.category)" class="submit-button">Update Item</button>
       </li>
     </div>
     </div>
   </div>
   <div v-show="insertRadius">
+<h1>Adjust the delivery radius</h1>
     <div v-show="!radiusMode">
-    <button @click="toggleRadiusMode()" >Add/Delete Radius</button>
+    <button @click="toggleRadiusMode()">Add/Delete Radius</button>
     Radius: <input type="number" v-model="radius">
     <button @click="addRadius(radius)">Add Radius</button>
     </div>
     <div v-show="radiusMode">
-    <button @click="toggleRadiusMode()" >Add/Delete Radius</button>
+    <button @click="toggleRadiusMode()">Add/Delete Radius</button>
     Radius: <input type="number" v-model="radius">
     <button @click="deleteRadius(radius)">Delete Radius</button>
     </div>
   </div>
   <div v-show="insertHours">
-  <p>Weekday (1-Monday | 7-Saturday)</p>
-  <input type="number" min="1" max="7" step="1" v-model="day">
-  <p>
+  <button @click="toggleDateMode()" class="accept-btn">Add/Delete Opening Hours</button>
+  <h1>Weekday (0-Sunday | 6-Saturday)</h1>
+  <input type="number" min="0" max="6" step="1" v-model="day">
+  <p v-if="!dateMode">
     Opening Time:
     <input type="number" min="0" max="23" step="1" v-model="openingH"> Hours
     <input type="number" min="0" max="59" step="1" v-model="openingM"> Minutes
   </p>
-  <p>
+  <p v-if="!dateMode">
     Closing Time:
     <input type="number" min="0" max="23" step="1" v-model="endH"> Hours
     <input type="number" min="0" max="59" step="1" v-model="endM"> Minutes
   </p>
-  <button @click="addHours(day,openingH,openingM,endH,endM)">Add Hours</button>
+  <button @click="addHours(day,openingH,openingM,endH,endM)" class="submit-button" v-if="!dateMode">Add Hours</button>
+  <button @click="deleteHours(day)" class="decline-btn" v-else>Delete Hours</button>
 </div>
-
+  <div v-show="showDescription">
+  <h1>Change your restaurants description</h1>  
+        <textarea type="text" id="description" v-model="shopdescription" class="description-input">
+        </textarea>
+  <button @click="updateShopDescription(shopdescription)" class="submit-button">Submit</button>
+</div>
 </div> 
 </template>
       
@@ -492,4 +565,73 @@ const addHours = async (day,openingH,openingM,endH,endM) => {
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
+.description-input {
+  width: 50%;
+  height: 300px; /* Set the initial height as per your requirement */
+  resize: none;
+  overflow-y: auto; /* Always show vertical scrollbar if needed */
+  overflow-x: hidden; /* Hide horizontal scrollbar */
+  box-sizing: border-box;
+  padding: 8px;
+}
+
+.ui-buttons {
+  display: flex;
+  flex-wrap: wrap; /* Allow buttons to wrap to the next line */
+  justify-content: flex-start; /* Align buttons to the start of the container (left) */
+  gap: 8px; /* Optional: Add gap between buttons */
+}
+
+.ui-buttons button {
+  flex: 0 0 calc(33.33% - 8px); /* Three buttons in a row, with 8px gap between them */
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  background-color: #b691ffd9; /* Match the button color to registration form */
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.ui-buttons button:hover{
+  background-color: #a3a3a3d9;
+}
+
+.submit-button{
+  background-color: #4CAF50; /* Green background */
+  color: white; /* White text */
+  padding: 10px 20px; /* Padding for better button size */
+  margin-top: 10px; /* Adjust top margin */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Cursor changes to pointer on hover */
+  font-size: 16px; /* Increased font size */
+  transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+.accept-btn{
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  background-color: #febe00;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin: 10px;
+}
+
+.decline-btn{
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  background-color: #fe5900;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin: 10px;
+}
+
+
 </style>
