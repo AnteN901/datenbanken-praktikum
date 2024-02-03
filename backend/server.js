@@ -188,9 +188,29 @@ app.get('/getRestaurants', (req, res) => {
 
 app.get('/getRestaurantsFiltered', (req, res) => { 
   console.log('Request for Restaurants Filtered revieced');
-  const {postal_code} = req.query; //Für axios.get wird req.query gebraucht(?) = erhält parameter aus dem anfrage-String
-  const query = "SELECT * FROM  restaurants RIGHT JOIN (SELECT * FROM delivery_radius WHERE postal_code = '"+postal_code+"') AS f_rest ON restaurants.id = f_rest.restaurants_id";
-  db.all(query,(err, rows) => {
+  const {postal_code} = req.query; 
+  const currentDate = new Date();
+  
+  const minute = (currentDate.getMinutes() < 10) ? "0" + currentDate.getMinutes() : currentDate.getMinutes();
+  const hour = (currentDate.getHours() < 10) ? "0" + currentDate.getHours() : currentDate.getHours();
+  const time = hour+":"+minute;
+  const day = currentDate.getDay();
+  const query = `
+  SELECT *
+  FROM restaurants AS r
+  RIGHT JOIN (
+    SELECT d_table.restaurants_id AS id, postal_code
+    FROM delivery_radius AS d_table
+    RIGHT JOIN (
+      SELECT o.restaurant_id AS id
+      FROM opening_hours AS o
+      WHERE o.opening_time < '${time}' AND o.closing_time > '${time}' AND o.day_of_week = ${day}
+    ) AS t_table ON t_table.id = d_table.restaurants_id
+    WHERE postal_code = ${postal_code}
+  ) AS f_table ON f_table.id = r.id;
+`;
+console.log(query);
+db.all(query,(err, rows) => {
     if (err) {
       console.error(err.message);
       res.status(500).json({ error: 'Internal server error' });
