@@ -151,6 +151,24 @@ app.post('/set-description', (req, res) => {
   });
 });
 
+app.post('/set-path-to-pp', (req, res) => {
+  const { image,  username} = req.body;
+  const updateQuery = `
+    UPDATE restaurants 
+    SET image = ?
+    WHERE username = ?;
+  `;
+
+  db.run(updateQuery, [image, username], function (err) {
+    if (err) {
+      console.error(err.message);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      res.json({ message: 'Restaurant Description updated successfully' });
+    }
+  });
+});
+
 
 app.post('/customerLogIn', (req,res) =>{
   console.log('request For LogIn recieved');

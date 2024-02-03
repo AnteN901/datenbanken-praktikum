@@ -36,7 +36,7 @@ const openingM = ref(0);
 const endH = ref(0);
 const endM = ref(0);
 const day = ref(1);
-
+const isPPUploaded = ref(false);
 
 onMounted(() => {
   getItemListe();
@@ -182,7 +182,7 @@ const updateShopDescription = async (description) => {
     await axios.post('http://localhost:3000/set-description', { description, username });
     console.log('Shop description updated successfully');
   } catch (error) {
-    console.error('Error accepting order:', error);
+    console.error('Error changing description', error);
   }
 };
 
@@ -218,7 +218,7 @@ const completeOrder = async (groupedOrder) => {
     console.log('Order status updated successfully');
     await getOrders(); // Refresh order history
   } catch (error) {
-    console.error('Error rejecting order:', error);
+    console.error('Error completing order:', error);
   }
 };
 
@@ -419,6 +419,47 @@ const validateRadius = () => {
   radius.value = radius.value.replace(/[^0-9]/g, '').slice(0, 5);
 };
 
+let PPfileName = "lol";
+let PPImagePath = "/images/uploadedImages/"; //filename of upload restaurant image
+
+const handleDrop = function(event) {
+  const files = event.dataTransfer.files;
+  uploadFiles(files);
+};
+
+const handleDragOver = function(event) {
+  event.dataTransfer.dropEffect = "copy";
+};
+
+
+const uploadFiles = function(files) {
+  const formData = new FormData();
+  formData.append("file", files[0]);
+  PPfileName = files[0].name;
+  PPImagePath = PPImagePath + PPfileName;
+  console.log(PPImagePath)
+  axios.post("http://localhost:3000/api/upload", formData)
+    .then(response => {
+      console.log(response.data);
+    })
+    .catch(error => {
+      console.error("Error uploading file:", error);
+    });
+  isPPUploaded.value = true;
+};
+
+const updateShopProfilePicture = async () =>{
+  const username = customerStore.userName;
+  const image = PPImagePath;
+  console.log(username, PPImagePath);
+  try {
+    await axios.post('http://localhost:3000/set-path-to-pp', { image, username });
+    console.log('Shop picture updated successfully');
+  } catch (error) {
+    console.error('Error updating picture:', error);
+  }
+};
+
 
 </script>
 
@@ -609,9 +650,19 @@ const validateRadius = () => {
     </div>
 
     <div v-show="showDescription" class="description-section">
-      <h1>Change your restaurant's description</h1>
+      <h1>Change your restaurant's description and picture!</h1>
       <textarea id="description" v-model="shopdescription" class="description-input"></textarea>
       <button @click="updateShopDescription(shopdescription)" class="submit-button">Submit</button>
+      <div class = "description-input">
+          <div v-if="!isPPUploaded" class="file-upload" @drop.prevent="handleDrop" @dragover.prevent="handleDragOver">
+          <p>Drag and drop files here</p>
+          </div>
+          <div v-if="isPPUploaded" class="file-uploaded">
+          <p>File uploaded successfully!</p>
+          <p>Filename: {{ fileName }}</p>
+        </div>
+        <button class="submit-button" @click="updateShopProfilePicture">Update Profile-Picture!</button>
+      </div>
     </div>
   </div>
 </template>
@@ -881,6 +932,29 @@ button:hover {
 
 .delivery-radius-table li:last-child {
   border-bottom: none;
+}
+
+.file-upload {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  border: 2px dashed #ccc;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.file-uploaded {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  background-color: #e0f7fa;
+  border: 2px solid #007c02;
+  padding: 20px;
+  text-align: center;
+  color: #00838f;
 }
 
 </style>
