@@ -425,210 +425,197 @@ const validateRadius = () => {
 <template>
   <div class="main">
     <nav class="navbar">
-    <ul class="nav-list">
-       <li><button @click="toggleDescription">Change Description</button></li>
-       <li><button @click="toggleHistory">History</button></li>
-       <li><button @click="toggleInsertDate">Add Opening/Closing Time</button></li>
-       <li><button @click="toggleInsertRadius">Add Radius</button></li>
-       <li><button @click="toggleInsertItem">Insert Item</button></li>
-       <li><button @click="toggleDeleteItem">Delete/Update Item</button></li>
-    </ul>
-</nav>
+      <ul class="nav-list">
+        <li><button @click="toggleDescription">Change Description</button></li>
+        <li><button @click="toggleHistory">History</button></li>
+        <li><button @click="toggleInsertDate">Add Opening/Closing Time</button></li>
+        <li><button @click="toggleInsertRadius">Add Radius</button></li>
+        <li><button @click="toggleInsertItem">Insert Item</button></li>
+        <li><button @click="toggleDeleteItem">Delete/Update Item</button></li>
+      </ul>
+    </nav>
 
-
-  <div class="form-container" v-show="insertItem">
-  <h1>Insert item into menue</h1>
-  <form @submit.prevent="addItem()" class="item-form">
-    <!-- name -->
-    <div class="form-group">
-      <label for="name" class="form-label">Name:</label>
-      <input type="text" id="name" v-model="name" class="form-input" required />
-    </div>
-
-    <!-- Price Input -->
-    <div class="form-group">
-      <label for="price" class="form-label">Preis:</label>
-      <input type="price" id="price" v-model="price" class="form-input" required />
-    </div>
-
-    <!-- Description Inputs -->
-    <div class="form-group">
-      <label for="description" class="form-label">Beschreibung:</label>
-      <input type="text" id="description" v-model="description" class="form-input" required />
-    </div>
-
-    <!-- Image Inputs -->
-    <div class="form-group">
-      <label for="image" class="form-label">Bild:</label>
-      <input type="text" id="image" v-model="image" class="form-input" required />
-    </div>
-
-     <!-- category Inputs -->
-     <div class="form-group">
-      <label for="category" class="form-label">Kategorie:</label>
-      <select v-model="category" class="form-input" required>
-    <option value="Vorspeise">Vorspeise</option>
-    <option value="Nachspeise">Nachspeise</option>
-    <option value="Hauptspeise">Hauptspeise</option>
-    <option value="Getränk">Getränk</option>
-    </select >
-    </div>
-
-   
-    <!-- Submit Button -->
-    <div class="form-group">
-      <button type="submit" class="submit-button">Insert Item</button>
-    </div>
-  </form>
-  </div>
-  
-  <div v-show="showHistory" class="order-history">
-  <h1>Bestellübersicht</h1>
-  <div class="order-list-container">
-    <div class="order-card" v-for="groupedOrder in groupedOrders" :key="groupedOrder.order_id">
-      <div class="order-header">
-        <div class="status-indicator" :class="getStatusClass(groupedOrder.status)">
-          {{ groupedOrder.status }}
+    <div class="form-container" v-show="insertItem">
+      <h1>Insert item into menu</h1>
+      <form @submit.prevent="addItem()" class="item-form">
+        <!-- Name Input -->
+        <div class="form-group">
+          <label for="name" class="form-label">Name:</label>
+          <input type="text" id="name" v-model="name" class="form-input" required />
         </div>
-        <p class="order-date">{{ groupedOrder.created_at }}</p>
-      </div>
-      <div class="item-grid">
-        <div v-for="item in groupedOrder.items" :key="item.id" class="order-item">
-          <div class="item-box">
-            <p class="item-name">{{ item.item_name }}</p>
-            <p class="item-quantity">Quantity: {{ item.quantity }}</p>
-            <p class="item-note">Note: {{ item.note }}</p>
-          </div>
+
+        <!-- Price Input -->
+        <div class="form-group">
+          <label for="price" class="form-label">Preis:</label>
+          <input type="number" id="price" v-model="price" class="form-input" required />
         </div>
-      </div>
-      <div v-if="groupedOrder.status === 'in Bearbeitung'" class="buttons-container">
-        <button @click="acceptOrder(groupedOrder)" class="accept-btn">Annehmen</button>
-        <button @click="rejectOrder(groupedOrder)" class="decline-btn">Ablehnen</button>
-      </div>
-      <div v-if="groupedOrder.status === 'In Zubereitung'" class="buttons-container">
-        <button @click="completeOrder(groupedOrder)" class="submit-button">Abschließen</button>
-      </div>
+
+        <!-- Description Input -->
+        <div class="form-group">
+          <label for="description" class="form-label">Beschreibung:</label>
+          <input type="text" id="description" v-model="description" class="form-input" required />
+        </div>
+
+        <!-- Image Input -->
+        <div class="form-group">
+          <label for="image" class="form-label">Bild:</label>
+          <input type="text" id="image" v-model="image" class="form-input" required />
+        </div>
+
+        <!-- Category Input -->
+        <div class="form-group">
+          <label for="category" class="form-label">Kategorie:</label>
+          <select v-model="category" class="form-input" required>
+            <option value="Vorspeise">Vorspeise</option>
+            <option value="Nachspeise">Nachspeise</option>
+            <option value="Hauptspeise">Hauptspeise</option>
+            <option value="Getränk">Getränk</option>
+          </select>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-group">
+          <button type="submit" class="submit-button">Insert Item</button>
+        </div>
+      </form>
     </div>
-  </div>
-</div>
-<div v-show="deleteItem" class="form-group">
-  <h1>Delete or Edit Items</h1>
-  <div class="item-cards">
-    <button @click="toggleUpdate()" class="accept-btn">Delete/Update Item</button>
-    <div v-show="update">
-      <div v-for="item in restaurantStore.items" :key="item.id" class="item-card">
-        <div class="item-card-bg">
-          <div class="item-card-content">
-            <h3>{{ item.name }}</h3>
-            <div class="item-actions">
-              <button @click="removeItem(item.id)" class="decline-btn">Delete Item</button>
+
+    <div v-show="showHistory" class="order-history">
+      <h1>Bestellübersicht</h1>
+      <div class="order-list-container">
+        <div class="order-card" v-for="groupedOrder in groupedOrders" :key="groupedOrder.order_id">
+          <div class="order-header">
+            <div class="status-indicator" :class="getStatusClass(groupedOrder.status)">
+              {{ groupedOrder.status }}
             </div>
+            <p class="order-date">{{ groupedOrder.created_at }}</p>
+          </div>
+          <div class="item-grid">
+            <div v-for="item in groupedOrder.items" :key="item.id" class="order-item">
+              <div class="item-box">
+                <p class="item-name">{{ item.item_name }}</p>
+                <p class="item-quantity">Quantity: {{ item.quantity }}</p>
+                <p class="item-note">Note: {{ item.note }}</p>
+              </div>
+            </div>
+          </div>
+          <div v-if="groupedOrder.status === 'in Bearbeitung'" class="buttons-container">
+            <button @click="acceptOrder(groupedOrder)" class="accept-btn">Annehmen</button>
+            <button @click="rejectOrder(groupedOrder)" class="decline-btn">Ablehnen</button>
+          </div>
+          <div v-if="groupedOrder.status === 'In Zubereitung'" class="buttons-container">
+            <button @click="completeOrder(groupedOrder)" class="submit-button">Abschließen</button>
           </div>
         </div>
       </div>
     </div>
-    <div>
-      <div v-show="!update" v-for="item in restaurantStore.items" :key="item.id" class="item-card">
-        <div class="item-card-bg">
-          <div class="item-card-content">
-            <p>ID: {{ item.id }}</p>
-            <div class="form-group">
-              <label for="itemName" class="form-label">Item Name:</label>
-              <input type="text" id="itemName" v-model="item.name" class="form-input" />
+
+    <div v-show="deleteItem" class="delete-item-section">
+      <h1>Delete or Edit Items</h1>
+      <button @click="toggleUpdate()" class="accept-btn">Delete/Update Item</button>
+      <div v-show="update">
+        <div v-for="item in restaurantStore.items" :key="item.id" class="item-card">
+          <div class="item-card-bg">
+            <div class="item-card-content">
+              <h3>{{ item.name }}</h3>
+              <div class="item-actions">
+                <button @click="removeItem(item.id)" class="decline-btn">Delete Item</button>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="itemDescription" class="form-label">Item Description:</label>
-              <input type="text" id="itemDescription" v-model="item.description" class="form-input" />
+          </div>
+        </div>
+      </div>
+      <div v-show="!update">
+        <div v-for="item in restaurantStore.items" :key="item.id" class="item-card">
+          <div class="item-card-bg">
+            <div class="item-card-content">
+              <p>ID: {{ item.id }}</p>
+              <div class="form-group">
+                <label for="itemName" class="form-label">Item Name:</label>
+                <input type="text" id="itemName" v-model="item.name" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label for="itemDescription" class="form-label">Item Description:</label>
+                <input type="text" id="itemDescription" v-model="item.description" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label for="itemPrice" class="form-label">Item Price:</label>
+                <input type="number" id="itemPrice" v-model="item.price" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label for="itemImage" class="form-label">Item Image:</label>
+                <input type="text" id="itemImage" v-model="item.image" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label for="itemCategory" class="form-label">Item Category:</label>
+                <select id="itemCategory" v-model="item.category" class="form-input">
+                  <option value="Vorspeise">Vorspeise</option>
+                  <option value="Nachspeise">Nachspeise</option>
+                  <option value="Hauptspeise">Hauptspeise</option>
+                  <option value="Getränk">Getränk</option>
+                </select>
+              </div>
+              <button @click="updateItem(item.id, item.restaurant_id, item.name, item.description, item.price, item.image, item.category)" class="submit-button">Update Item</button>
             </div>
-            <div class="form-group">
-              <label for="itemPrice" class="form-label">Item Price:</label>
-              <input type="text" id="itemPrice" v-model="item.price" class="form-input" />
-            </div>
-            <div class="form-group">
-              <label for="itemImage" class="form-label">Item Image:</label>
-              <input type="text" id="itemImage" v-model="item.image" class="form-input" />
-            </div>
-            <div class="form-group">
-              <label for="itemCategory" class="form-label">Item Category:</label>
-              <select id="itemCategory" v-model="item.category" class="form-input">
-                <option value="Vorspeise">Vorspeise</option>
-                <option value="Nachspeise">Nachspeise</option>
-                <option value="Hauptspeise">Hauptspeise</option>
-                <option value="Getränk">Getränk</option>
-              </select>
-            </div>
-            <button @click="updateItem(item.id, item.restaurant_id, item.name, item.description, item.price, item.image, item.category)" class="submit-button">Update Item</button>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
-<<<<<<< HEAD
 
-  <div v-show="insertRadius" class="radius-section">
-  <h1>Adjust the delivery radius</h1>
-  <div class="radius-controls">
-    <button @click="toggleRadiusMode()" class="radius-toggle-btn">Add/Delete Radius</button>
-    <div class="radius-input-group">
-      <label for="radius">Radius:</label>
-      <input type="text" id="radius" v-model="radius" class="radius-input" @input="validateRadius">
-=======
-<div v-show="insertRadius" class="delivery-radius-section">
-  <h1>Adjust the Delivery Radius</h1>
-  <div class="delivery-radius-controls">
-    <button @click="toggleRadiusMode()" class="delivery-radius-toggle-btn">Toggle Mode</button>
-    <div class="delivery-radius-input-group">
-      <label for="delivery-radius">Postal Code:</label>
-      <div class="delivery-radius-input-wrapper">
-        <input type="text" id="delivery-radius" v-model="radius" class="delivery-radius-input" @input="validateRadius">
+    <div v-show="insertRadius" class="delivery-radius-section">
+      <h1>Adjust the Delivery Radius</h1>
+      <div class="delivery-radius-controls">
+        <button @click="toggleRadiusMode()" class="delivery-radius-toggle-btn">Toggle Mode</button>
+        <div class="delivery-radius-input-group">
+          <label for="delivery-radius">Postal Code:</label>
+          <div class="delivery-radius-input-wrapper">
+            <input type="text" id="delivery-radius" v-model="radius" class="delivery-radius-input" @input="validateRadius" />
+          </div>
+        </div>
+        <button @click="radiusMode ? deleteRadius(radius) : addRadius(radius)" class="delivery-radius-action-btn">
+          {{ radiusMode ? 'Remove from Radius' : 'Add to Radius' }}
+        </button>
       </div>
->>>>>>> 257fc6c022a3f644b2a1765c5c08004eed7a741e
+      <div class="delivery-radius-table">
+        <h2>Current Delivery Radius</h2>
+        <ul>
+          <li v-for="code in deliveryRadius" :key="code">{{ code }}</li>
+        </ul>
+      </div>
     </div>
-    <button @click="radiusMode ? deleteRadius(radius) : addRadius(radius)" class="delivery-radius-action-btn">
-      {{ radiusMode ? 'Remove from Radius' : 'Add to Radius' }}
-    </button>
+
+    <div v-show="insertHours" class="hours-section">
+      <button @click="toggleDateMode()" class="accept-btn">Add/Delete Opening Hours</button>
+      <h1>Weekday (0-Sunday | 6-Saturday)</h1>
+      <select class="day_selector" v-model="day">
+        <option value="0">Sunday</option>
+        <option value="1">Monday</option>
+        <option value="2">Tuesday</option>
+        <option value="3">Wednesday</option>
+        <option value="4">Thursday</option>
+        <option value="5">Friday</option>
+        <option value="6">Saturday</option>
+      </select>
+      <div v-if="!dateMode">
+        <label>Opening Time:</label>
+        <input class="time_adjustments" type="number" min="0" max="23" step="1" v-model="openingH"> Hours
+        <input class="time_adjustments" type="number" min="0" max="59" step="1" v-model="openingM"> Minutes
+        <label>Closing Time:</label>
+        <input class="time_adjustments" type="number" min="0" max="23" step="1" v-model="endH"> Hours
+        <input class="time_adjustments" type="number" min="0" max="59" step="1" v-model="endM"> Minutes
+        <button @click="addHours(day,openingH,openingM,endH,endM)" class="submit-button">Add Hours</button>
+      </div>
+      <button @click="deleteHours(day)" class="decline-btn" v-if="dateMode">Delete Hours</button>
+    </div>
+
+    <div v-show="showDescription" class="description-section">
+      <h1>Change your restaurant's description</h1>
+      <textarea id="description" v-model="shopdescription" class="description-input"></textarea>
+      <button @click="updateShopDescription(shopdescription)" class="submit-button">Submit</button>
+    </div>
   </div>
-  <div class="delivery-radius-table">
-    <h1>Current Delivery Radius</h1>
-    <ul>
-      <li v-for="code in deliveryRadius" :key="code">{{ code }}</li>
-    </ul>
-  </div>
-</div>
-  <div v-show="insertHours">
-  <button @click="toggleDateMode()" class="accept-btn">Add/Delete Opening Hours</button>
-  <h1>Weekday (0-Sunday | 6-Saturday)</h1>
-  <select class="day_selector" v-model="day">
-      <option value="0">Sunday</option>
-      <option value="1">Monday</option>
-      <option value="2">Tuesday</option>
-      <option value="3">Wednesday</option>
-      <option value="4">Thursday</option>
-      <option value="5">Friday</option>
-      <option value="6">Saturday</option>
-    </select>
-  <p v-if="!dateMode">
-    Opening Time:
-    <input class="time_adjustments" type="number" min="0" max="23" step="1" v-model="openingH"> Hours
-    <input class="time_adjustments" type="number" min="0" max="59" step="1" v-model="openingM"> Minutes
-  </p>
-  <p v-if="!dateMode">
-    Closing Time:
-    <input class="time_adjustments" type="number" min="0" max="23" step="1" v-model="endH"> Hours
-    <input class="time_adjustments" type="number" min="0" max="59" step="1" v-model="endM"> Minutes
-  </p>
-  <button @click="addHours(day,openingH,openingM,endH,endM)" class="submit-button" v-if="!dateMode">Add Hours</button>
-  <button @click="deleteHours(day)" class="decline-btn" v-else>Delete Hours</button>
-</div>
-  <div v-show="showDescription">
-  <h1>Change your restaurants description</h1>  
-        <textarea type="text" id="description" v-model="shopdescription" class="description-input">
-        </textarea>
-  <button @click="updateShopDescription(shopdescription)" class="submit-button">Submit</button>
-</div>
-</div> 
 </template>
+
       
   
 
