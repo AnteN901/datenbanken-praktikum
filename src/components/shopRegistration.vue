@@ -46,8 +46,14 @@
         <input type="text" id="description" v-model="description" class="form-input" required />
       </div>
 
-      <div class="file-upload" @drop.prevent="handleDrop" @dragover.prevent="handleDragOver">
-      <p>Upload a picture! Drag and Drop</p>
+      <div>
+      <div v-if="!isFileUploaded" class="file-upload" @drop.prevent="handleDrop" @dragover.prevent="handleDragOver">
+        <p>Drag and drop files here</p>
+      </div>
+      <div v-if="isFileUploaded" class="file-uploaded">
+        <p>File uploaded successfully!</p>
+        <p>Filename: {{ fileName }}</p>
+      </div>
       </div>
       <!-- Submit Button -->
       <div class="form-group">
@@ -66,6 +72,8 @@ const userName = ref('');
 const password = ref('');
 const description = ref('');
 
+const isFileUploaded = ref(false);
+let fileName = "";
 let ImagePath = "/images/uploadedImages/"; //filename of upload restaurant image
 const address = reactive({
 postcode: '',
@@ -112,7 +120,8 @@ const handleDragOver = function(event) {
 const uploadFiles = function(files) {
   const formData = new FormData();
   formData.append("file", files[0]);
-  ImagePath = ImagePath + files[0].name;
+  fileName = files[0].name;
+  ImagePath = ImagePath + fileName;
   console.log(ImagePath)
   axios.post("http://localhost:3000/api/upload", formData)
     .then(response => {
@@ -121,6 +130,7 @@ const uploadFiles = function(files) {
     .catch(error => {
       console.error("Error uploading file:", error);
     });
+  isFileUploaded.value = true;
 };
 
 </script>
@@ -186,5 +196,13 @@ font-size: 16px;
   padding: 20px;
   text-align: center;
   cursor: pointer;
+}
+
+.file-uploaded {
+  background-color: #e0f7fa;
+  border: 2px solid #007c02;
+  padding: 20px;
+  text-align: center;
+  color: #00838f;
 }
 </style>

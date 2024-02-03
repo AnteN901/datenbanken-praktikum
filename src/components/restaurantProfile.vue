@@ -588,7 +588,7 @@ const validateRadius = () => {
       <button @click="toggleDateMode()" class="accept-btn">Add/Delete Opening Hours</button>
       <h1>Weekday (0-Sunday | 6-Saturday)</h1>
       <select class="day_selector" v-model="day">
-        <option value="0">Sunday</option>
+        <option value="7">Sunday</option>
         <option value="1">Monday</option>
         <option value="2">Tuesday</option>
         <option value="3">Wednesday</option>
