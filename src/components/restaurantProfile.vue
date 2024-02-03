@@ -3,9 +3,12 @@ import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import { useCustomerStore } from '@/stores/CustomerStore';
 import { useRestaurantStore } from '@/stores/RestaurantStore';
+import { useToast } from 'vue-toastification'; 
 
 const restaurantStore = useRestaurantStore();
 const customerStore = useCustomerStore();
+
+const toast = useToast();
 
 const name = ref('');
 const price = ref(999.999);
@@ -21,6 +24,7 @@ const showDescription = ref(false);
 const insertRadius = ref(false);
 
 const radius = ref(0);
+const deliveryRadius = ref([]);
 const radiusMode = ref(false);
 
 const restaurantOrders = ref([]);
@@ -37,6 +41,7 @@ const day = ref(1);
 onMounted(() => {
   getItemListe();
 getShopDescription();
+getDeliveryRadius();
 });
 
 const getShopDescription = async () => {
@@ -232,7 +237,7 @@ const getId = async () =>
     }
   }
 
-const addItem = async () => {
+  const addItem = async () => {
   const id = await getId();
   try {
     const response = await axios.post('http://localhost:3000/insertItem', {
@@ -240,35 +245,38 @@ const addItem = async () => {
       price: price.value,
       description: description.value,
       image: image.value,
-      category : category.value,
-      restaurantId : id,
+      category: category.value,
+      restaurantId: id,
     });
-    if(response.data)
-    {
+    if (response.data) {
       restaurantStore.getRestaurantItems(id);
+      toast.success('Item added successfully'); // Display a success toast
     }
   } catch (error) {
-      console.log(error);
+    console.log(error);
+    toast.error('Failed to add item'); // Display an error toast
   }
-  }
+}
 
-  const removeItem = async (itemId) => {
+const removeItem = async (itemId) => {
   const restaurantId = await getId();
-  console.log('R_id: ',restaurantId, 'itemId:', itemId.value);
+  console.log('R_id: ', restaurantId, 'itemId:', itemId.value);
   try {
     const response = await axios.post('http://localhost:3000/deleteItem', {
-      restaurantId : restaurantId,
-      itemId : itemId,
+      restaurantId: restaurantId,
+      itemId: itemId,
     });
-    if(response.data)
-    {
+    if (response.data) {
       restaurantStore.getRestaurantItems(restaurantId);
+      toast.success('Item removed successfully'); // Display a success toast
     }
-    
+
   } catch (error) {
-      console.log(error);
+    console.log(error);
+    toast.error('Failed to remove item'); // Display an error toast
   }
-  }
+}
+
 
   const getItemListe = async () =>{
     const restaurantId = await getId();
@@ -281,105 +289,113 @@ const toggleUpdate = async () => {
   update.value = !update.value
 }
 
-const updateItem = async (itemId, rId, name, description, price, image, category) =>
-{
-  //console.log("ItemId "+itemId+"rId "+rId+"name"+name+"description"+description+"price"+price+"image"+image+"category"+category);
-  console.log("updateItem:"+itemId);
+const updateItem = async (itemId, rId, name, description, price, image, category) => {
+  console.log("updateItem:" + itemId);
   try {
     const response = await axios.post('http://localhost:3000/updateItem', {
-      itemId : itemId,
-      restaurantId : rId,
-      name : name,
-      description : description,
-      price : price,
-      image : image,
-      category : category,
+      itemId: itemId,
+      restaurantId: rId,
+      name: name,
+      description: description,
+      price: price,
+      image: image,
+      category: category,
     });
-    if(response.success)
-    {
-      restaurantStore.getRestaurantItems(restaurantId);
+    if (response.data.success) {
+      restaurantStore.getRestaurantItems(rId);
+      toast.success('Item updated successfully'); // Display a success toast
+    } else {
+      toast.error('Failed to update item'); // Display an error toast
     }
-    
   } catch (error) {
-      console.log("Test: "+error);
+    toast.error('Failed to update item'); // Display an error toast
   }
 }
+
 
 //--------------BIS HIER--------------------
 //-------AB HIER LIEFERRADIUS
 const addRadius = async (radius) => {
   const id = await getId();
   try {
-    const response = await axios.post('http://localhost:3000/insertRadius', {
-      restaurantId : id,
-      radius : radius
-    });
-    if(response.data)
-    {
-      console.log("addRadius succes");
-    }
+    await axios.post('http://localhost:3000/insertRadius', { restaurantId: id, radius: radius });
+    toast.success('Radius added successfully');
+    await getDeliveryRadius(); // Fetch updated radius list
   } catch (error) {
-      console.log(error);
+    console.error(error);
+    toast.error('Error adding radius');
   }
-  }
+};
 
-  const deleteRadius = async (radius) => {
+const deleteRadius = async (radius) => {
   const id = await getId();
   try {
-    const response = await axios.post('http://localhost:3000/deleteRadius', {
-      restaurantId : id,
-      radius : radius
-    });
-    if(response.data)
-    {
-      console.log("delete Radius succes");
-    }
+    await axios.post('http://localhost:3000/deleteRadius', { restaurantId: id, radius: radius });
+    toast.success('Radius deleted successfully');
+    await getDeliveryRadius(); // Fetch updated radius list
   } catch (error) {
-      console.log(error);
+    console.error(error);
+    toast.error('Error deleting radius');
   }
-  }
+};
 
+const getDeliveryRadius = async () => {
+  const id = await getId();
+  try {
+    const response = await axios.get(`http://localhost:3000/getDeliveryRadius?restaurantId=${id}`);
+    deliveryRadius.value = response.data.radius;
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 //-------------BIS HIER---------------------
 //------------HOURS-------------------------
-const addHours = async (day,openingH,openingM,endH,endM) => {
+const addHours = async (day, openingH, openingM, endH, endM) => {
+  console.log("day"+ day + "openingH"+ openingH + "openingM"+ openingM + "endH"+ endH + "endM"+ endM)
   const id = await getId();
-  
-  const opening =(openingH < 10 ? '0' : '') + openingH + ':' + (openingM < 10 ? '0' : '') + openingM;
+  const opening = (openingH < 10 ? '0' : '') + openingH + ':' + (openingM < 10 ? '0' : '') + openingM;
   const end = (endH < 10 ? '0' : '') + endH + ':' + (endM < 10 ? '0' : '') + endM;
-  console.log(opening, end)
+  console.log(opening, end);
 
   try {
     const response = await axios.post('http://localhost:3000/insertHours', {
-      restaurantId : id,
-      day : day,
-      opening : opening,
-      end : end,
+      restaurantId: id,
+      day: day,
+      opening: opening,
+      end: end,
     });
-    if(response.data)
-    {
-      console.log("add hours succes");
+    if (response.data) {
+      console.log("add hours success");
+      // Show a success toast
+      toast.success('Hours added successfully');
     }
   } catch (error) {
-      console.log(error);
+    console.log(error);
+    // Show an error toast
+    toast.error('Error adding hours');
   }
-  }
+}
 
-  const deleteHours = async (day) => {
+const deleteHours = async (day) => {
   const id = await getId();
   try {
+    console.log("day"+ day)
     const response = await axios.post('http://localhost:3000/deleteHours', {
-      restaurantId : id,
-      day : day
+      restaurantId: id,
+      day: day,
     });
-    if(response.data)
-    {
-      console.log("delete hour succes");
+    if (response.data) {
+      console.log("delete hour success");
+      // Show a success toast
+      toast.success('Hours deleted successfully');
     }
   } catch (error) {
-      console.log(error);
+    console.log(error);
+    // Show an error toast
+    toast.error('Error deleting hours');
   }
-  }
+}
 
 //-----------BIS HIER-----------------------
 
@@ -412,9 +428,9 @@ const validateRadius = () => {
     <ul class="nav-list">
        <li><button @click="toggleDescription">Change Description</button></li>
        <li><button @click="toggleHistory">History</button></li>
-       <li><button @click="toggleInsertItem">Insert Item</button></li>
        <li><button @click="toggleInsertDate">Add Opening/Closing Time</button></li>
        <li><button @click="toggleInsertRadius">Add Radius</button></li>
+       <li><button @click="toggleInsertItem">Insert Item</button></li>
        <li><button @click="toggleDeleteItem">Delete/Update Item</button></li>
     </ul>
 </nav>
@@ -548,6 +564,7 @@ const validateRadius = () => {
     </div>
   </div>
 </div>
+<<<<<<< HEAD
 
   <div v-show="insertRadius" class="radius-section">
   <h1>Adjust the delivery radius</h1>
@@ -556,26 +573,50 @@ const validateRadius = () => {
     <div class="radius-input-group">
       <label for="radius">Radius:</label>
       <input type="text" id="radius" v-model="radius" class="radius-input" @input="validateRadius">
+=======
+<div v-show="insertRadius" class="delivery-radius-section">
+  <h1>Adjust the Delivery Radius</h1>
+  <div class="delivery-radius-controls">
+    <button @click="toggleRadiusMode()" class="delivery-radius-toggle-btn">Toggle Mode</button>
+    <div class="delivery-radius-input-group">
+      <label for="delivery-radius">Postal Code:</label>
+      <div class="delivery-radius-input-wrapper">
+        <input type="text" id="delivery-radius" v-model="radius" class="delivery-radius-input" @input="validateRadius">
+      </div>
+>>>>>>> 257fc6c022a3f644b2a1765c5c08004eed7a741e
     </div>
-    <button @click="radiusMode ? deleteRadius(radius) : addRadius(radius)" class="radius-action-btn">
-      {{ radiusMode ? 'Delete Radius' : 'Add Radius' }}
+    <button @click="radiusMode ? deleteRadius(radius) : addRadius(radius)" class="delivery-radius-action-btn">
+      {{ radiusMode ? 'Remove from Radius' : 'Add to Radius' }}
     </button>
   </div>
+  <div class="delivery-radius-table">
+    <h1>Current Delivery Radius</h1>
+    <ul>
+      <li v-for="code in deliveryRadius" :key="code">{{ code }}</li>
+    </ul>
+  </div>
 </div>
-
   <div v-show="insertHours">
   <button @click="toggleDateMode()" class="accept-btn">Add/Delete Opening Hours</button>
   <h1>Weekday (0-Sunday | 6-Saturday)</h1>
-  <input type="number" min="0" max="6" step="1" v-model="day">
+  <select class="day_selector" v-model="day">
+      <option value="0">Sunday</option>
+      <option value="1">Monday</option>
+      <option value="2">Tuesday</option>
+      <option value="3">Wednesday</option>
+      <option value="4">Thursday</option>
+      <option value="5">Friday</option>
+      <option value="6">Saturday</option>
+    </select>
   <p v-if="!dateMode">
     Opening Time:
-    <input type="number" min="0" max="23" step="1" v-model="openingH"> Hours
-    <input type="number" min="0" max="59" step="1" v-model="openingM"> Minutes
+    <input class="time_adjustments" type="number" min="0" max="23" step="1" v-model="openingH"> Hours
+    <input class="time_adjustments" type="number" min="0" max="59" step="1" v-model="openingM"> Minutes
   </p>
   <p v-if="!dateMode">
     Closing Time:
-    <input type="number" min="0" max="23" step="1" v-model="endH"> Hours
-    <input type="number" min="0" max="59" step="1" v-model="endM"> Minutes
+    <input class="time_adjustments" type="number" min="0" max="23" step="1" v-model="endH"> Hours
+    <input class="time_adjustments" type="number" min="0" max="59" step="1" v-model="endM"> Minutes
   </p>
   <button @click="addHours(day,openingH,openingM,endH,endM)" class="submit-button" v-if="!dateMode">Add Hours</button>
   <button @click="deleteHours(day)" class="decline-btn" v-else>Delete Hours</button>
@@ -752,48 +793,107 @@ button:hover {
   margin: 5px 0;
 }
 
-/* Hover effects for interactive elements */
-.ui-buttons button:hover, .submit-button:hover, .accept-btn:hover, .decline-btn:hover {
-  opacity: 0.9;
+
+.time_adjustments {
+  width: 50px; /* Adjust the width as needed */
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 5px;
 }
 
-.radius-section {
+/* Style for the day selector */
+.day_selector {
+  padding: 10px; /* Add some padding for better visual appearance */
+  font-size: 16px; /* Adjust the font size as needed */
+  border: 1px solid #ccc; /* Add a border */
+  border-radius: 5px; /* Add rounded corners */
+  background-color: #fff; /* Background color for the selector */
+  width: 200px; /* Set a specific width for the selector */
+  cursor: pointer; /* Change cursor on hover */
+  outline: none; /* Remove the default focus outline */
+}
+
+/* Style for the dropdown arrow */
+.day_selector::after {
+  content: '\25BC'; /* Unicode down arrow character */
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+}
+
+/* Style for the dropdown options */
+.day_selector option {
+  font-size: 16px; /* Adjust the font size of options */
+  padding: 10px; /* Add padding to options */
+  background-color: #fff; /* Background color for options */
+  color: #333; /* Text color for options */
+}
+
+/* Style for the selected option */
+.day_selector option:checked {
+  background-color: #5262a3; /* Background color for the selected option */
+  color: #fff; /* Text color for the selected option */
+}
+
+
+.delivery-radius-section {
   padding: 20px;
-  background-color: #f5f5f5;
+  border: 1px solid #ccc;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  background-color: #f9f9f9;
+  margin-bottom: 20px; /* Ensures spacing between this section and others */
 }
 
-.radius-controls {
-  margin-top: 15px;
+.delivery-radius-controls, .delivery-radius-table {
+  margin-top: 20px;
 }
 
-.radius-toggle-btn, .radius-action-btn {
-  margin: 10px;
-  padding: 10px 15px;
+.delivery-radius-input-group {
+  text-align: center; /* Center the label */
+  margin-bottom: 5px;
+}
+
+.delivery-radius-input-wrapper {
+  display: flex;
+  justify-content: center; /* Center the input field horizontally */
+}
+
+.delivery-radius-input {
+  width: 50%; /* Adjust the width as needed */
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+
+.delivery-radius-toggle-btn, .delivery-radius-action-btn {
+  padding: 10px 20px;
   border: none;
   border-radius: 4px;
   background-color: #007bff;
   color: white;
   cursor: pointer;
+  margin-right: 10px;
 }
 
-.radius-toggle-btn:hover, .radius-action-btn:hover {
+.delivery-radius-toggle-btn:hover, .delivery-radius-action-btn:hover {
   background-color: #0056b3;
 }
 
-.radius-input-group {
-  margin: 15px 0;
+.delivery-radius-table ul {
+  list-style-type: none;
+  padding: 0;
 }
 
-.radius-input {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 200px; /* Adjust as needed */
-  text-align: center;
+.delivery-radius-table li {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
 }
 
+.delivery-radius-table li:last-child {
+  border-bottom: none;
+}
 
 </style>

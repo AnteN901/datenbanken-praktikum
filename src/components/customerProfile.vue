@@ -89,7 +89,7 @@ const groupedOrders = computed(() => {
   });
   const groupedOrdersArray = Array.from(groupedOrdersMap.values());
 
-  const orderedStatus = ["In Zubereitung", "in Bearbeitung","abgeschlossen", "storniert"]; // bei Kunden sind die fast fertigen bestellungen weiter oben
+  const orderedStatus = ["in Zubereitung", "in Bearbeitung","abgeschlossen", "storniert"]; // bei Kunden sind die fast fertigen bestellungen weiter oben
   groupedOrdersArray.sort((a, b) => {
   const indexA = orderedStatus.indexOf(a.status);
   const indexB = orderedStatus.indexOf(b.status);
