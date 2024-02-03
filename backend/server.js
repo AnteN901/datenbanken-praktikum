@@ -6,6 +6,7 @@ const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
 
+const multer = require("multer");
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -42,6 +43,22 @@ io.on('connection', socket => {
   });
 });
 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, "images/uploadedImages"));
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
+const upload = multer({ storage: storage });
+
+app.post("/api/upload", upload.single("file"), (req, res) => {
+  // Handle the uploaded file, save it to disk or process as needed
+  const file = req.file;
+  // Example response
+  res.json({ message: "File uploaded successfully", filename: file.originalname });
+});
 
 
 

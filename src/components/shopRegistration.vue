@@ -8,7 +8,7 @@
         <input type="text" id="userName" v-model="userName" class="form-input" required />
       </div>
 
-      <!--Name inpur-->
+      <!--Name Input-->
       <div class="form-group">
         <label for="name" class="form-label">Restaurant-Name:</label>
         <input type="text" id="name" v-model="name" class="form-input" required />
@@ -45,6 +45,10 @@
         <label for="description" class="form-label">Restaurant Description:</label>
         <input type="text" id="description" v-model="description" class="form-input" required />
       </div>
+
+      <div class="file-upload" @drop.prevent="handleDrop" @dragover.prevent="handleDragOver">
+      <p>Upload a picture! Drag and Drop</p>
+      </div>
       <!-- Submit Button -->
       <div class="form-group">
         <button type="submit" class="submit-button">Create Account</button>
@@ -61,8 +65,8 @@ const name = ref('');
 const userName = ref('');
 const password = ref('');
 const description = ref('');
-const image = 'backend/images/itemImages/restaurantC.jpg'; // ref('') vorerst druch konstante ersetzt.
 
+let ImagePath = "/images/uploadedImages/"; //filename of upload restaurant image
 const address = reactive({
 postcode: '',
 street: '',
@@ -76,7 +80,7 @@ const createAccount = async () => {
     const response = await axios.post('http://localhost:3000/create-shop', {
       userName: userName.value,
       name: name.value,
-      image: image,
+      image: ImagePath,
       address: {
         postcode: address.postcode,
         street: address.street,
@@ -94,6 +98,31 @@ const createAccount = async () => {
     console.error('Error:', error);
   }
 };
+
+const handleDrop = function(event) {
+  const files = event.dataTransfer.files;
+  uploadFiles(files);
+};
+
+const handleDragOver = function(event) {
+  event.dataTransfer.dropEffect = "copy";
+};
+
+
+const uploadFiles = function(files) {
+  const formData = new FormData();
+  formData.append("file", files[0]);
+  ImagePath = ImagePath + files[0].name;
+  console.log(ImagePath)
+  axios.post("http://localhost:3000/api/upload", formData)
+    .then(response => {
+      console.log(response.data);
+    })
+    .catch(error => {
+      console.error("Error uploading file:", error);
+    });
+};
+
 </script>
 
 <style scoped>
@@ -151,5 +180,11 @@ font-size: 16px;
 ‚
 .submit-button:hover {
   background-color: #d27700;
+}
+.file-upload {
+  border: 2px dashed #ccc;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
 }
 </style>
