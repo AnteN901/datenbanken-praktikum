@@ -6,7 +6,8 @@
         <img :src="getImageUrl(selectedRestaurant.image)" alt="Restaurant Image" class="restaurant-image">
         <div class="restaurant-details">
           <h2>{{ selectedRestaurant.name }}</h2>
-          <p class="address"><strong>Address:</strong> {{ selectedRestaurant.address }}</p>
+          <p class="address"><strong>Address:</strong> {{ formattedAddress }}</p>
+
           <p>{{ selectedRestaurant.description }}</p>
         </div>
       </div>
@@ -91,6 +92,23 @@ onMounted(() => {
 const fetchItems = async (restaurantId) => {
   await restaurantStore.getRestaurantItems(restaurantId);
 };
+const parsedAddress = computed(() => {
+  try {
+    return JSON.parse(selectedRestaurant.address);
+  } catch (e) {
+    console.error('Failed to parse address:', e);
+    return {}; // Return an empty object in case of parsing failure
+  }
+});
+
+const formattedAddress = computed(() => {
+  const address = parsedAddress.value;
+  if (!address) return '';
+
+  const { street, houseNumber, postcode, city } = address;
+  return `${street} ${houseNumber}, ${postcode} ${city}`;
+});
+
 </script>
 
 
