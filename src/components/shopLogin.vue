@@ -75,18 +75,26 @@
 .user-form {
   display: flex;
   flex-direction: column;
-  max-width: 400px;
-  width: calc(100% - 40px);
-  margin: 0 auto;
-  padding: 20px;
+  max-width: 400px; /* Adjust if necessary to fit your design */
+  width: calc(100% - 40px); /* Ensures some space on the sides within the container */
+  margin: auto; /* Centers the form in its parent container */
+  padding: 20px; /* Increases padding to prevent children from touching the edges */
   background: white;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
+.form-input {
+  max-width: 95%; /* Prevents the input from filling the entire form width */
+  margin: auto; /* Centers the input within the form */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
 .form-group {
   margin-bottom: 15px;
-  margin-right: 20px; /* Adjusts the right-side space */
 }
 
 .form-label {
@@ -105,10 +113,11 @@
 }
 
 .submit-button {
-  padding: 10px 15px;
+  padding: 12px 15px; /* Ensure padding is the same for both forms */
+  width: 100%; /* Make the button take the full width of the form */
   border: none;
   border-radius: 4px;
-  background-color: #fe9c00; /* Match the button color to registration form */
+  background-color: #fe9c00;
   color: white;
   font-size: 16px;
   cursor: pointer;
@@ -116,6 +125,7 @@
 }
 
 .submit-button:hover {
-  background-color: #d27700; /* Match the hover color to registration form */
+  background-color: #d27700;
 }
+
 </style>

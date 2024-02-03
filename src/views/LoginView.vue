@@ -24,9 +24,10 @@ customerStore.customerAccount = !ref(isChecked);
 </script>
 <style scoped>
 .checkbox-container {
-  background-color: #f5f5f5; /* Match the form's background color */
-  padding: 20px;
+  background-color: #f5f5f5;
+  padding: 20px 20px 0px 20px; /* Add padding to top, right, and left, but not bottom */
   text-align: center;
-  margin-bottom: 0%;
+  margin-bottom: 0; /* Ensure there's no bottom margin */
 }
+
 </style>
