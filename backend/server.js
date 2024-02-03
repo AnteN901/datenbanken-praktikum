@@ -410,7 +410,6 @@ app.post('/insertItem', (req, res) => {
   console.log('insert Request received');
 
   const {name, price, description, image, category, restaurantId } = req.body;
-  const imagePath = '/images/restaurantImages/' + image;
 
   const insertQuery = `
     INSERT INTO items (restaurant_id, name, description, price, image, category)
@@ -419,7 +418,7 @@ app.post('/insertItem', (req, res) => {
 
   db.run(
     insertQuery,
-    [restaurantId, name, description, price, imagePath, category],
+    [restaurantId, name, description, price, image, category],
     (err) => {
       if (err) {
         console.error(err.message);
@@ -458,7 +457,6 @@ app.post('/updateItem', (req, res) => {
   console.log('update Request received');
 
   const {itemId, restaurantId, name, price, description, image, category} = req.body;
-  const imagePath = '/images/restaurantImages/' + image;
   console.log("ItemId "+itemId+"\nrId "+restaurantId+"\nname"+name+"\ndescription"+description+"\nprice"+price+"\nimage"+image+"\ncategory"+category);
   const updateQuery = `
     UPDATE items SET restaurant_id = ?, name = ?, description = ?, price = ?, image = ?, category = ?
@@ -467,7 +465,7 @@ app.post('/updateItem', (req, res) => {
 
   db.run(
     updateQuery,
-    [restaurantId, name, description, price, imagePath, category, itemId],
+    [restaurantId, name, description, price, image, category, itemId],
     (err) => {
       if (err) {
         console.error(err.message);
