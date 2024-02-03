@@ -431,6 +431,11 @@ const handleDragOver = function(event) {
   event.dataTransfer.dropEffect = "copy";
 };
 
+const handleFileSelect = (event) => {
+  const files = event.target.files;
+  uploadFiles(files);
+};
+
 
 const uploadFiles = function(files) {
   const formData = new FormData();
@@ -650,20 +655,20 @@ const updateShopProfilePicture = async () =>{
     </div>
 
     <div v-show="showDescription" class="description-section">
-      <h1>Change your restaurant's description and picture!</h1>
-      <textarea id="description" v-model="shopdescription" class="description-input"></textarea>
-      <button @click="updateShopDescription(shopdescription)" class="submit-button">Submit</button>
-      <div class = "description-input">
-          <div v-if="!isPPUploaded" class="file-upload" @drop.prevent="handleDrop" @dragover.prevent="handleDragOver">
-          <p>Drag and drop files here</p>
-          </div>
-          <div v-if="isPPUploaded" class="file-uploaded">
-          <p>File uploaded successfully!</p>
-          <p>Filename: {{ fileName }}</p>
-        </div>
-        <button class="submit-button" @click="updateShopProfilePicture">Update Profile-Picture!</button>
-      </div>
+    <h1>Change your restaurant's description and picture!</h1>
+    <textarea id="description" v-model="shopdescription" class="description-input" placeholder="Enter your restaurant's description here"></textarea>
+    <div v-if="!isPPUploaded" class="file-upload" @drop.prevent="handleDrop" @dragover.prevent="handleDragOver">
+      <p>Drag and drop your profile picture here, or click to select a file</p>
+      <input type="file" @change="handleFileSelect" style="display: none;">
     </div>
+    <div v-if="isPPUploaded" class="file-uploaded">
+      <p>File uploaded successfully!</p>
+      <p>Filename: {{ PPfileName }}</p>
+    </div>
+    <button @click="updateShopDescription(shopdescription)" class="submit-button">Submit Description</button>
+    <button v-if="isPPUploaded" @click="updateShopProfilePicture" class="submit-button">Update Profile Picture</button>
+  </div>
+
   </div>
 </template>
 
@@ -934,27 +939,58 @@ button:hover {
   border-bottom: none;
 }
 
-.file-upload {
+.description-section {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  width: 50%;
-  border: 2px dashed #ccc;
   padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 600px;
+  margin: 0 auto;
+  gap: 15px; /* Space between elements */
+}
+
+.description-input, .file-upload, .file-uploaded {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
   text-align: center;
+}
+
+.file-upload {
   cursor: pointer;
+  border: 2px dashed #ccc;
+  background: #fafafa;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.file-upload:hover {
+  background: #f0f0f0;
+  border-color: #bbb;
 }
 
 .file-uploaded {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 50%;
-  background-color: #e0f7fa;
+  background: #e0f7fa;
+  color: #007c02;
   border: 2px solid #007c02;
-  padding: 20px;
-  text-align: center;
-  color: #00838f;
+}
+
+.submit-button {
+  cursor: pointer;
+  padding: 10px 15px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+  background-color: #45a049;
 }
 
 </style>
