@@ -1,14 +1,17 @@
 <script setup>
 import { useCustomerStore } from '@/stores/CustomerStore';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, onUnmounted } from 'vue';
 import { useRestaurantStore } from './stores/RestaurantStore';
 import cartOverlay from '@/components/cartOverlay.vue';
 import { useOrderStore } from './stores/OrderStore';
+import io from 'socket.io-client';
+import { useToast } from 'vue-toastification'; 
 
+const socket = io('http://localhost:3000');
 const customerStore = useCustomerStore();
 const orderStore = useOrderStore();
 const restaurantStore = useRestaurantStore();
-
+const toast = useToast();
 
 const logOut = () => {
   customerStore.userName = '';
@@ -24,6 +27,18 @@ const openCart = () =>{
 }
 onMounted(() => {
   restaurantStore.getRestaurants();
+  socket.on('new-order', (data) => {
+    console.log(data.message);  // "New order received!"
+    if (customerStore.getIsLoggedIn && !customerStore.getIsCustomerAccount) {
+      toast.success('New order received!');
+      
+    }
+  });
+});
+
+onUnmounted(() => {
+  socket.off('new-order');
+  socket.close();
 });
 
 watch(

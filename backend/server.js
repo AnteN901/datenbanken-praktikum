@@ -3,22 +3,43 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
+const http = require('http');
+const { Server } = require('socket.io');
+
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:8080', // Adjust this to match your frontend's origin
+    methods: ['GET', 'POST']
+  }
+});
 
-
-app.use(cors({
-  origin: 'http://localhost:8080' // Replace with your frontend's origin
-}));
+app.use(cors({ origin: 'http://localhost:8080' }));
 app.use(bodyParser.json());
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
-const db = new sqlite3.Database('./LSDatabase.db', (err) => {
+const db = new sqlite3.Database('./LSDatabase.db', err => {
   if (err) {
     console.error(err.message);
   } else {
     console.log('Connected to the existing SQLite database');
-    
   }
+});
+
+io.on('connection', socket => {
+  console.log('A user connected');
+
+  // You can define socket event listeners here
+  // For example, listening for a custom event
+  socket.on('some-event', (data) => {
+    console.log(data);
+    // Handle the event
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
 });
 
 
@@ -459,6 +480,7 @@ app.post('/createOrder', (req, res) => {
             return res.status(500).json({ error: 'Failed to commit transaction' });
           } else {
             res.json({ success: true, message: 'Order created successfully', orderId: orderId });
+            io.emit('new-order', { orderId: orderId, message: 'New order received!' });
           }
         });
       });
@@ -602,6 +624,7 @@ process.on('SIGINT', () => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
