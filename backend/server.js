@@ -265,7 +265,7 @@ app.get('/getRestaurantsFiltered', (req, res) => {
     WHERE postal_code = ${postal_code}
   ) AS f_table ON f_table.id = r.id;
 `;
-console.log(query);
+console.log(day);
 db.all(query,(err, rows) => {
     if (err) {
       console.error(err.message);
