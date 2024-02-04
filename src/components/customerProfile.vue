@@ -41,6 +41,9 @@
             </div>
           </div>
         </div>
+        <div class="order-total">
+              <strong>Total Price:</strong> {{ calculateTotalPrice(groupedOrder) }} €
+        </div>
       </div>
     </div>
 
@@ -53,22 +56,25 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, computed } from 'vue';
 import axios from 'axios';
 import { useCustomerStore } from '@/stores/CustomerStore';
 
 const customerStore = useCustomerStore();
-
 const showBestellHistorieBtn = ref(true);
 const showBackButton = ref(false);
 const visibleBestHist = ref(false);
 const visibleWarenkorb = ref(false);
 const customerOrders = ref([]);
 
+// Define calculateTotalPrice at the top level of the <script setup> block
+const calculateTotalPrice = (order) => {
+  return order.items.reduce((sum, item) => sum + (item.quantity * item.item_price), 0).toFixed(2);
+};
+
 const groupedOrders = computed(() => {
   const groupedOrdersMap = new Map();
-  
-  // Group orders by order_id
+
   customerOrders.value.forEach(order => {
     if (!groupedOrdersMap.has(order.order_id)) {
       groupedOrdersMap.set(order.order_id, {
@@ -78,23 +84,22 @@ const groupedOrders = computed(() => {
         items: [],
       });
     }
-    // Add item to the corresponding order
     groupedOrdersMap.get(order.order_id).items.push({
       id: order.item_id,
       quantity: order.quantity,
       note: order.note,
-      item_name : order.item_name,
-      // Add more item details as needed
+      item_name: order.item_name,
+      item_price: order.item_price,
     });
   });
+
   const groupedOrdersArray = Array.from(groupedOrdersMap.values());
 
-  const orderedStatus = ["in Zubereitung", "in Bearbeitung","abgeschlossen", "storniert"]; // bei Kunden sind die fast fertigen bestellungen weiter oben
+  const orderedStatus = ["In Zubereitung", "in Bearbeitung", "abgeschlossen", "storniert"];
   groupedOrdersArray.sort((a, b) => {
-  const indexA = orderedStatus.indexOf(a.status);
-  const indexB = orderedStatus.indexOf(b.status);
-
-  if (indexA <= 1 || indexB <= 1) {
+    const indexA = orderedStatus.indexOf(a.status);
+    const indexB = orderedStatus.indexOf(b.status);
+    if (indexA <= 1 || indexB <= 1) {
       return indexA - indexB;
     } else {
       return 2; // Treat all other statuses as equal
@@ -105,12 +110,11 @@ const groupedOrders = computed(() => {
 });
 
 const bestellHisorieClicked = async () => {
-  console.log('Bestellübersicht button clicked');
   showBestellHistorieBtn.value = false;
   visibleBestHist.value = true;
-  showBackButton.value = true; 
+  showBackButton.value = true;
 
-  const username = customerStore.userName; 
+  const username = customerStore.userName;
   try {
     const response = await axios.get(`http://localhost:3000/getCustomerOrders/${username}`);
     customerOrders.value = response.data;
@@ -120,29 +124,22 @@ const bestellHisorieClicked = async () => {
 };
 
 const backClicked = () => {
-  console.log('Back button clicked');
   showBestellHistorieBtn.value = true;
-  showBackButton.value = false; 
+  showBackButton.value = false;
   visibleBestHist.value = false;
 };
 
 const getStatusClass = (status) => {
   switch (status) {
-    case "in Bearbeitung":
-      return "in-bearbeitung";
-    case "in Zubereitung":
-      return "in-zubereitung";
-    case "abgeschlossen":
-      return "abgeschlossen";
-    case "storniert":
-      return "storniert";
-    default:
-      return "";
+    case "in Bearbeitung": return "in-bearbeitung";
+    case "In Zubereitung": return "in-zubereitung";
+    case "abgeschlossen": return "abgeschlossen";
+    case "storniert": return "storniert";
+    default: return "";
   }
 };
-
-
 </script>
+
 
 <style scoped>
 .order-history {

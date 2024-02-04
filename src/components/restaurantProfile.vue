@@ -153,6 +153,7 @@ const groupedOrders = computed(() => {
       quantity: order.quantity,
       note: order.note,
       item_name : order.item_name,
+      item_price : order.item_price
     });
   });
 
@@ -184,6 +185,13 @@ const updateShopDescription = async (description) => {
   } catch (error) {
     console.error('Error changing description', error);
   }
+};
+
+const calculateTotalPrice = (order) => {
+  console.log(order);
+  return order.items.reduce((sum, item) => {
+    return sum + (item.quantity * item.item_price); // Assuming 'price' is a property of each item
+  }, 0).toFixed(2); // Converts the total to a string with 2 decimal places
 };
 
 const acceptOrder = async (groupedOrder) => {
@@ -544,6 +552,9 @@ const updateShopProfilePicture = async () =>{
                 <p class="item-note">Note: {{ item.note }}</p>
               </div>
             </div>
+            <div class="order-total">
+                  <strong>Total Price:</strong> {{ calculateTotalPrice(groupedOrder) }} €
+              </div>
           </div>
           <div v-if="groupedOrder.status === 'in Bearbeitung'" class="buttons-container">
             <button @click="acceptOrder(groupedOrder)" class="accept-btn">Annehmen</button>
