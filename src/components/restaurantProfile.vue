@@ -76,7 +76,8 @@ const toggleDeleteItem = () =>{
   showHistory.value = false;
   insertRadius.value = false;
   insertHours.value = false;
-showDescription.value = false;
+  showDescription.value = false;
+  isFPUploaded.value = false;
   }
 
 const toggleInsertItem = () =>{
@@ -85,7 +86,8 @@ const toggleInsertItem = () =>{
   deleteItem.value = false;
   insertRadius.value = false;
   insertHours.value = false;
-showDescription.value = false;
+  showDescription.value = false;
+  isFPUploaded.value = false;
 }
 
 const toggleDescription = () => {
@@ -95,6 +97,7 @@ const toggleDescription = () => {
   insertRadius.value = false;
   insertHours.value = false;
   insertItem.value = false;
+  isPPUploaded.value = false;
 }
 
 const toggleHistory = async () => {
