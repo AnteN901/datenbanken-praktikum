@@ -18,9 +18,19 @@ const image = ref('');
 const category = ref('');
 
 const insertItem = ref(false);
+const selectedItem = ref({
+  id: null,
+  name: '',
+  price: 0,
+  description: '',
+  image: '',
+  category: ''
+});
 const deleteItem = ref(false);
+
 const showHistory = ref(false)
 const showDescription = ref(false);
+
 const insertRadius = ref(false);
 
 const radius = ref(0);
@@ -36,6 +46,7 @@ const openingM = ref(0);
 const endH = ref(0);
 const endM = ref(0);
 const day = ref(1);
+
 const isPPUploaded = ref(false);
 const isFPUploaded = ref(false);
 
@@ -44,6 +55,8 @@ onMounted(() => {
 getShopDescription();
 getDeliveryRadius();
 });
+
+
 
 const getShopDescription = async () => {
   const username = customerStore.userName;
@@ -298,7 +311,7 @@ const toggleUpdate = async () => {
   update.value = !update.value
 }
 
-const updateItem = async (itemId, rId, name, description, price, category) => {
+const updateItem = async (itemId, rId, name, description, price, category, image) => {
   console.log("updateItem:" + itemId);
   try {
     const response = await axios.post('http://localhost:3000/updateItem', {
@@ -307,7 +320,7 @@ const updateItem = async (itemId, rId, name, description, price, category) => {
       name: name,
       description: description,
       price: price,
-      image: FPImagePath,
+      image: image,
       category: category,
     });
     if (response.data.success) {
@@ -603,33 +616,44 @@ const updateShopProfilePicture = async () =>{
       <h1>Delete or Edit Items</h1>
       <button @click="toggleUpdate()" class="accept-btn">Delete/Update Item</button>
       <div v-show="update">
-        <div v-for="item in restaurantStore.items" :key="item.id" class="item-card">
-          <div class="item-card-bg">
+        <label for="itemSelector">Select an item:</label>
+        <select v-model="selectedItem" id="itemSelector">
+          <option v-for="item in restaurantStore.items" :key="item.id" :value="item" class="item-card">
+            {{ item.name }}
+          </option>
+        </select>
+          <div class="item-card-bg" v-if="selectedItem!=null">
             <div class="item-card-content">
-              <h3>{{ item.name }}</h3>
+              <h3>{{ selectedItem.name }}</h3>
               <div class="item-actions">
-                <button @click="removeItem(item.id)" class="decline-btn">Delete Item</button>
+                <button @click="removeItem(selectedItem.id)" class="decline-btn">Delete Item</button>
               </div>
             </div>
-          </div>
         </div>
       </div>
+      
+      
       <div v-show="!update">
-        <div v-for="item in restaurantStore.items" :key="item.id" class="item-card">
-          <div class="item-card-bg">
+        <label for="itemSelector">Select an item:</label>
+        <select v-model="selectedItem" id="itemSelector">
+          <option v-for="item in restaurantStore.items" :key="item.id" :value="item" class="item-card">
+            {{ item.name }}
+          </option>
+        </select>
+         <div class="item-card-bg" v-if="selectedItem !==null">
             <div class="item-card-content">
-              <p>ID: {{ item.id }}</p>
+              <p>ID: {{ selectedItem.id}}</p>
               <div class="form-group">
                 <label for="itemName" class="form-label">Item Name:</label>
-                <input type="text" id="itemName" v-model="item.name" class="form-input" />
+                <input type="text" id="itemName" v-model="selectedItem.name" class="form-input" />
               </div>
               <div class="form-group">
                 <label for="itemDescription" class="form-label">Item Description:</label>
-                <input type="text" id="itemDescription" v-model="item.description" class="form-input" />
+                <input type="text" id="itemDescription" v-model="selectedItem.description" class="form-input" />
               </div>
               <div class="form-group">
                 <label for="itemPrice" class="form-label">Item Price:</label>
-                <input type="number" id="itemPrice" v-model="item.price" class="form-input" />
+                <input type="number" id="itemPrice" v-model="selectedItem.price" class="form-input" />
               </div>
               <div class="form-group">
                 <label for="itemImage" class="form-label">Item Image:</label>
@@ -643,19 +667,19 @@ const updateShopProfilePicture = async () =>{
               </div>
               <div class="form-group">
                 <label for="itemCategory" class="form-label">Item Category:</label>
-                <select id="itemCategory" v-model="item.category" class="form-input">
+                <select id="itemCategory" v-model="selectedItem.category" class="form-input">
                   <option value="Vorspeise">Vorspeise</option>
                   <option value="Nachspeise">Nachspeise</option>
                   <option value="Hauptspeise">Hauptspeise</option>
                   <option value="Getränk">Getränk</option>
                 </select>
               </div>
-              <button @click="updateItem(item.id, item.restaurant_id, item.name, item.description, item.price, item.category)" class="submit-button">Update Item</button>
+              <button @click="updateItem(selectedItem.id, selectedItem.restaurant_id, selectedItem.name, selectedItem.description, selectedItem.price, selectedItem.category, FPfileName)" class="submit-button">Update Item</button>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    
 
     <div v-show="insertRadius" class="delivery-radius-section">
       <h1>Adjust the Delivery Radius</h1>

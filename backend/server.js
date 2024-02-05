@@ -456,8 +456,9 @@ app.post('/deleteItem', (req,res)=> {
 app.post('/updateItem', (req, res) => {
   console.log('update Request received');
 
-  const {itemId, restaurantId, name, price, description, image, category} = req.body;
-  console.log("ItemId "+itemId+"\nrId "+restaurantId+"\nname"+name+"\ndescription"+description+"\nprice"+price+"\nimage"+image+"\ncategory"+category);
+  const {itemId, restaurantId, name, description, price, image, category} = req.body;
+  //console.log("ItemId "+itemId+"\nrId "+restaurantId+"\nname"+name+"\ndescription"+description+"\nprice"+price+"\nimage"+image+"\ncategory"+category);
+  const imagePath = "/images/uploadedImages/"+image;
   const updateQuery = `
     UPDATE items SET restaurant_id = ?, name = ?, description = ?, price = ?, image = ?, category = ?
     WHERE id = ?
@@ -465,7 +466,7 @@ app.post('/updateItem', (req, res) => {
 
   db.run(
     updateQuery,
-    [restaurantId, name, description, price, image, category, itemId],
+    [restaurantId, name, description, price, imagePath, category, itemId],
     (err) => {
       if (err) {
         console.error(err.message);
