@@ -1,6 +1,6 @@
 <template>
     <div class="item-card">
-      <img :src="item.image" alt="Item Image" class="item-image" />
+      <img :src="getImageUrl(item.image)" alt="Item Image" class="item-image" />
       <div class="item-details">
         <h3 class="item-title">{{ item.name }}</h3>
         <p class="item-description">{{ item.description }}</p>
@@ -46,6 +46,10 @@
     if (quantity.value > 0) {
       quantity.value--;
     }
+  };
+    const getImageUrl = (imagePath) => {
+    const baseUrl = 'http://localhost:3000';
+    return `${baseUrl}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
   };
 
   </script>

@@ -619,7 +619,7 @@ const updateShopProfilePicture = async () =>{
       <h1>Delete or Edit Items</h1>
       <button @click="toggleUpdate()" class="accept-btn">Delete/Update Item</button>
       <div v-show="update">
-        <label for="itemSelector">Select an item:</label>
+        <p for="itemSelector">Select an item:</p>
         <select v-model="selectedItem" id="itemSelector">
           <option v-for="item in restaurantStore.items" :key="item.id" :value="item" class="item-card">
             {{ item.name }}
@@ -637,7 +637,7 @@ const updateShopProfilePicture = async () =>{
       
       
       <div v-show="!update">
-        <label for="itemSelector">Select an item:</label>
+        <p for="itemSelector">Select an item:</p>
         <select v-model="selectedItem" id="itemSelector">
           <option v-for="item in restaurantStore.items" :key="item.id" :value="item" class="item-card">
             {{ item.name }}
