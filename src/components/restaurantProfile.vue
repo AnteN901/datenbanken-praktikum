@@ -109,7 +109,7 @@ const toggleHistory = async () => {
   deleteItem.value =false;
   insertRadius.value = false;
   insertHours.value = false;
-showDescription.value = false;
+  showDescription.value = false;
 };
 
 const toggleInsertRadius = () =>{
@@ -118,7 +118,7 @@ const toggleInsertRadius = () =>{
   deleteItem.value = false;
   insertItem.value = false;
   insertHours.value = false;
-showDescription.value = false;
+  showDescription.value = false;
 }
 
 const toggleRadiusMode = () =>{
@@ -543,7 +543,7 @@ const updateShopProfilePicture = async () =>{
         <!-- Price Input -->
         <div class="form-group">
           <label for="price" class="form-label">Preis:</label>
-          <input type="number" id="price" v-model="price" class="form-input" required />
+          <input type="number" id="price" v-model="price" class="form-input" step="0.01" required />
         </div>
 
         <!-- Description Input -->
@@ -708,9 +708,8 @@ const updateShopProfilePicture = async () =>{
 
     <div v-show="insertHours" class="hours-section">
       <button @click="toggleDateMode()" class="accept-btn">Add/Delete Opening Hours</button>
-      <h1>Weekday (0-Sunday | 6-Saturday)</h1>
       <select class="day_selector" v-model="day">
-        <option value="7">Sunday</option>
+        <option value="0">Sunday</option>
         <option value="1">Monday</option>
         <option value="2">Tuesday</option>
         <option value="3">Wednesday</option>

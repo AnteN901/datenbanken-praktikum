@@ -459,6 +459,7 @@ app.post('/updateItem', (req, res) => {
   const {itemId, restaurantId, name, description, price, image, category} = req.body;
   //console.log("ItemId "+itemId+"\nrId "+restaurantId+"\nname"+name+"\ndescription"+description+"\nprice"+price+"\nimage"+image+"\ncategory"+category);
   const imagePath = "/images/uploadedImages/"+image;
+  console.log(imagePath);
   const updateQuery = `
     UPDATE items SET restaurant_id = ?, name = ?, description = ?, price = ?, image = ?, category = ?
     WHERE id = ?
