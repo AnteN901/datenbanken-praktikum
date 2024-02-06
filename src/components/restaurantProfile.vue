@@ -455,25 +455,28 @@ const validateRadius = () => {
 
 const handleDrop = function(event) {
   const files = event.dataTransfer.files;
-  uploadFiles(files);
+  filterAndUploadImageFiles(files);
 };
 
 const handleDragOver = function(event) {
   event.dataTransfer.dropEffect = "copy";
 };
 
-const handleFileSelect = (event) => {
-  const files = event.target.files;
-  uploadFiles(files);
+const filterAndUploadImageFiles = function(files) {
+  const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+  if (imageFiles.length === 0) {
+    console.error("No image files selected.");
+    return;
+  }
+  uploadFiles(imageFiles);
 };
-
 
 const uploadFiles = function(files) {
   const formData = new FormData();
   formData.append("file", files[0]);
   PictureFileName = files[0].name;
   PictureImagePath = "/images/uploadedImages/" + PictureFileName;
-  console.log(PictureImagePath)
+  console.log("Image PAth: ", PictureImagePath)
   axios.post("http://localhost:3000/api/upload", formData)
     .then(response => {
       console.log(response.data);
@@ -715,8 +718,8 @@ const updateShopProfilePicture = async () =>{
     <h1>Change your restaurant's description and picture!</h1>
     <textarea id="description" v-model="shopdescription" class="description-input" placeholder="Enter your restaurant's description here"></textarea>
     <div v-if="!isPictureUploaded" class="file-upload" @drop.prevent="handleDrop" @dragover.prevent="handleDragOver">
-      <p>Drag and drop your profile picture here, or click to select a file</p>
-      <input type="file" @change="handleFileSelect" style="display: none;">
+      <p>Drag and drop your profile picture here</p>
+      <input type="file" @change="handleDrop" style="display: none;">
     </div>
     <div v-if="isPictureUploaded" class="file-uploaded">
       <p>File uploaded successfully!</p>
