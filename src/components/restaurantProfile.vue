@@ -47,8 +47,10 @@ const endH = ref(0);
 const endM = ref(0);
 const day = ref(1);
 
-const isPPUploaded = ref(false);
-const isFPUploaded = ref(false);
+const isPictureUploaded = ref(false);
+
+let PictureFileName = "";
+let PictureImagePath = ""; //filename of upload restaurant image/ food image
 
 onMounted(() => {
   getItemListe();
@@ -77,7 +79,9 @@ const toggleDeleteItem = () =>{
   insertRadius.value = false;
   insertHours.value = false;
   showDescription.value = false;
-  isFPUploaded.value = false;
+  isPictureUploaded.value =false;
+  PictureFileName = "";
+  PictureImagePath = "";
   }
 
 const toggleInsertItem = () =>{
@@ -87,7 +91,9 @@ const toggleInsertItem = () =>{
   insertRadius.value = false;
   insertHours.value = false;
   showDescription.value = false;
-  isFPUploaded.value = false;
+  isPictureUploaded.value =false;
+  PictureFileName = "";
+  PictureImagePath = "";
 }
 
 const toggleDescription = () => {
@@ -97,7 +103,10 @@ const toggleDescription = () => {
   insertRadius.value = false;
   insertHours.value = false;
   insertItem.value = false;
-  isPPUploaded.value = false;
+  isPictureUploaded.value = false;
+  PictureFileName = "";
+  PictureImagePath = "";
+  
 }
 
 const toggleHistory = async () => {
@@ -268,7 +277,7 @@ const getId = async () =>
       name: name.value,
       price: price.value,
       description: description.value,
-      image: FPImagePath,
+      image: PictureImagePath,
       category: category.value,
       restaurantId: id,
     });
@@ -280,7 +289,7 @@ const getId = async () =>
     console.log(error);
     toast.error('Failed to add item'); // Display an error toast
   }
-  isFPUploaded.value = false;
+  isPictureUploaded.value = false;
 }
 
 const removeItem = async (itemId) => {
@@ -315,7 +324,6 @@ const toggleUpdate = async () => {
 }
 
 const updateItem = async (itemId, rId, name, description, price, category, image) => {
-  console.log("updateItem:" + itemId);
   try {
     const response = await axios.post('http://localhost:3000/updateItem', {
       itemId: itemId,
@@ -335,7 +343,7 @@ const updateItem = async (itemId, rId, name, description, price, category, image
   } catch (error) {
     toast.error('Failed to update item'); // Display an error toast
   }
-  isFPUploaded.value = false;
+  isPictureUploaded.value = false;
 }
 
 
@@ -445,20 +453,10 @@ const validateRadius = () => {
   radius.value = radius.value.replace(/[^0-9]/g, '').slice(0, 5);
 };
 
-let PPfileName = "";
-let PPImagePath = ""; //filename of upload restaurant image
-let FPfileName = "";
-let FPImagePath = ""; //filename of upload food image
-
 const handleDrop = function(event) {
   const files = event.dataTransfer.files;
   uploadFiles(files);
 };
-const handleFoodDrop = function(event) {
-  const files = event.dataTransfer.files;
-  uploadFoodFiles(files);
-};
-
 
 const handleDragOver = function(event) {
   event.dataTransfer.dropEffect = "copy";
@@ -473,9 +471,9 @@ const handleFileSelect = (event) => {
 const uploadFiles = function(files) {
   const formData = new FormData();
   formData.append("file", files[0]);
-  PPfileName = files[0].name;
-  PPImagePath = "/images/uploadedImages/" + PPfileName;
-  console.log(PPImagePath)
+  PictureFileName = files[0].name;
+  PictureImagePath = "/images/uploadedImages/" + PictureFileName;
+  console.log(PictureImagePath)
   axios.post("http://localhost:3000/api/upload", formData)
     .then(response => {
       console.log(response.data);
@@ -483,36 +481,20 @@ const uploadFiles = function(files) {
     .catch(error => {
       console.error("Error uploading file:", error);
     });
-  isPPUploaded.value = true;
-};
-
-const uploadFoodFiles = function(files) {
-  const formData = new FormData();
-  formData.append("file", files[0]);
-  FPfileName = files[0].name;
-  FPImagePath = "/images/uploadedImages/" + FPfileName;
-  console.log(FPImagePath)
-  axios.post("http://localhost:3000/api/upload", formData)
-    .then(response => {
-      console.log(response.data);
-    })
-    .catch(error => {
-      console.error("Error uploading file:", error);
-    });
-  isFPUploaded.value = true;
+  isPictureUploaded.value = true;
 };
 
 const updateShopProfilePicture = async () =>{
   const username = customerStore.userName;
-  const image = PPImagePath;
-  console.log(username, PPImagePath);
+  const image = PictureImagePath;
+  console.log(username, PictureImagePath);
   try {
     await axios.post('http://localhost:3000/set-path-to-pp', { image, username });
     console.log('Shop picture updated successfully');
   } catch (error) {
     console.error('Error updating picture:', error);
   }
-  isPPUploaded.value = false;
+  isPictureUploaded.value = false;
 };
 
 
@@ -555,12 +537,12 @@ const updateShopProfilePicture = async () =>{
         <!-- Image Input -->
         <div class="form-group">
           <label for="image" class="form-label">Bild:</label>
-          <div v-if="!isFPUploaded" class="file-upload" @drop.prevent="handleFoodDrop" @dragover.prevent="handleDragOver">
+          <div v-if="!isPictureUploaded" class="file-upload" @drop.prevent="handleDrop" @dragover.prevent="handleDragOver">
           <p>Upload Item Picture!</p>
           </div>
-          <div v-if="isFPUploaded" class="file-uploaded">
+          <div v-if="isPictureUploaded" class="file-uploaded">
           <p>File uploaded successfully!</p>
-          <p>Filename: {{ FPfileName }}</p>
+          <p>Filename: {{ PictureFileName }}</p>
         </div>
         </div>
 
@@ -660,12 +642,12 @@ const updateShopProfilePicture = async () =>{
               </div>
               <div class="form-group">
                 <label for="itemImage" class="form-label">Item Image:</label>
-                <div v-if="!isFPUploaded" class="file-upload" @drop.prevent="handleFoodDrop" @dragover.prevent="handleDragOver">
+                <div v-if="!isPictureUploaded" class="file-upload" @drop.prevent="handleDrop" @dragover.prevent="handleDragOver">
                   <p>Upload Item Picture!</p>
                 </div>
-                <div v-if="isFPUploaded" class="file-uploaded">
+                <div v-if="isPictureUploaded" class="file-uploaded">
                   <p>File uploaded successfully!</p>
-                  <p>Filename: {{ FPfileName }}</p>
+                  <p>Filename: {{ PictureFileName }}</p>
                 </div>
               </div>
               <div class="form-group">
@@ -677,7 +659,7 @@ const updateShopProfilePicture = async () =>{
                   <option value="Getränk">Getränk</option>
                 </select>
               </div>
-              <button @click="updateItem(selectedItem.id, selectedItem.restaurant_id, selectedItem.name, selectedItem.description, selectedItem.price, selectedItem.category, FPfileName)" class="submit-button">Update Item</button>
+              <button @click="updateItem(selectedItem.id, selectedItem.restaurant_id, selectedItem.name, selectedItem.description, selectedItem.price, selectedItem.category, PictureImagePath)" class="submit-button">Update Item</button>
             </div>
           </div>
         </div>
@@ -732,16 +714,16 @@ const updateShopProfilePicture = async () =>{
     <div v-show="showDescription" class="description-section">
     <h1>Change your restaurant's description and picture!</h1>
     <textarea id="description" v-model="shopdescription" class="description-input" placeholder="Enter your restaurant's description here"></textarea>
-    <div v-if="!isPPUploaded" class="file-upload" @drop.prevent="handleDrop" @dragover.prevent="handleDragOver">
+    <div v-if="!isPictureUploaded" class="file-upload" @drop.prevent="handleDrop" @dragover.prevent="handleDragOver">
       <p>Drag and drop your profile picture here, or click to select a file</p>
       <input type="file" @change="handleFileSelect" style="display: none;">
     </div>
-    <div v-if="isPPUploaded" class="file-uploaded">
+    <div v-if="isPictureUploaded" class="file-uploaded">
       <p>File uploaded successfully!</p>
-      <p>Filename: {{ PPfileName }}</p>
+      <p>Filename: {{ PictureFileName }}</p>
     </div>
     <button @click="updateShopDescription(shopdescription)" class="submit-button">Submit Description</button>
-    <button v-if="isPPUploaded" @click="updateShopProfilePicture" class="submit-button">Update Profile Picture</button>
+    <button v-if="isPictureUploaded" @click="updateShopProfilePicture" class="submit-button">Update Profile Picture</button>
   </div>
 
   </div>
