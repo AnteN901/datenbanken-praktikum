@@ -376,6 +376,7 @@ app.get('/getRestaurantOrders/:username', (req, res) => {
       console.error(err.message);
       res.status(500).json({ error: 'Internal server error' });
     } else {
+      
       res.json(rows);
     }
   });

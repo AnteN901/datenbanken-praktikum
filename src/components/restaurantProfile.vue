@@ -152,6 +152,7 @@ const getOrders = async() =>{
   try {
     const response = await axios.get(`http://localhost:3000/getRestaurantOrders/${username}`);
     restaurantOrders.value = response.data;
+    console.log(restaurantOrders.value);
   } catch (error) {
     console.error('Error fetching Restaurant orders:', error);
   }
