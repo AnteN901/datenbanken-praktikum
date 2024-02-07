@@ -324,6 +324,10 @@ const toggleUpdate = async () => {
 }
 
 const updateItem = async (itemId, rId, name, description, price, category, image) => {
+  console.log(PictureImagePath);
+  const updateImage = PictureImagePath === '' ? selectedItem.value.image : PictureImagePath;
+  
+
   try {
     const response = await axios.post('http://localhost:3000/updateItem', {
       itemId: itemId,
@@ -331,7 +335,7 @@ const updateItem = async (itemId, rId, name, description, price, category, image
       name: name,
       description: description,
       price: price,
-      image: image,
+      image: updateImage,
       category: category,
     });
     if (response.data.success) {
@@ -671,7 +675,7 @@ const updateShopProfilePicture = async () =>{
           </select>
         </div>
 
-        <button @click="updateItem(selectedItem.id, selectedItem.restaurant_id, selectedItem.name, selectedItem.description, selectedItem.price, selectedItem.category, PictureImagePath)" class="action-button">Update Item</button>
+        <button @click="updateItem(selectedItem.id, selectedItem.restaurant_id, selectedItem.name, selectedItem.description, selectedItem.price, selectedItem.category, selectedItem.image)" class="action-button">Update Item</button>
       </div>
     </div>
   </div>
