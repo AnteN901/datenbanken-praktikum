@@ -56,15 +56,19 @@ watch(
 
 </script>
 
-
 <template>
   <div>
     <nav>
-      <router-link to="/">Home</router-link> 
-      <router-link v-if="!customerStore.getIsLoggedIn" to="/register">Register</router-link> 
-      <router-link v-if="!customerStore.getIsLoggedIn" to="/login">Login</router-link>
-      <button v-else class="logOut" @click="logOut">Log Out</button> 
-      <div class="profile-pic-container">
+      <div class="nav-links">
+        <router-link to="/">Home</router-link>
+        <router-link v-if="!customerStore.getIsLoggedIn" to="/register">Register</router-link>
+        <router-link v-if="!customerStore.getIsLoggedIn" to="/login">Login</router-link>
+        <button v-else class="logOut" @click="logOut">Log Out</button>
+      </div>
+      <div class="logo-container">
+        <div class="logo"></div> <!-- Logo as a background image -->
+      </div>
+      <div class="profile-cart">
         <router-link to="/profile">
           <img src="./assets/user_light.png" alt="Profile" class="profile-pic"/>
         </router-link>
@@ -77,6 +81,8 @@ watch(
     <router-view />
   </div>
 </template>
+
+
 
 
 <style>
@@ -95,50 +101,77 @@ body, html, #app {
 
 nav {
   background-color: #703bd9d9; /* Orange background */
-  box-sizing: border-box;
-  padding-bottom: 70px;
   width: 100%; /* Full width */
-  height: 80px;
-  padding: 25px 50px;/* Adjust padding as needed */
-  position:static; 
-  text-align: center; /* Aligns the nav items to the left */
-  display:flex;
+  display: flex;
+  justify-content: space-between; /* Space between for left and right sections */
   align-items: center; /* Align items vertically */
+  padding: 15px 50px; /* Adjusted padding */
+  flex-wrap: wrap; /* Allows items to wrap to prevent overflow */
+  box-sizing: border-box; /* Ensures padding is included in width calculation */
 }
 
-nav a {
+.nav-links, .profile-cart {
+  display: flex;
+  align-items: center;
+}
+
+.nav-links a, .logOut {
   font-weight: bold;
   color: white; /* White text */
-  margin-right: 10px; /* Adds spacing between links */
   text-decoration: none; /* Removes underline from links */
-}
-
-nav a.router-link-exact-active,
-nav a:hover {
-  color: #b691ffd9; /* Lighter orange for active/hover state */
+  margin-right: 20px; /* Adds spacing between links */
+  padding: 10px 0; /* Adds vertical padding for better clickability */
 }
 
 .logOut {
-  background: none;
-  border: none;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
+  background: transparent; /* Ensures logOut button has no background */
+  border: none; /* Ensures logOut button has no border */
+  cursor: pointer; /* Changes cursor to pointer on hover */
 }
 
 .logOut:hover {
-  color: #b691ffd9; /* Lighter orange for hover state */
+  color: #b691ffd9; /* Lighter shade for hover state */
+}
+
+.logo-container {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 65px; /* Adjust height as needed */
+}
+
+.logo {
+  background-image: url('./assets/Lieferspatz_Head.png'); /* Path to your logo image */
+  background-position: center; /* Center the background image */
+  background-repeat: no-repeat;
+  background-size: contain; /* Resize the background to fit the container */
+  width: auto; /* Width auto for intrinsic aspect ratio */
+  height: 100%; /* Set height to 100% of the container */
 }
 
 .profile-pic {
-  height: 20px; /* Adjust to the desired size */
-  width: 20px; /* Adjust to the desired size */
+  height: 30px; /* Adjusted for better visibility */
+  width: 30px; /* Adjusted for better visibility */
   object-fit: cover; /* Ensures the image covers the area without stretching */
   margin-left: 10px; /* Adds some space between the picture and other items */
 }
 
-.profile-pic-container {
-  margin-left: auto; /* Pushes the picture to the right */
-}
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .nav-links, .profile-cart {
+    flex-direction: column; /* Stack the links vertically on smaller screens */
+    align-items: center; /* Center align the items */
+  }
 
+  .nav-links a, .logOut, .profile-pic {
+    margin: 5px 0; /* Reduce margin for smaller screens */
+  }
+
+  .logo-container {
+    height: 50px; /* Reduce the logo container height on smaller screens */
+  }
+}
 </style>
+
+
