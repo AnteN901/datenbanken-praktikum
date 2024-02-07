@@ -337,6 +337,7 @@ const updateItem = async (itemId, rId, name, description, price, category, image
     if (response.data.success) {
       restaurantStore.getRestaurantItems(rId);
       toast.success('Item updated successfully'); // Display a success toast
+      selectedItem.value.id = null;
     } else {
       toast.error('Failed to update item'); // Display an error toast
     }
@@ -628,7 +629,7 @@ const updateShopProfilePicture = async () =>{
             {{ item.name }}
           </option>
         </select>
-         <div class="item-card-bg" v-if="selectedItem !==null">
+         <div class="item-card-bg" v-if="selectedItem.id !==null">
             <div class="item-card-content">
               <p>ID: {{ selectedItem.id}}</p>
               <div class="form-group">
