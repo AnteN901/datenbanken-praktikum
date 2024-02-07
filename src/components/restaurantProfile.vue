@@ -601,74 +601,82 @@ const updateShopProfilePicture = async () =>{
       </div>
     </div>
 
-    <div v-show="deleteItem" class="delete-item-section">
-      <h1>Delete or Edit Items</h1>
-      <button @click="toggleUpdate()" class="accept-btn">Delete/Update Item</button>
-      <div v-show="update">
-        <p for="itemSelector">Select an item:</p>
-        <select v-model="selectedItem" id="itemSelector">
-          <option v-for="item in restaurantStore.items" :key="item.id" :value="item" class="item-card">
-            {{ item.name }}
-          </option>
-        </select>
-          <div class="item-card-bg" v-if="selectedItem!=null">
-            <div class="item-card-content">
-              <h3>{{ selectedItem.name }}</h3>
-              <div class="item-actions">
-                <button @click="removeItem(selectedItem.id)" class="decline-btn">Delete Item</button>
-              </div>
-            </div>
+    <div class="delete-item-section">
+  <h1>Delete or Edit Items</h1>
+  <button @click="toggleUpdate()" class="accept-btn">Switch to {{ update ? 'Update' : 'Delete' }} Item</button>
+
+  <!-- View when 'update' is false -->
+  <div v-show="!update">
+    <p>Select an item to delete:</p>
+    <select v-model="selectedItem" id="itemSelectorDelete">
+      <option v-for="item in restaurantStore.items" :key="item.id" :value="item">
+        {{ item.name }}
+      </option>
+    </select>
+    <div v-if="selectedItem">
+      <p>ID: {{ selectedItem.id }}</p>
+      <button @click="removeItem(selectedItem.id)" class="decline-btn">Delete Item</button>
+    </div>
+  </div>
+
+  <!-- View when 'update' is true -->
+  <div v-show="update">
+    <p>Select an item to update:</p>
+    <select v-model="selectedItem" id="itemSelectorUpdate">
+      <option v-for="item in restaurantStore.items" :key="item.id" :value="item">
+        {{ item.name }}
+      </option>
+    </select>
+    <div class="item-details" v-if="selectedItem.id !== null">
+      <div class="details-content">
+        <p>ID: {{ selectedItem.id }}</p>
+
+        <!-- Input fields for updating item details -->
+        <div class="input-group">
+          <label for="itemNameUpdate" class="input-label">Item Name:</label>
+          <input type="text" id="itemNameUpdate" v-model="selectedItem.name" class="input-field" />
         </div>
-      </div>
-      
-      
-      <div v-show="!update">
-        <p for="itemSelector">Select an item:</p>
-        <select v-model="selectedItem" id="itemSelector">
-          <option v-for="item in restaurantStore.items" :key="item.id" :value="item" class="item-card">
-            {{ item.name }}
-          </option>
-        </select>
-         <div class="item-card-bg" v-if="selectedItem.id !==null">
-            <div class="item-card-content">
-              <p>ID: {{ selectedItem.id}}</p>
-              <div class="form-group">
-                <label for="itemName" class="form-label">Item Name:</label>
-                <input type="text" id="itemName" v-model="selectedItem.name" class="form-input" />
-              </div>
-              <div class="form-group">
-                <label for="itemDescription" class="form-label">Item Description:</label>
-                <input type="text" id="itemDescription" v-model="selectedItem.description" class="form-input" />
-              </div>
-              <div class="form-group">
-                <label for="itemPrice" class="form-label">Item Price:</label>
-                <input type="number" id="itemPrice" v-model="selectedItem.price" class="form-input" />
-              </div>
-              <div class="form-group">
-                <label for="itemImage" class="form-label">Item Image:</label>
-                <div v-if="!isPictureUploaded" class="file-upload" @drop.prevent="handleDrop" @dragover.prevent="handleDragOver">
-                  <p>Upload Item Picture!</p>
-                </div>
-                <div v-if="isPictureUploaded" class="file-uploaded">
-                  <p>File uploaded successfully!</p>
-                  <p>Filename: {{ PictureFileName }}</p>
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="itemCategory" class="form-label">Item Category:</label>
-                <select id="itemCategory" v-model="selectedItem.category" class="form-input">
-                  <option value="Vorspeise">Vorspeise</option>
-                  <option value="Nachspeise">Nachspeise</option>
-                  <option value="Hauptspeise">Hauptspeise</option>
-                  <option value="Getränk">Getränk</option>
-                </select>
-              </div>
-              <button @click="updateItem(selectedItem.id, selectedItem.restaurant_id, selectedItem.name, selectedItem.description, selectedItem.price, selectedItem.category, PictureImagePath)" class="submit-button">Update Item</button>
-            </div>
+
+        <div class="input-group">
+          <label for="itemDescriptionUpdate" class="input-label">Item Description:</label>
+          <input type="text" id="itemDescriptionUpdate" v-model="selectedItem.description" class="input-field" />
+        </div>
+
+        <div class="input-group">
+          <label for="itemPriceUpdate" class="input-label">Item Price:</label>
+          <input type="number" id="itemPriceUpdate" v-model="selectedItem.price" class="input-field" />
+        </div>
+
+        <!-- Picture Upload -->
+        <div class="input-group">
+          <label for="itemImageUpdate" class="input-label">Item Image:</label>
+          <div v-if="!isPictureUploaded" class="upload-area" @drop.prevent="handleDrop" @dragover.prevent="handleDragOver">
+            <p>Upload Item Picture!</p>
+            <input type="file" @change="handlePictureUpload" class="file-input" />
+          </div>
+          <div v-if="isPictureUploaded" class="upload-success">
+            <p>File uploaded successfully!</p>
+            <p>Filename: {{ PictureFileName }}</p>
           </div>
         </div>
+
+        <div class="input-group">
+          <label for="itemCategoryUpdate" class="input-label">Item Category:</label>
+          <select id="itemCategoryUpdate" v-model="selectedItem.category" class="input-field">
+            <option value="Vorspeise">Vorspeise</option>
+            <option value="Nachspeise">Nachspeise</option>
+            <option value="Hauptspeise">Hauptspeise</option>
+            <option value="Getränk">Getränk</option>
+          </select>
+        </div>
+
+        <button @click="updateItem(selectedItem.id, selectedItem.restaurant_id, selectedItem.name, selectedItem.description, selectedItem.price, selectedItem.category, PictureImagePath)" class="action-button">Update Item</button>
       </div>
-    
+    </div>
+  </div>
+</div>
+
+
 
     <div v-show="insertRadius" class="delivery-radius-section">
       <h1>Adjust the Delivery Radius</h1>
@@ -1054,4 +1062,82 @@ button:hover {
   background-color: #45a049;
 }
 
+.option-card {
+  padding: 8px;
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+}
+
+.item-details {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.details-content {
+  max-width: 500px;
+  margin: auto;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-label {
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
+  font-weight: bold;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.upload-area {
+  border: 2px dashed #ccc;
+  padding: 15px;
+  text-align: center;
+  background-color: #fafafa;
+  cursor: pointer;
+}
+
+.upload-success {
+  padding: 15px;
+  background-color: #e8f5e9;
+  border: 2px solid #4CAF50;
+  text-align: center;
+}
+
+.action-button {
+  display: block;
+  width: 100%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.action-button:hover {
+  background-color: #45a049;
+}
+
+/* Add responsive styling if necessary */
+@media (max-width: 768px) {
+  .details-content {
+    padding: 15px;
+  }
+}
 </style>
+
+
