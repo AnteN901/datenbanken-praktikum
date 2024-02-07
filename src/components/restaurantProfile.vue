@@ -162,7 +162,7 @@ const getOrders = async() =>{
 const groupedOrders = computed(() => {
   const groupedOrdersMap = new Map();
 
-  // Group orders by order_id
+  // Group orders by order_id and include customer information
   restaurantOrders.value.forEach(order => {
     if (!groupedOrdersMap.has(order.order_id)) {
       groupedOrdersMap.set(order.order_id, {
@@ -170,6 +170,11 @@ const groupedOrders = computed(() => {
         status: order.status,
         created_at: order.created_at,
         items: [],
+        customer: { // Add customer information here
+          first_name: order.first_name,
+          last_name: order.last_name,
+          address: order.address
+        }
       });
     }
     // Add item to the corresponding order
@@ -177,29 +182,40 @@ const groupedOrders = computed(() => {
       id: order.item_id,
       quantity: order.quantity,
       note: order.note,
-      item_name : order.item_name,
-      item_price : order.item_price
+      item_name: order.item_name,
+      item_price: order.item_price
     });
   });
 
   // Convert map values to array
   const groupedOrdersArray = Array.from(groupedOrdersMap.values());
 
-  // wir wird gezaubert um "neue bestellungen"->"zubereitungen"-> "abgeschlossen ODER storniert"
-  const orderedStatus = ["in Bearbeitung", "In Zubereitung","abgeschlossen", "storniert"];
-  groupedOrdersArray.sort((a, b) => {
-  const indexA = orderedStatus.indexOf(a.status);
-  const indexB = orderedStatus.indexOf(b.status);
+  // Define order status categories
+  const orderedStatus = ["Neue Bestellungen", "Zubereitungen", "Abgeschlossen", "Storniert"];
 
-  if (indexA <= 1 || indexB <= 1) {
+  // Sort orders based on status categories
+  groupedOrdersArray.sort((a, b) => {
+    const indexA = orderedStatus.indexOf(a.status);
+    const indexB = orderedStatus.indexOf(b.status);
+
+    // If both statuses are in the categories, sort based on the predefined order
+    if (indexA > -1 && indexB > -1) {
       return indexA - indexB;
+    } 
+    // If only one status is in the categories, prioritize it
+    else if (indexA > -1) {
+      return -1;
+    } else if (indexB > -1) {
+      return 1;
     } else {
-      return 2; // Treat all other statuses as equal
+      return 0; // Treat other statuses as equal
     }
   });
 
-  return groupedOrdersArray;
+  return groupedOrdersArray; // Return the sorted array
 });
+
+
 const updateShopDescription = async (description) => {
   const username = customerStore.userName;
 
@@ -242,6 +258,7 @@ const rejectOrder = async (groupedOrder) => {
     console.error('Error rejecting order:', error);
   }
 };
+
 
 const completeOrder = async (groupedOrder) => {
   const orderId = groupedOrder.order_id;
@@ -572,38 +589,47 @@ const updateShopProfilePicture = async () =>{
       </form>
     </div>
 
-    <div v-show="showHistory" class="order-history">
-      <h1>Bestellübersicht</h1>
-      <div class="order-list-container">
-        <div class="order-card" v-for="groupedOrder in groupedOrders" :key="groupedOrder.order_id">
-          <div class="order-header">
-            <div class="status-indicator" :class="getStatusClass(groupedOrder.status)">
-              {{ groupedOrder.status }}
-            </div>
-            <p class="order-date">{{ groupedOrder.created_at }}</p>
-          </div>
-          <div class="item-grid">
-            <div v-for="item in groupedOrder.items" :key="item.id" class="order-item">
-              <div class="item-box">
-                <p class="item-name">{{ item.item_name }}</p>
-                <p class="item-quantity">Quantity: {{ item.quantity }}</p>
-                <p class="item-note">Note: {{ item.note }}</p>
-              </div>
-            </div>
-            <div class="order-total">
-                  <strong>Total Price:</strong> {{ calculateTotalPrice(groupedOrder) }} €
-              </div>
-          </div>
-          <div v-if="groupedOrder.status === 'in Bearbeitung'" class="buttons-container">
-            <button @click="acceptOrder(groupedOrder)" class="accept-btn">Annehmen</button>
-            <button @click="rejectOrder(groupedOrder)" class="decline-btn">Ablehnen</button>
-          </div>
-          <div v-if="groupedOrder.status === 'In Zubereitung'" class="buttons-container">
-            <button @click="completeOrder(groupedOrder)" class="submit-button">Abschließen</button>
+<div v-show="showHistory" class="order-history">
+  <h1>Bestellübersicht</h1>
+  <div class="order-list-container">
+    <div class="order-card" v-for="groupedOrder in groupedOrders" :key="groupedOrder.order_id">
+      <div class="order-header">
+        <div class="status-indicator" :class="getStatusClass(groupedOrder.status)">
+          {{ groupedOrder.status }}
+        </div>
+        <p class="order-date">{{ groupedOrder.created_at }}</p>
+      </div>
+      <div class="item-grid">
+        <div v-for="item in groupedOrder.items" :key="item.id" class="order-item">
+          <div class="item-box">
+            <p class="item-name">{{ item.item_name }}</p>
+            <p class="item-quantity">Quantity: {{ item.quantity }}</p>
+            <p class="item-note">Note: {{ item.note }}</p>
           </div>
         </div>
+        <div class="order-total">
+          <strong>Total Price:</strong> {{ calculateTotalPrice(groupedOrder) }} €
+        </div>
+      </div>
+      <div v-if="groupedOrder.status === 'in Bearbeitung'" class="buttons-container">
+        <button @click="acceptOrder(groupedOrder)" class="accept-btn">Annehmen</button>
+        <button @click="rejectOrder(groupedOrder)" class="decline-btn">Ablehnen</button>
+      </div>
+      <div v-if="groupedOrder.status === 'In Zubereitung'" class="buttons-container">
+        <button @click="completeOrder(groupedOrder)" class="submit-button">Abschließen</button>
+      </div>
+
+      <!-- Adjusted Display customer information -->
+      <div v-if="groupedOrder.customer" class="customer-information">
+        <h2>Customer Information</h2>
+        <p><strong>Name:</strong> {{ groupedOrder.customer.first_name }} {{ groupedOrder.customer.last_name }}</p>
+        <p><strong>Address:</strong> {{ groupedOrder.customer.address }}</p>
       </div>
     </div>
+  </div>
+</div>
+
+
 
     <div class="delete-item-section" v-if="deleteItem">
   <h1>Delete or Edit Items</h1>

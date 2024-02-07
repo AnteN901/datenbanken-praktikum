@@ -345,25 +345,30 @@ app.get('/getRestaurantOrders/:username', (req, res) => {
     return res.status(400).json({ error: 'Username is required' });
   }
   const query = `
-    SELECT
-      o.id AS order_id,
-      o.created_at,
-      o.status,
-      od.quantity,
-      od.note,
-      i.id AS item_id,
-      i.name AS item_name,
-      i.price AS item_price
-    FROM
-      orders o
-    JOIN
-      order_details od ON o.id = od.order_id
-    JOIN
-      items i ON od.item_id = i.id
-    WHERE
-      o.restaurants_id = (SELECT id FROM restaurants WHERE username = ?)
-    ORDER BY
-      o.created_at DESC;
+  SELECT
+    o.id AS order_id,
+    o.created_at,
+    o.status,
+    od.quantity,
+    od.note,
+    i.id AS item_id,
+    i.name AS item_name,
+    i.price AS item_price,
+    c.first_name,
+    c.last_name,
+    c.address
+  FROM
+    orders o
+  JOIN
+    order_details od ON o.id = od.order_id
+  JOIN
+    items i ON od.item_id = i.id
+  JOIN
+    customers c ON o.customer_id = c.id
+  WHERE
+    o.restaurants_id = (SELECT id FROM restaurants WHERE username = ?)
+  ORDER BY
+    o.created_at DESC;
 `;
 
   db.all(query, [username], (err, rows) => {
