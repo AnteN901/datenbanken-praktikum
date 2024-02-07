@@ -6,6 +6,7 @@ import cartOverlay from '@/components/cartOverlay.vue';
 import { useOrderStore } from './stores/OrderStore';
 import io from 'socket.io-client';
 import { useToast } from 'vue-toastification'; 
+import logoImage from '@/assets/Lieferspatz_Head.png';
 
 const socket = io('http://localhost:3000');
 const customerStore = useCustomerStore();
@@ -66,7 +67,8 @@ watch(
         <button v-else class="logOut" @click="logOut">Log Out</button>
       </div>
       <div class="logo-container">
-        <div class="logo"></div> <!-- Logo as a background image -->
+        <!-- Use img tag with dynamic src binding for the logo -->
+        <img :src="logoImage" alt="Logo" class="logo">
       </div>
       <div class="profile-cart">
         <router-link to="/profile">
@@ -81,6 +83,7 @@ watch(
     <router-view />
   </div>
 </template>
+
 
 
 
@@ -110,27 +113,40 @@ nav {
   box-sizing: border-box; /* Ensures padding is included in width calculation */
 }
 
-.nav-links, .profile-cart {
-  display: flex;
-  align-items: center;
-}
-
 .nav-links a, .logOut {
-  font-weight: bold;
-  color: white; /* White text */
-  text-decoration: none; /* Removes underline from links */
-  margin-right: 20px; /* Adds spacing between links */
-  padding: 10px 0; /* Adds vertical padding for better clickability */
+  color: white; /* Base color */
+  text-decoration: none; /* Removes underline */
+  padding: 10px 15px; /* Adds some padding around the links for better clickability */
+  margin-right: 10px; /* Adds spacing between the links */
+  border-radius: 5px; /* Optional: rounds the corners */
+  transition: color 0.3s; /* Smooth transition for color change */
 }
 
+/* Hover state for navigation links and the logOut button */
+.nav-links a:hover, .logOut:hover {
+  color: #703bd9; /* Dark purple color on hover */
+  background-color: transparent; /* Ensures no background block appears */
+}
+
+/* Active state for navigation links and the logOut button */
+.nav-links a:active, .logOut:active,
+.router-link-active { /* Styles for Vue Router's active link */
+  color: #b691ffd9; /* Light purple color when active */
+  background-color: transparent; /* Ensures no background block appears */
+}
+
+/* Ensures the logOut button has no background or border by default */
 .logOut {
-  background: transparent; /* Ensures logOut button has no background */
-  border: none; /* Ensures logOut button has no border */
-  cursor: pointer; /* Changes cursor to pointer on hover */
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
-.logOut:hover {
-  color: #b691ffd9; /* Lighter shade for hover state */
+
+/* Ensure the logOut button has the same styles on hover and active states as links */
+.logOut:hover, .logOut:active {
+  color: #b691ffd9; /* Match the hover and active color of the links */
+  background-color: rgba(255, 255, 255, 0.2); /* Match the hover background of the links */
 }
 
 .logo-container {
@@ -142,7 +158,7 @@ nav {
 }
 
 .logo {
-  background-image: url('./assets/Lieferspatz_Head.png'); /* Path to your logo image */
+   /* Path to your logo image */
   background-position: center; /* Center the background image */
   background-repeat: no-repeat;
   background-size: contain; /* Resize the background to fit the container */
