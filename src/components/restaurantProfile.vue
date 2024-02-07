@@ -601,7 +601,7 @@ const updateShopProfilePicture = async () =>{
       </div>
     </div>
 
-    <div class="delete-item-section">
+    <div class="delete-item-section" v-if="deleteItem">
   <h1>Delete or Edit Items</h1>
   <button @click="toggleUpdate()" class="accept-btn">Switch to {{ update ? 'Update' : 'Delete' }} Item</button>
 
@@ -620,6 +620,7 @@ const updateShopProfilePicture = async () =>{
   </div>
 
   <!-- View when 'update' is true -->
+  <div v-show="deleteItem">
   <div v-show="update">
     <p>Select an item to update:</p>
     <select v-model="selectedItem" id="itemSelectorUpdate">
@@ -675,7 +676,7 @@ const updateShopProfilePicture = async () =>{
     </div>
   </div>
 </div>
-
+</div>
 
 
     <div v-show="insertRadius" class="delivery-radius-section">
