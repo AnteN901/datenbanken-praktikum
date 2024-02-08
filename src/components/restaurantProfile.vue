@@ -636,8 +636,8 @@ const updateShopProfilePicture = async () =>{
   <h1>Delete or Edit Items</h1>
   <button @click="toggleUpdate()" class="accept-btn">Switch to {{ update ? 'Update' : 'Delete' }} Item</button>
 
-  <!-- View when 'update' is false -->
-  <div v-show="!update">
+  <!-- View when 'update' is true, weils gedreht ist haha -->
+  <div v-show="update">
     <p>Select an item to delete:</p>
     <select v-model="selectedItem" id="itemSelectorDelete">
       <option v-for="item in restaurantStore.items" :key="item.id" :value="item">
@@ -650,9 +650,9 @@ const updateShopProfilePicture = async () =>{
     </div>
   </div>
 
-  <!-- View when 'update' is true -->
+  <!-- View when 'update' is false, immer wenn update false ist, wird update genutzt -->
   <div v-show="deleteItem">
-  <div v-show="update">
+  <div v-show="!update">
     <p>Select an item to update:</p>
     <select v-model="selectedItem" id="itemSelectorUpdate">
       <option v-for="item in restaurantStore.items" :key="item.id" :value="item">
