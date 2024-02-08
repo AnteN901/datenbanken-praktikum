@@ -215,20 +215,6 @@ app.post('/restaurantLogIn', (req,res) =>{
 
 });
 
-
-app.get('/getRestaurants', (req, res) => { 
-  console.log('Request for Restaurants revieced');
-  const query = 'SELECT * FROM restaurants';
-  db.all(query, (err, rows) => {
-    if (err) {
-      console.error(err.message);
-      res.status(500).json({ error: 'Internal server error' });
-    } else {
-      res.json(rows);
-    }
-  });
-});
-
 app.get('/getRestaurants', (req, res) => { 
   console.log('Request for Restaurants revieced');
   const query = 'SELECT * FROM restaurants';
@@ -487,6 +473,7 @@ app.post('/updateItem', (req, res) => {
 
 
 app.post('/createOrder', (req, res) => {
+  // Step 0: Extract the required data from the request body
   const { customerUserName, restaurantId, items } = req.body;
 
   // Step 1: Retrieve the customer ID using the username
